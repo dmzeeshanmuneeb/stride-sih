@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+pymongo
+python-jose
+passlib
+bcrypt
+folium
+reportlab
+pandas
+numpy
+tensorflow
+h5py
+matplotlib
+requests
+pydantic
+python-multipart
