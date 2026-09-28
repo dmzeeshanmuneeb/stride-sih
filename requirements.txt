@@ -10,7 +10,7 @@ reportlab>=4.1.0
 pandas>=2.2.0,<3.0.0
 numpy>=1.26.0,<2.0.0
 tensorflow-cpu==2.15.0
-keras==2.15.0
+keras==3.0.0
 tf-keras==2.15.0
 h5py>=3.10.0
 matplotlib>=3.8.0
