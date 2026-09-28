@@ -25,7 +25,8 @@ def db_available():
     try:
         get_db().command("ping")
         return True
-    except Exception:
+    except Exception as e:
+        print(f"DATABASE CONNECTION ERROR: {e}")
         return False
 
 # ── Password hashing ───────────────────────────────────────────────────────────
