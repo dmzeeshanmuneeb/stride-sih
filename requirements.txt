@@ -1,6 +1,6 @@
 fastapi==0.136.1
 uvicorn==0.47.0
-pymongo==4.18.2
+pymongo[srv]==4.18.2
 python-dotenv==1.2.2
 python-jose==3.5.0
 passlib==1.7.4
