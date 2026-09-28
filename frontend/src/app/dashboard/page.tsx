@@ -6,7 +6,7 @@ const API = "http://localhost:8000";
 export default function Dashboard() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  
+
   // Input states
   const [inputType, setInputType] = useState<"dataset" | "upload">("dataset");
   const [sampleIdx, setSampleIdx] = useState(0);
@@ -21,7 +21,7 @@ export default function Dashboard() {
   useEffect(() => {
     fetch(`${API}/api/dataset-info`).then(r => r.json()).then(d => {
       if (d.max_idx) setMaxIdx(d.max_idx);
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   const runAnalysis = async () => {
@@ -30,7 +30,7 @@ export default function Dashboard() {
       const fd = new FormData();
       fd.append("lat", "15.50");
       fd.append("lon", "88.20");
-      
+
       if (inputType === "dataset") {
         fd.append("sample_idx", String(sampleIdx));
       } else if (inputType === "upload" && file) {
@@ -43,7 +43,7 @@ export default function Dashboard() {
 
       const res = await fetch(`${API}/api/predict`, { method: "POST", body: fd });
       const result = await res.json();
-      
+
       if (result.error) {
         alert("Error: " + result.error);
         setLoading(false);
@@ -92,16 +92,16 @@ export default function Dashboard() {
 
   return (
     <main style={{ padding: '2rem 5%', backgroundColor: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      
+
       {/* ===== CONTROL PANEL ===== */}
       <div style={{ background: 'white', padding: '1.5rem 2rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
         <div>
           <h2 style={{ color: '#093370', margin: 0, fontSize: '1.5rem' }}>Multi-Stage AI Cyclone Pipeline</h2>
           <p style={{ color: '#64748b', margin: 0, fontSize: '0.85rem' }}>MoES Multi-Spectral Prediction & Trajectory System</p>
         </div>
-        
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginLeft: 'auto', background: '#f1f5f9', padding: '0.5rem', borderRadius: '12px' }}>
-          
+
           <select value={inputType} onChange={e => setInputType(e.target.value as any)} style={{ padding: '8px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white' }}>
             <option value="dataset">Dataset Index</option>
             <option value="upload">Upload .npy Array</option>
@@ -129,7 +129,7 @@ export default function Dashboard() {
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🛰️</div>
             <h2 style={{ color: '#093370', marginBottom: '1rem' }}>Ready for Inference</h2>
             <p style={{ color: '#64748b', lineHeight: 1.6 }}>
-              Select a sample from the historical TCIR dataset or upload real-world satellite multi-spectral `.npy` tensor arrays. 
+              Select a sample from the historical TCIR dataset or upload real-world satellite multi-spectral `.npy` tensor arrays.
               The pipeline will run through Identification, Intensity Estimation, and Trajectory Forecasting.
             </p>
           </div>
@@ -139,7 +139,7 @@ export default function Dashboard() {
       {/* ===== RESULTS SECTION ===== */}
       {data && data.success && (
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          
+
           {/* TABS NAVIGATION */}
           <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', marginBottom: '1.5rem', overflowX: 'auto' }}>
             <button style={tabStyle('overview')} onClick={() => setActiveTab('overview')}>Overview & Inference</button>
@@ -150,15 +150,15 @@ export default function Dashboard() {
           </div>
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            
+
             {/* TAB 1: OVERVIEW */}
             {activeTab === 'overview' && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
                 <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', borderTop: '4px solid #3b82f6', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <h3 style={{ color: '#333', fontSize: '1.15rem', marginBottom: '1.5rem', alignSelf: 'flex-start' }}>Stage 1: Identification Confidence</h3>
-                  
+
                   {/* Pie Chart for Confidence */}
-                  <div style={{ 
+                  <div style={{
                     position: 'relative', width: '120px', height: '120px', borderRadius: '50%',
                     background: `conic-gradient(${data.active ? '#22c55e' : '#ef4444'} ${(data.s1_prob * 100)}%, #e2e8f0 0)`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem'
@@ -177,7 +177,7 @@ export default function Dashboard() {
                   <>
                     <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', borderTop: '4px solid #ef4444' }}>
                       <h3 style={{ color: '#333', fontSize: '1.15rem', marginBottom: '1.5rem' }}>Stage 2: Wind Speed & Movement</h3>
-                      
+
                       {/* Wind Speed Visualization */}
                       <div style={{ marginBottom: '1.5rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
@@ -201,7 +201,7 @@ export default function Dashboard() {
                         <div><p style={{ fontSize: '0.8rem', color: '#64748b' }}>Speed</p><p style={{ fontWeight: 600 }}>{data.speed?.toFixed(1)} kts</p></div>
                       </div>
                     </div>
-                    
+
                     <div style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', borderTop: '4px solid #f59e0b', gridColumn: '1 / -1' }}>
                       <h3 style={{ color: '#333', fontSize: '1.15rem', marginBottom: '1rem' }}>Stage 3: IMD Classification (7 Tiers)</h3>
                       <div style={{ display: 'flex', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0', background: '#f8fafc' }}>
@@ -216,9 +216,9 @@ export default function Dashboard() {
                         ].map((tier, index) => {
                           const isActive = (data.imd_cat || '').includes(`(${tier.cat})`) || (tier.cat === 'ESCS' && (data.imd_cat || '').includes('(SuCS)'));
                           return (
-                            <div key={tier.cat} style={{ 
+                            <div key={tier.cat} style={{
                               flex: 1,
-                              padding: '0.75rem 0.25rem', 
+                              padding: '0.75rem 0.25rem',
                               borderRight: index < 6 ? '1px solid #e2e8f0' : 'none',
                               background: isActive ? '#f59e0b' : 'transparent',
                               color: isActive ? 'white' : '#64748b',
@@ -233,7 +233,7 @@ export default function Dashboard() {
                         })}
                       </div>
                       <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '1.1rem' }}>
-                         Current IMD Scale: <strong style={{ color: '#b45309' }}>{data.imd_cat}</strong> (3-Class Tier: {data.tier_3class})
+                        Current IMD Scale: <strong style={{ color: '#b45309' }}>{data.imd_cat}</strong> (3-Class Tier: {data.tier_3class})
                       </div>
                     </div>
                   </>
@@ -288,13 +288,13 @@ export default function Dashboard() {
                   <h3 style={{ color: data.alert_info?.level === 'RED ALERT' ? '#991b1b' : '#9a3412', marginBottom: '0.5rem', fontSize: '1.4rem' }}>{data.alert_info?.badge}</h3>
                   <p style={{ color: '#333' }}><strong>Mandated SOP:</strong> {data.alert_info?.action}</p>
                 </div>
-                
+
                 <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                     <h3 style={{ color: '#093370', margin: 0 }}>Coastal Threat Matrix</h3>
                     <button onClick={downloadPdf} style={{ padding: '8px 16px', background: '#093370', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>📄 Download PDF</button>
                   </div>
-                  
+
                   {data.alert_info?.impacts?.length > 0 ? (
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>

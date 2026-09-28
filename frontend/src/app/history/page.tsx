@@ -54,15 +54,15 @@ function AnalysisCard({ item }: { item: any }) {
           <p style={{ color: "#64748b", fontSize: "0.82rem", margin: "0 0 8px" }}>
             ⏱️ <strong style={{ color: "#1e293b" }}>ETA:</strong> {alert.eta || "—"}
           </p>
-          
+
           {alert.impacts && alert.impacts.length > 0 && (
             <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px dashed #e2e8f0" }}>
               <div style={{ fontSize: "0.75rem", color: "#64748b", marginBottom: "0.5rem", fontWeight: 600 }}>ALERTED CITIES / DISTRICTS (CONE OF UNCERTAINTY):</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                 {alert.impacts.map((imp: any, i: number) => (
-                  <span key={i} style={{ 
-                    background: imp.alert.includes("RED") ? "#fee2e2" : imp.alert.includes("ORANGE") ? "#ffedd5" : "#f1f5f9", 
-                    color: imp.alert.includes("RED") ? "#991b1b" : imp.alert.includes("ORANGE") ? "#9a3412" : "#334155", 
+                  <span key={i} style={{
+                    background: imp.alert.includes("RED") ? "#fee2e2" : imp.alert.includes("ORANGE") ? "#ffedd5" : "#f1f5f9",
+                    color: imp.alert.includes("RED") ? "#991b1b" : imp.alert.includes("ORANGE") ? "#9a3412" : "#334155",
                     padding: "2px 8px", borderRadius: "4px", fontSize: "0.7rem", border: "1px solid",
                     borderColor: imp.alert.includes("RED") ? "#fca5a5" : imp.alert.includes("ORANGE") ? "#fdba74" : "#cbd5e1"
                   }}>
@@ -74,7 +74,7 @@ function AnalysisCard({ item }: { item: any }) {
           )}
         </div>
       )}
-      
+
       {item.map_html && (
         <details style={{ marginTop: "12px", background: "#ffffff", padding: "0.75rem", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
           <summary style={{ cursor: "pointer", color: "#3b82f6", fontSize: "0.85rem", fontWeight: 600, outline: "none" }}>🗺️ View AI Forecast Map Snapshot</summary>
@@ -123,9 +123,9 @@ function BulletinCard({ item }: { item: any }) {
           <div style={{ fontSize: "0.75rem", color: "#991b1b", marginBottom: "0.5rem", fontWeight: 600 }}>VULNERABLE CITIES / DISTRICTS:</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
             {item.impacts.map((imp: any, i: number) => (
-              <span key={i} style={{ 
-                background: imp.alert.includes("RED") ? "#ef4444" : imp.alert.includes("ORANGE") ? "#f97316" : "#e2e8f0", 
-                color: imp.alert.includes("RED") || imp.alert.includes("ORANGE") ? "white" : "#1e293b", 
+              <span key={i} style={{
+                background: imp.alert.includes("RED") ? "#ef4444" : imp.alert.includes("ORANGE") ? "#f97316" : "#e2e8f0",
+                color: imp.alert.includes("RED") || imp.alert.includes("ORANGE") ? "white" : "#1e293b",
                 padding: "2px 8px", borderRadius: "4px", fontSize: "0.7rem"
               }}>
                 {imp.city}, {imp.state} ({imp.eta_hour})
@@ -149,7 +149,7 @@ export default function HistoryPage() {
     try {
       const raw = localStorage.getItem("stride_user");
       if (raw) setUser(JSON.parse(raw));
-    } catch {}
+    } catch { }
 
     Promise.all([
       fetch(`${API}/api/history/analyses`).then(r => r.json()),
@@ -176,11 +176,11 @@ export default function HistoryPage() {
               📦 Data History
             </h1>
             {user && <Badge color="#3b82f6">{user.username} · {user.role_label}</Badge>}
-            
+
             {user && user.role === 'admin' && (
-              <button 
+              <button
                 onClick={async () => {
-                  if(window.confirm('Are you sure you want to permanently delete ALL history records?')) {
+                  if (window.confirm('Are you sure you want to permanently delete ALL history records?')) {
                     await fetch(`${API}/api/history/clear`, { method: 'DELETE' });
                     window.location.reload();
                   }

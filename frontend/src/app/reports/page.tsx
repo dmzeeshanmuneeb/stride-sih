@@ -21,7 +21,7 @@ export default function ReportsPage() {
 
   return (
     <main style={{ padding: '2rem 5%', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-      
+
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
         <div style={{ width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%', boxShadow: '0 0 10px #ef4444', animation: 'pulse 1.5s infinite' }}></div>
         <h1 style={{ color: '#093370', margin: 0 }}>Live India Bulletins & Reports</h1>
@@ -41,12 +41,12 @@ export default function ReportsPage() {
         boxShadow: '0 4px 20px rgba(0,0,0,0.06)'
       }}>
         <h3 style={{ color: indianCyclones.length > 0 ? '#991b1b' : '#166534', marginBottom: '0.25rem' }}>
-          {indianCyclones.length > 0 
+          {indianCyclones.length > 0
             ? `⚠️ ${indianCyclones.length} ACTIVE TROPICAL CYCLONE${indianCyclones.length > 1 ? 'S' : ''} IN INDIAN OCEAN REGION`
             : '✅ NO ACTIVE TROPICAL CYCLONES IN INDIAN OCEAN — ALL CLEAR'}
         </h3>
         <p style={{ color: '#333', fontSize: '0.9rem' }}>
-          {indianCyclones.length > 0 
+          {indianCyclones.length > 0
             ? 'MoES / NDMA operational protocols may be activated. Review details below.'
             : 'Standard routine oceanic monitoring. No emergency response required at this time.'}
         </p>
@@ -122,7 +122,8 @@ export default function ReportsPage() {
         </p>
       </div>
 
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
       `}} />
     </main>

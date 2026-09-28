@@ -22,9 +22,9 @@ export default function MapPage() {
         const res = await fetch(`${API}/api/v1/active-cyclones-multispectral`);
         const result = await res.json();
         setLiveData(result);
-      } catch (err: any) { 
+      } catch (err: any) {
         setError("Failed to connect to live satellite feed. Check if backend is running.");
-        console.error(err); 
+        console.error(err);
       }
       finally { setLoading(false); }
     };
@@ -41,7 +41,7 @@ export default function MapPage() {
           <h2 style={{ color: '#1e293b' }}>Connecting to NASA GIBS / Worldview...</h2>
           <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Pulling IR, water-vapor, and visible mosaics for Indian Ocean cyclones</p>
         </div>
-        <style dangerouslySetInnerHTML={{__html: `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}} />
+        <style dangerouslySetInnerHTML={{ __html: `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }` }} />
       </main>
     );
   }
@@ -76,7 +76,7 @@ export default function MapPage() {
       </div>
 
       <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>
-        
+
         {/* Main Map Area */}
         <div style={{ flex: 1, zIndex: 0 }}>
           <MapComponent
@@ -129,7 +129,7 @@ export default function MapPage() {
                     {selectedCyclone.cyclone_id} | {selectedCyclone.basin}
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setSelectedCyclone(null)}
                   style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '1.5rem', cursor: 'pointer' }}
                 >
@@ -139,7 +139,7 @@ export default function MapPage() {
 
               {/* Drawer Content */}
               <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
-                
+
                 {/* Intensity Block */}
                 <div style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '10px', marginBottom: '1.5rem' }}>
                   <h4 style={{ margin: '0 0 1rem 0', color: '#1e293b', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>

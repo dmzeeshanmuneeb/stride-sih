@@ -38,11 +38,11 @@ const ROLES = [
 
 export default function LoginPage() {
   const [selectedRole, setSelectedRole] = useState<string>("");
-  const [mode, setMode]     = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [email, setEmail]   = useState("");
-  const [error, setError]   = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const activeRole = ROLES.find((r) => r.id === selectedRole);
@@ -57,7 +57,7 @@ export default function LoginPage() {
       const body: any = { username, password, role: selectedRole };
       if (mode === "register") body.email = email;
 
-      const res  = await fetch(`${API}${endpoint}`, {
+      const res = await fetch(`${API}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -68,11 +68,11 @@ export default function LoginPage() {
 
       if (mode === "login" && data.token) {
         localStorage.setItem("stride_token", data.token);
-        localStorage.setItem("stride_user",  JSON.stringify(data.user));
+        localStorage.setItem("stride_user", JSON.stringify(data.user));
         // Redirect based on role
         const dest = selectedRole === "admin" ? "/dashboard"
-                   : selectedRole === "ndrf"  ? "/map"
-                   : "/";
+          : selectedRole === "ndrf" ? "/map"
+            : "/";
         window.location.href = dest;
       } else if (mode === "register" && data.ok) {
         setMode("login");
@@ -152,7 +152,7 @@ export default function LoginPage() {
             border: `1px solid ${activeRole!.color}55`,
           }}>
             <div style={{ display: "flex", gap: "0", marginBottom: "1.5rem", borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
-              {(["login","register"] as const).map((m) => (
+              {(["login", "register"] as const).map((m) => (
                 <button key={m} type="button" onClick={() => setMode(m)} style={{
                   flex: 1, padding: "0.65rem", border: "none", cursor: "pointer",
                   background: mode === m ? activeRole!.gradient : "transparent",
@@ -170,7 +170,8 @@ export default function LoginPage() {
                 <input
                   value={username} onChange={e => setUsername(e.target.value)} required
                   placeholder="Enter username"
-                  style={{ width: "100%", padding: "0.75rem 1rem", borderRadius: "10px",
+                  style={{
+                    width: "100%", padding: "0.75rem 1rem", borderRadius: "10px",
                     background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
                     color: "white", fontSize: "0.95rem", outline: "none", boxSizing: "border-box",
                   }}
@@ -183,7 +184,8 @@ export default function LoginPage() {
                   <input
                     value={email} onChange={e => setEmail(e.target.value)} type="email"
                     placeholder="official@example.gov.in"
-                    style={{ width: "100%", padding: "0.75rem 1rem", borderRadius: "10px",
+                    style={{
+                      width: "100%", padding: "0.75rem 1rem", borderRadius: "10px",
                       background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
                       color: "white", fontSize: "0.95rem", outline: "none", boxSizing: "border-box",
                     }}
@@ -196,7 +198,8 @@ export default function LoginPage() {
                 <input
                   value={password} onChange={e => setPassword(e.target.value)} required type="password"
                   placeholder="Enter password"
-                  style={{ width: "100%", padding: "0.75rem 1rem", borderRadius: "10px",
+                  style={{
+                    width: "100%", padding: "0.75rem 1rem", borderRadius: "10px",
                     background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
                     color: "white", fontSize: "0.95rem", outline: "none", boxSizing: "border-box",
                   }}
@@ -205,15 +208,18 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div style={{ background: "#7f1d1d44", border: "1px solid #ef4444", borderRadius: "8px",
-                padding: "0.75rem 1rem", color: "#fca5a5", fontSize: "0.85rem", marginTop: "1rem" }}>
+              <div style={{
+                background: "#7f1d1d44", border: "1px solid #ef4444", borderRadius: "8px",
+                padding: "0.75rem 1rem", color: "#fca5a5", fontSize: "0.85rem", marginTop: "1rem"
+              }}>
                 ⚠️ {error}
               </div>
             )}
 
             <button
               type="submit" disabled={loading}
-              style={{ width: "100%", marginTop: "1.5rem", padding: "0.85rem",
+              style={{
+                width: "100%", marginTop: "1.5rem", padding: "0.85rem",
                 background: loading ? "#334155" : activeRole!.gradient,
                 border: "none", borderRadius: "12px", color: "white",
                 fontWeight: 700, fontSize: "1rem", cursor: loading ? "not-allowed" : "pointer",
@@ -225,9 +231,9 @@ export default function LoginPage() {
 
             {mode === "login" && (
               <p style={{ color: "#64748b", fontSize: "0.78rem", textAlign: "center", marginTop: "1rem" }}>
-                Demo credentials — Admin: <code style={{ color:"#38bdf8" }}>imd_admin / Admin@1234</code> ·
-                NDRF: <code style={{ color:"#f97316" }}>ndrf_user / Ndrf@1234</code> ·
-                Public: <code style={{ color:"#10b981" }}>public_user / Public@1234</code>
+                Demo credentials — Admin: <code style={{ color: "#38bdf8" }}>imd_admin / Admin@1234</code> ·
+                NDRF: <code style={{ color: "#f97316" }}>ndrf_user / Ndrf@1234</code> ·
+                Public: <code style={{ color: "#10b981" }}>public_user / Public@1234</code>
               </p>
             )}
           </form>

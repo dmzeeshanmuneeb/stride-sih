@@ -19,7 +19,7 @@ export default function Home() {
     try {
       const raw = localStorage.getItem('stride_user');
       if (raw) setCurrentUser(JSON.parse(raw));
-    } catch {}
+    } catch { }
   }, []);
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -71,156 +71,156 @@ export default function Home() {
       <section className="hero-section" style={{ background: 'transparent' }}>
         <div className="hero-overlay"></div>
         <div className="hero-content">
-            <h2>Better Forecasts<br />for a Safer<br />Tomorrow</h2>
-            <p>Advanced Artificial Intelligence for Next-Generation Tropical Cyclone Identification, Intensity Estimation, and Trajectory Forecasting.</p>
-          </div>
+          <h2>Better Forecasts<br />for a Safer<br />Tomorrow</h2>
+          <p>Advanced Artificial Intelligence for Next-Generation Tropical Cyclone Identification, Intensity Estimation, and Trajectory Forecasting.</p>
+        </div>
 
-          {/* Login Card */}
-          <div className="login-card">
-            {mounted && currentUser ? (
-              /* ── LOGGED IN STATE ── */
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '3rem', margin: '1rem 0' }}>
-                  {currentUser.role === 'admin' ? '🛰️' : currentUser.role === 'ndrf' ? '🚨' : '🏠'}
-                </div>
-                <h3 style={{ marginBottom: '0.25rem' }}>Welcome back!</h3>
-                <p style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '0.25rem' }}>{currentUser.username}</p>
-                <span style={{
-                  display: 'inline-block', fontSize: '0.75rem', fontWeight: 700,
-                  background: currentUser.role === 'admin' ? '#1d4ed8' : currentUser.role === 'ndrf' ? '#c2410c' : '#065f46',
-                  color: 'white', padding: '3px 12px', borderRadius: '20px', marginBottom: '1.5rem',
-                }}>
-                  {currentUser.role_label}
-                </span>
+        {/* Login Card */}
+        <div className="login-card">
+          {mounted && currentUser ? (
+            /* ── LOGGED IN STATE ── */
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', margin: '1rem 0' }}>
+                {currentUser.role === 'admin' ? '🛰️' : currentUser.role === 'ndrf' ? '🚨' : '🏠'}
+              </div>
+              <h3 style={{ marginBottom: '0.25rem' }}>Welcome back!</h3>
+              <p style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '0.25rem' }}>{currentUser.username}</p>
+              <span style={{
+                display: 'inline-block', fontSize: '0.75rem', fontWeight: 700,
+                background: currentUser.role === 'admin' ? '#1d4ed8' : currentUser.role === 'ndrf' ? '#c2410c' : '#065f46',
+                color: 'white', padding: '3px 12px', borderRadius: '20px', marginBottom: '1.5rem',
+              }}>
+                {currentUser.role_label}
+              </span>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {currentUser.role === 'admin' && (
-                    <a href="/dashboard" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block' }}>
-                      🛰️ Go to AI Dashboard
-                    </a>
-                  )}
-                  {(currentUser.role === 'admin' || currentUser.role === 'ndrf') && (
-                    <a href="/map" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: 'rgba(249,115,22,0.3)', border: '1px solid #f97316' }}>
-                      🗺️ Interactive Map
-                    </a>
-                  )}
-                  <a href="/reports" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: 'rgba(16,185,129,0.3)', border: '1px solid #10b981' }}>
-                    📋 Bulletins &amp; Reports
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {currentUser.role === 'admin' && (
+                  <a href="/dashboard" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block' }}>
+                    🛰️ Go to AI Dashboard
                   </a>
-                </div>
-
-                <button onClick={handleLogout} style={{
-                  marginTop: '1.5rem', background: 'transparent', border: '1px solid rgba(239,68,68,0.5)',
-                  color: '#ef4444', padding: '8px 24px', borderRadius: '8px', cursor: 'pointer', width: '100%',
-                  fontSize: '0.85rem',
-                }}>
-                  Sign Out
-                </button>
-              </div>
-            ) : (
-              /* ── NOT LOGGED IN ── */
-              <>
-                <h3>Login to Stride AI</h3>
-                <p style={{ fontSize: '0.9rem', opacity: 0.8, marginBottom: '1.5rem' }}>
-                  Access your dashboard for advanced weather and climate intelligence.
-                </p>
-
-                {mode === 'login' ? (
-                  <form onSubmit={handleAuthSubmit}>
-                    <div className="input-group" style={{ marginBottom: '1rem' }}>
-                      <input type="text" className="input-field" placeholder="Username / Email ID" value={username} onChange={e => setUsername(e.target.value)} required />
-                    </div>
-                    <div className="input-group" style={{ marginBottom: '1rem' }}>
-                      <input type="password" className="input-field" placeholder="🔒 Password" value={password} onChange={e => setPassword(e.target.value)} required />
-                    </div>
-
-                    <div className="login-options" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '1.5rem', color: '#cbd5e1' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <input type="checkbox" defaultChecked /> Remember me
-                      </label>
-                      <span style={{ cursor: 'pointer' }}>Forgot Password?</span>
-                    </div>
-
-                    {error && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem', padding: '8px', background: 'rgba(239,68,68,0.1)', borderRadius: '6px' }}>{error}</div>}
-
-                    <button type="submit" disabled={loading} className="login-btn" style={{ width: '100%', background: '#0ea5e9' }}>
-                      {loading ? 'Authenticating...' : 'Login →'}
-                    </button>
-
-                    <div style={{ textAlign: 'center', margin: '1rem 0', opacity: 0.5, fontSize: '0.85rem' }}>OR</div>
-
-                    <button type="button" onClick={() => { setMode('register'); setError(''); setSelectedRole(''); }}
-                      className="login-btn" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', width: '100%' }}>
-                      + Create New Account
-                    </button>
-                  </form>
-                ) : (
-                  <form onSubmit={handleAuthSubmit}>
-                    <div className="input-group" style={{ marginBottom: '0.75rem' }}>
-                      <select className="input-field" value={selectedRole} onChange={e => setSelectedRole(e.target.value)} required style={{ background: 'rgba(0,0,0,0.2)' }}>
-                        <option value="">Select Role...</option>
-                        <option value="admin">IMD Official</option>
-                        <option value="ndrf">NDRF Responder</option>
-                        <option value="civilian">Public User</option>
-                      </select>
-                    </div>
-                    <div className="input-group" style={{ marginBottom: '0.75rem' }}>
-                      <input type="text" className="input-field" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
-                    </div>
-                    <div className="input-group" style={{ marginBottom: '0.75rem' }}>
-                      <input type="email" className="input-field" placeholder="Email (optional)" value={email} onChange={e => setEmail(e.target.value)} />
-                    </div>
-                    <div className="input-group" style={{ marginBottom: '0.75rem' }}>
-                      <input type="password" className="input-field" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-                    </div>
-
-                    {error && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '0.75rem', padding: '8px', background: 'rgba(239,68,68,0.1)', borderRadius: '6px' }}>{error}</div>}
-
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button type="button" onClick={() => setMode('login')} className="login-btn" style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.3)' }}>
-                        Back
-                      </button>
-                      <button type="submit" disabled={loading} className="login-btn" style={{ flex: 2 }}>
-                        {loading ? 'Creating...' : 'Create Account'}
-                      </button>
-                    </div>
-                  </form>
                 )}
-              </>
-            )}
-          </div>
-        </section>
+                {(currentUser.role === 'admin' || currentUser.role === 'ndrf') && (
+                  <a href="/map" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: 'rgba(249,115,22,0.3)', border: '1px solid #f97316' }}>
+                    🗺️ Interactive Map
+                  </a>
+                )}
+                <a href="/reports" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: 'rgba(16,185,129,0.3)', border: '1px solid #10b981' }}>
+                  📋 Bulletins &amp; Reports
+                </a>
+              </div>
 
-        {/* Government Portals */}
-        <section className="services-section" style={{
-          background: 'rgba(255,255,255,0.05)',
-          borderTop: '1px solid rgba(255,255,255,0.1)', padding: '4rem 5%', flex: 1
-        }}>
-          <h2 style={{ color: 'white', textAlign: 'center', marginBottom: '3rem', fontSize: '1.8rem', fontWeight: 600 }}>Explore Government Portals</h2>
-          <div className="services-grid">
-            <a href="https://mausam.imd.gov.in" target="_blank" rel="noopener noreferrer" className="service-card card-blue" style={{ background: 'rgba(33,150,243,0.85)', backdropFilter: 'blur(5px)' }}>
-              <div>
-                <h4>India Meteorological Dept (IMD)</h4>
-                <p style={{ fontSize: '0.9rem', opacity: 0.9, marginTop: '10px' }}>Official weather forecasts, cyclone warnings, and climate data for India.</p>
-              </div>
-              <div className="read-more">Visit Portal →</div>
-            </a>
-            <a href="https://moes.gov.in" target="_blank" rel="noopener noreferrer" className="service-card card-yellow" style={{ background: 'rgba(251,192,45,0.9)', backdropFilter: 'blur(5px)' }}>
-              <div>
-                <h4>Ministry of Earth Sciences</h4>
-                <p style={{ fontSize: '0.9rem', marginTop: '10px' }}>Central policies and guidelines for atmospheric and oceanic research.</p>
-              </div>
-              <div className="read-more">Visit Portal →</div>
-            </a>
-            <a href="https://ndma.gov.in" target="_blank" rel="noopener noreferrer" className="service-card card-green" style={{ background: 'rgba(76,175,80,0.85)', backdropFilter: 'blur(5px)' }}>
-              <div>
-                <h4>National Disaster Mgmt</h4>
-                <p style={{ fontSize: '0.9rem', marginTop: '10px' }}>Disaster response, NDRF coordination, and national safety guidelines.</p>
-              </div>
-              <div className="read-more">Visit Portal →</div>
-            </a>
-          </div>
-        </section>
+              <button onClick={handleLogout} style={{
+                marginTop: '1.5rem', background: 'transparent', border: '1px solid rgba(239,68,68,0.5)',
+                color: '#ef4444', padding: '8px 24px', borderRadius: '8px', cursor: 'pointer', width: '100%',
+                fontSize: '0.85rem',
+              }}>
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            /* ── NOT LOGGED IN ── */
+            <>
+              <h3>Login to Stride AI</h3>
+              <p style={{ fontSize: '0.9rem', opacity: 0.8, marginBottom: '1.5rem' }}>
+                Access your dashboard for advanced weather and climate intelligence.
+              </p>
+
+              {mode === 'login' ? (
+                <form onSubmit={handleAuthSubmit}>
+                  <div className="input-group" style={{ marginBottom: '1rem' }}>
+                    <input type="text" className="input-field" placeholder="Username / Email ID" value={username} onChange={e => setUsername(e.target.value)} required />
+                  </div>
+                  <div className="input-group" style={{ marginBottom: '1rem' }}>
+                    <input type="password" className="input-field" placeholder="🔒 Password" value={password} onChange={e => setPassword(e.target.value)} required />
+                  </div>
+
+                  <div className="login-options" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '1.5rem', color: '#cbd5e1' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <input type="checkbox" defaultChecked /> Remember me
+                    </label>
+                    <span style={{ cursor: 'pointer' }}>Forgot Password?</span>
+                  </div>
+
+                  {error && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem', padding: '8px', background: 'rgba(239,68,68,0.1)', borderRadius: '6px' }}>{error}</div>}
+
+                  <button type="submit" disabled={loading} className="login-btn" style={{ width: '100%', background: '#0ea5e9' }}>
+                    {loading ? 'Authenticating...' : 'Login →'}
+                  </button>
+
+                  <div style={{ textAlign: 'center', margin: '1rem 0', opacity: 0.5, fontSize: '0.85rem' }}>OR</div>
+
+                  <button type="button" onClick={() => { setMode('register'); setError(''); setSelectedRole(''); }}
+                    className="login-btn" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', width: '100%' }}>
+                    + Create New Account
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleAuthSubmit}>
+                  <div className="input-group" style={{ marginBottom: '0.75rem' }}>
+                    <select className="input-field" value={selectedRole} onChange={e => setSelectedRole(e.target.value)} required style={{ background: 'rgba(0,0,0,0.2)' }}>
+                      <option value="">Select Role...</option>
+                      <option value="admin">IMD Official</option>
+                      <option value="ndrf">NDRF Responder</option>
+                      <option value="civilian">Public User</option>
+                    </select>
+                  </div>
+                  <div className="input-group" style={{ marginBottom: '0.75rem' }}>
+                    <input type="text" className="input-field" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
+                  </div>
+                  <div className="input-group" style={{ marginBottom: '0.75rem' }}>
+                    <input type="email" className="input-field" placeholder="Email (optional)" value={email} onChange={e => setEmail(e.target.value)} />
+                  </div>
+                  <div className="input-group" style={{ marginBottom: '0.75rem' }}>
+                    <input type="password" className="input-field" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+                  </div>
+
+                  {error && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '0.75rem', padding: '8px', background: 'rgba(239,68,68,0.1)', borderRadius: '6px' }}>{error}</div>}
+
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button type="button" onClick={() => setMode('login')} className="login-btn" style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.3)' }}>
+                      Back
+                    </button>
+                    <button type="submit" disabled={loading} className="login-btn" style={{ flex: 2 }}>
+                      {loading ? 'Creating...' : 'Create Account'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Government Portals */}
+      <section className="services-section" style={{
+        background: 'rgba(255,255,255,0.05)',
+        borderTop: '1px solid rgba(255,255,255,0.1)', padding: '4rem 5%', flex: 1
+      }}>
+        <h2 style={{ color: 'white', textAlign: 'center', marginBottom: '3rem', fontSize: '1.8rem', fontWeight: 600 }}>Explore Government Portals</h2>
+        <div className="services-grid">
+          <a href="https://mausam.imd.gov.in" target="_blank" rel="noopener noreferrer" className="service-card card-blue" style={{ background: 'rgba(33,150,243,0.85)', backdropFilter: 'blur(5px)' }}>
+            <div>
+              <h4>India Meteorological Dept (IMD)</h4>
+              <p style={{ fontSize: '0.9rem', opacity: 0.9, marginTop: '10px' }}>Official weather forecasts, cyclone warnings, and climate data for India.</p>
+            </div>
+            <div className="read-more">Visit Portal →</div>
+          </a>
+          <a href="https://moes.gov.in" target="_blank" rel="noopener noreferrer" className="service-card card-yellow" style={{ background: 'rgba(251,192,45,0.9)', backdropFilter: 'blur(5px)' }}>
+            <div>
+              <h4>Ministry of Earth Sciences</h4>
+              <p style={{ fontSize: '0.9rem', marginTop: '10px' }}>Central policies and guidelines for atmospheric and oceanic research.</p>
+            </div>
+            <div className="read-more">Visit Portal →</div>
+          </a>
+          <a href="https://ndma.gov.in" target="_blank" rel="noopener noreferrer" className="service-card card-green" style={{ background: 'rgba(76,175,80,0.85)', backdropFilter: 'blur(5px)' }}>
+            <div>
+              <h4>National Disaster Mgmt</h4>
+              <p style={{ fontSize: '0.9rem', marginTop: '10px' }}>Disaster response, NDRF coordination, and national safety guidelines.</p>
+            </div>
+            <div className="read-more">Visit Portal →</div>
+          </a>
+        </div>
+      </section>
     </main>
   );
 }
