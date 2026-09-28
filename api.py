@@ -51,7 +51,9 @@ from gibs_ingest import fetch_multispectral_tensor, fetch_gdacs_tropical_cyclone
 import tensorflow as tf
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_H5 = os.path.join(BASE_DIR, 'data', 'raw', 'TCIR-CPAC_IO_SH.h5')
+DATA_H5 = os.path.join(BASE_DIR, 'data', 'raw', 'subset.h5')
+if not os.path.exists(DATA_H5):
+    DATA_H5 = os.path.join(BASE_DIR, 'data', 'raw', 'TCIR-CPAC_IO_SH.h5')
 if not os.path.exists(DATA_H5):
     DATA_H5 = os.path.join(BASE_DIR, 'data', 'raw', 'TCIR-ALL_2017.h5')
 

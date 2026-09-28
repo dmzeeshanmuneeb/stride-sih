@@ -24,7 +24,14 @@ node_modules
 __pycache__/
 *.pyc
 .DS_Store
-data/
+data/*
+!data/raw/
+data/raw/*
+!data/raw/subset.h5
 *.h5
 .next/
 frontend/.next/
+!stage1_detector.h5
+!stage2_intensity_regressor.h5
+!stage3/stage3_seq2seq_trajectory.h5
+!data/raw/subset.h5
