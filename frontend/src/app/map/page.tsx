@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 
-const API = "http://localhost:8000";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Dynamically load MapComponent so it doesn't crash on SSR
 const MapComponent = dynamic(() => import('../../components/MapComponent'), {

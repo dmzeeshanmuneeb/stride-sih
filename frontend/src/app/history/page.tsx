@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const API = "http://localhost:8000";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function Badge({ children, color }: { children: React.ReactNode; color: string }) {
   return (
