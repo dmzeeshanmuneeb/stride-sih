@@ -14,6 +14,30 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 import db as stride_db
 
+import keras
+
+# Custom wrappers to safely load legacy Keras 2 / TensorFlow .h5 models in Keras 3
+class CustomBatchNormalization(keras.layers.BatchNormalization):
+    def __init__(self, **kwargs):
+        kwargs.pop('renorm', None)
+        kwargs.pop('renorm_clipping', None)
+        kwargs.pop('renorm_momentum', None)
+        kwargs.pop('synchronized', None)
+        super().__init__(**kwargs)
+
+class CustomInputLayer(keras.layers.InputLayer):
+    def __init__(self, **kwargs):
+        if 'batch_shape' in kwargs:
+            kwargs['batch_input_shape'] = kwargs.pop('batch_shape')
+        kwargs.pop('optional', None)
+        super().__init__(**kwargs)
+
+# Dictionary of custom layer overrides
+custom_objects = {
+    'BatchNormalization': CustomBatchNormalization,
+    'InputLayer': CustomInputLayer
+}
+
 def tensor_channel_to_base64(channel_data, cmap='gray'):
     import matplotlib
     matplotlib.use('Agg')
