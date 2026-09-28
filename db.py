@@ -18,7 +18,7 @@ _client = None
 def get_db():
     global _client
     if _client is None:
-        _client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=4000)
+        _client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=4000, tlsAllowInvalidCertificates=True)
     return _client[DB_NAME]
 
 def db_available():
