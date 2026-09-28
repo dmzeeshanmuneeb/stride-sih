@@ -10,7 +10,7 @@ import os
 import bcrypt
 
 # ── MongoDB connection ─────────────────────────────────────────────────────────
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017").strip().strip('"').strip("'")
 DB_NAME   = "stride_ai"
 
 _client = None
