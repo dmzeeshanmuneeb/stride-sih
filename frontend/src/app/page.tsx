@@ -119,11 +119,11 @@ export default function Home() {
                   </a>
                 )}
                 {(currentUser.role === 'admin' || currentUser.role === 'ndrf') && (
-                  <a href="/map" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: 'rgba(249,115,22,0.3)', border: '1px solid #f97316' }}>
+                  <a href="/map" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: '#f97316', border: '1px solid #f97316' }}>
                     🗺️ Interactive Map
                   </a>
                 )}
-                <a href="/reports" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: 'rgba(16,185,129,0.3)', border: '1px solid #10b981' }}>
+                <a href="/reports" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: '#10b981', border: '1px solid #10b981' }}>
                   📋 Bulletins &amp; Reports
                 </a>
               </div>
