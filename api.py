@@ -776,7 +776,7 @@ def pdf_endpoint():
 @app.get("/api/v1/active-cyclones-multispectral")
 def active_cyclones_multispectral():
     """Live Indian Ocean cyclones using NASA GIBS multi-spectral mosaics + Stride models."""
-    overlay_date = (datetime.utcnow().date() - timedelta(days=1)).isoformat()
+    overlay_date = datetime.utcnow().date().isoformat()
     try:
         cyclones = fetch_gdacs_tropical_cyclones()
     except Exception as e:
