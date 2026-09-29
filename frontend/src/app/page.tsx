@@ -78,9 +78,10 @@ export default function Home() {
           content: "";
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: url(/satellite_bg.jpg) repeat-x center center;
+          background: url(/satellite_bg.jpg) no-repeat center center;
           background-size: cover;
-          animation: rotateEarth 60s linear infinite;
+          transform: scale(1.2);
+          animation: rotateEarth 30s ease-in-out infinite;
           z-index: -1;
         }
         .hero-overlay {
