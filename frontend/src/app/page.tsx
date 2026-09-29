@@ -75,12 +75,14 @@ export default function Home() {
           100% { background-position: 0% 50%; }
         }
         .animated-bg {
-          background: url(/satellite_bg.jpg) repeat-x center center;
+          background: url(/satellite_bg.jpg) repeat-x center center fixed;
           background-size: cover;
           animation: rotateEarth 60s ease-in-out infinite;
         }
         .hero-overlay {
-           background: linear-gradient(135deg, rgba(2,6,23,0.8) 0%, rgba(15,23,42,0.2) 100%);
+           position: fixed !important;
+           background: linear-gradient(135deg, rgba(2,6,23,0.8) 0%, rgba(15,23,42,0.2) 100%) !important;
+           pointer-events: none;
         }
         .login-card {
            box-shadow: 0 30px 80px rgba(0,0,0,0.7);
@@ -212,8 +214,7 @@ export default function Home() {
 
       {/* Government Portals */}
       <section className="services-section" style={{
-        background: 'rgba(255,255,255,0.05)',
-        borderTop: '1px solid rgba(255,255,255,0.1)', padding: '4rem 5%', flex: 1
+        padding: '4rem 5%', flex: 1
       }}>
         <h2 style={{ color: 'white', textAlign: 'center', marginBottom: '3rem', fontSize: '1.8rem', fontWeight: 600 }}>Explore Government Portals</h2>
         <div className="services-grid">
