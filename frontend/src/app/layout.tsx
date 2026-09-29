@@ -40,9 +40,9 @@ function NavShell({ children }: { children: React.ReactNode }) {
         <div className="brand-section">
           <div className="logo-placeholder"></div>
           <div className="brand-text">
-            <h1 style={{ margin: 0, fontSize: '1.25rem' }}>Stride AI</h1>
+            <h1 style={{ margin: 0, fontSize: '1.25rem' }}>stride - ai</h1>
             <p style={{ fontSize: '0.8rem', opacity: 0.85, margin: 0 }}>
-              In association with Ministry of Earth Sciences (MoES)
+              track moes sih
             </p>
           </div>
         </div>
