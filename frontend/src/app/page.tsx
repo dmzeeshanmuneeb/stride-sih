@@ -77,7 +77,7 @@ export default function Home() {
         .animated-bg {
           background: url(/satellite_bg.jpg) repeat-x center center;
           background-size: cover;
-          animation: rotateEarth 180s ease-in-out infinite;
+          animation: rotateEarth 60s ease-in-out infinite;
         }
         .hero-overlay {
            background: linear-gradient(135deg, rgba(2,6,23,0.8) 0%, rgba(15,23,42,0.2) 100%);
