@@ -74,10 +74,14 @@ export default function Home() {
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-        .animated-bg {
-          background: url(/satellite_bg.jpg) repeat-x center center fixed;
+        .animated-bg::before {
+          content: "";
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: url(/satellite_bg.jpg) repeat-x center center;
           background-size: cover;
-          animation: rotateEarth 60s ease-in-out infinite;
+          animation: rotateEarth 60s linear infinite;
+          z-index: -1;
         }
         .hero-overlay {
            position: fixed !important;
@@ -121,11 +125,11 @@ export default function Home() {
                   </a>
                 )}
                 {(currentUser.role === 'admin' || currentUser.role === 'ndrf') && (
-                  <a href="/map" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: '#f97316', border: '1px solid #f97316' }}>
+                  <a href="/map" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: '#fb923c', border: '1px solid #fb923c', color: 'white' }}>
                     🗺️ Interactive Map
                   </a>
                 )}
-                <a href="/reports" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: '#10b981', border: '1px solid #10b981' }}>
+                <a href="/reports" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: '#34d399', border: '1px solid #34d399', color: 'white' }}>
                   📋 Bulletins &amp; Reports
                 </a>
               </div>
