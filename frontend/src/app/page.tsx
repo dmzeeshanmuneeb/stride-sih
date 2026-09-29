@@ -1,175 +1,245 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
-export default function LandingPage() {
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+export default function Home() {
+  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    try {
+      const raw = localStorage.getItem('stride_user');
+      if (raw) setCurrentUser(JSON.parse(raw));
+    } catch { }
   }, []);
 
-  if (!mounted) return null;
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mode === 'register' && !selectedRole) {
+      setError("Please select a role first.");
+      return;
+    }
+    setError(""); setLoading(true);
+
+    try {
+      const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register";
+      const body: any = { username, password };
+      if (mode === "register") { body.email = email; body.role = selectedRole; }
+
+      const res = await fetch(`${API}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (data.error) { setError(data.error); setLoading(false); return; }
+
+      if (mode === "login" && data.token) {
+        localStorage.setItem("stride_token", data.token);
+        localStorage.setItem("stride_user", JSON.stringify(data.user));
+        const userRole = data.user.role;
+        const dest = userRole === "admin" ? "/dashboard" : userRole === "ndrf" ? "/map" : "/reports";
+        window.location.href = dest;
+      } else if (mode === "register" && data.ok) {
+        setMode("login"); setSelectedRole(""); setError("");
+        alert(`Account created! You can now log in as ${username}.`);
+      }
+    } catch {
+      setError("Cannot reach Stride server. Is the backend running?");
+    }
+    setLoading(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("stride_token");
+    localStorage.removeItem("stride_user");
+    setCurrentUser(null);
+  };
 
   return (
-    <main style={{
-      background: '#020617', // Deep dark professional slate
-      minHeight: '100vh',
-      color: '#f8fafc',
-      fontFamily: "'Inter', sans-serif",
-      overflowX: 'hidden',
-      position: 'relative'
-    }}>
-      {/* Dynamic Background Grid */}
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundImage: 'linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
-        zIndex: 0,
-        opacity: 0.5
-      }} />
-
-      {/* Global Glow */}
-      <div style={{
-        position: 'absolute', top: '20%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: '600px', height: '600px',
-        background: 'radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(2, 6, 23, 0) 70%)',
-        zIndex: 0, filter: 'blur(40px)', pointerEvents: 'none'
-      }} />
-
-      <div style={{
-        maxWidth: '1200px', margin: '0 auto', padding: '6rem 2rem',
-        position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', minHeight: 'calc(100vh - 80px)'
-      }}>
-
-        {/* Header Text - Slide down animation */}
-        <div style={{ textAlign: 'center', animation: 'slideDown 1s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
-          <h1 style={{
-            fontSize: '4.5rem', fontWeight: 800, margin: '0 0 1rem 0',
-            letterSpacing: '-0.02em', lineHeight: 1.1
-          }}>
-            Next-Gen <span style={{ color: '#06b6d4' }}>Cyclone</span><br/>
-            Intelligence <span style={{ color: '#f59e0b' }}>Engine</span>
-          </h1>
-          <p style={{
-            fontSize: '1.1rem', color: '#94a3b8', maxWidth: '600px', margin: '0 auto 3rem auto',
-            lineHeight: 1.6
-          }}>
-            High-end data visualization and multi-spectral AI classification. 
-            Real-time atmospheric tracking for the Ministry of Earth Sciences.
-          </p>
-          
-          <Link href="/login" style={{
-            display: 'inline-block',
-            background: 'linear-gradient(135deg, #06b6d4 0%, #0284c7 100%)',
-            color: 'white', fontWeight: 600, fontSize: '1.1rem',
-            padding: '1rem 3rem', borderRadius: '50px',
-            textDecoration: 'none',
-            boxShadow: '0 10px 25px -5px rgba(6, 182, 212, 0.4)',
-            transition: 'all 0.3s ease',
-            textTransform: 'uppercase', letterSpacing: '0.05em'
-          }}>
-            Get Started
-          </Link>
-        </div>
-
-        {/* 3D Simulated Interactive Centerpiece */}
-        <div style={{
-          position: 'relative', width: '100%', height: '400px', marginTop: '5rem',
-          display: 'flex', justifyContent: 'center', alignItems: 'center',
-          animation: 'fadeIn 2s ease forwards 0.5s', opacity: 0
-        }}>
-          {/* Central Rotating Globe Simulation */}
-          <div style={{
-            position: 'absolute',
-            width: '250px', height: '250px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #0f172a 0%, #020617 100%)',
-            border: '2px solid rgba(6, 182, 212, 0.3)',
-            boxShadow: '0 0 50px rgba(6, 182, 212, 0.2), inset 0 0 30px rgba(6, 182, 212, 0.1)',
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-            animation: 'pulse 4s infinite alternate'
-          }}>
-            <div style={{
-              width: '180px', height: '180px', borderRadius: '50%',
-              border: '1px dashed rgba(245, 158, 11, 0.5)',
-              animation: 'spin 20s linear infinite'
-            }} />
-          </div>
-
-          {/* Exploded Technical View Cards */}
-          <div className="tech-card" style={{
-            position: 'absolute', top: '10%', left: '10%',
-            animation: 'float 6s ease-in-out infinite'
-          }}>
-            <div style={{ fontSize: '0.75rem', color: '#06b6d4', fontWeight: 700, marginBottom: '5px' }}>STAGE 1: DETECTION</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>Multi-Spectral CNN</div>
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <div style={{ background: 'rgba(6, 182, 212, 0.1)', padding: '5px 10px', borderRadius: '4px', fontSize: '0.8rem', color: '#06b6d4' }}>Recall: 98.4%</div>
-            </div>
-          </div>
-
-          <div className="tech-card" style={{
-            position: 'absolute', bottom: '10%', right: '10%',
-            animation: 'float 7s ease-in-out infinite 1s'
-          }}>
-            <div style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 700, marginBottom: '5px' }}>STAGE 2: INTENSITY</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>Wind Speed & Pressure</div>
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <div style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '5px 10px', borderRadius: '4px', fontSize: '0.8rem', color: '#f59e0b' }}>MAE: 2.1 knots</div>
-            </div>
-          </div>
-          
-          <div className="tech-card" style={{
-            position: 'absolute', top: '40%', left: '60%', transform: 'translateX(50px)',
-            animation: 'float 5s ease-in-out infinite 0.5s', zIndex: 10
-          }}>
-            <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700, marginBottom: '5px' }}>STAGE 3: TRAJECTORY</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>Landfall Estimation</div>
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-              <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '5px 10px', borderRadius: '4px', fontSize: '0.8rem', color: '#10b981' }}>24h Error: &lt; 35km</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
+    <main className="animated-bg" style={{ minHeight: '100vh', position: 'relative' }}>
       <style dangerouslySetInnerHTML={{__html: `
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-30px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes rotateEarth {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        .animated-bg {
+          background: url(/satellite_bg.jpg) repeat-x center center;
+          background-size: cover;
+          animation: rotateEarth 180s ease-in-out infinite;
         }
-        @keyframes spin {
-          100% { transform: rotate(360deg); }
+        .hero-overlay {
+           background: linear-gradient(135deg, rgba(2,6,23,0.8) 0%, rgba(15,23,42,0.2) 100%);
         }
-        @keyframes float {
-          0% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
-          100% { transform: translateY(0px); }
-        }
-        @keyframes pulse {
-          0% { box-shadow: 0 0 50px rgba(6, 182, 212, 0.2), inset 0 0 30px rgba(6, 182, 212, 0.1); }
-          100% { box-shadow: 0 0 80px rgba(6, 182, 212, 0.4), inset 0 0 50px rgba(6, 182, 212, 0.2); }
-        }
-        .tech-card {
-          background: rgba(15, 23, 42, 0.8);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          padding: 1.5rem;
-          border-radius: 12px;
-          min-width: 250px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-          transition: border-color 0.3s;
-        }
-        .tech-card:hover {
-          border-color: rgba(6, 182, 212, 0.4);
+        .login-card {
+           box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+           border: 1px solid rgba(255,255,255,0.15) !important;
         }
       `}} />
+      <section className="hero-section" style={{ background: 'transparent' }}>
+        <div className="hero-overlay"></div>
+        <div className="hero-content">
+          <h2>Better Forecasts<br />for a Safer<br />Tomorrow</h2>
+          <p>Advanced Artificial Intelligence for Next-Generation Tropical Cyclone Identification, Intensity Estimation, and Trajectory Forecasting.</p>
+        </div>
+
+        {/* Login Card */}
+        <div className="login-card">
+          {mounted && currentUser ? (
+            /* ── LOGGED IN STATE ── */
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', margin: '1rem 0' }}>
+                {currentUser.role === 'admin' ? '🛰️' : currentUser.role === 'ndrf' ? '🚨' : '🏠'}
+              </div>
+              <h3 style={{ marginBottom: '0.25rem' }}>Welcome back!</h3>
+              <p style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '0.25rem' }}>{currentUser.username}</p>
+              <span style={{
+                display: 'inline-block', fontSize: '0.75rem', fontWeight: 700,
+                background: currentUser.role === 'admin' ? '#1d4ed8' : currentUser.role === 'ndrf' ? '#c2410c' : '#065f46',
+                color: 'white', padding: '3px 12px', borderRadius: '20px', marginBottom: '1.5rem',
+              }}>
+                {currentUser.role_label}
+              </span>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {currentUser.role === 'admin' && (
+                  <a href="/dashboard" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block' }}>
+                    🛰️ Go to AI Dashboard
+                  </a>
+                )}
+                {(currentUser.role === 'admin' || currentUser.role === 'ndrf') && (
+                  <a href="/map" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: 'rgba(249,115,22,0.3)', border: '1px solid #f97316' }}>
+                    🗺️ Interactive Map
+                  </a>
+                )}
+                <a href="/reports" className="login-btn" style={{ textAlign: 'center', textDecoration: 'none', display: 'block', background: 'rgba(16,185,129,0.3)', border: '1px solid #10b981' }}>
+                  📋 Bulletins &amp; Reports
+                </a>
+              </div>
+
+              <button onClick={handleLogout} style={{
+                marginTop: '1.5rem', background: 'transparent', border: '1px solid rgba(239,68,68,0.5)',
+                color: '#ef4444', padding: '8px 24px', borderRadius: '8px', cursor: 'pointer', width: '100%',
+                fontSize: '0.85rem',
+              }}>
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            /* ── NOT LOGGED IN ── */
+            <>
+              <h3>Login to Stride AI</h3>
+              <p style={{ fontSize: '0.9rem', opacity: 0.8, marginBottom: '1.5rem' }}>
+                Access your dashboard for advanced weather and climate intelligence.
+              </p>
+
+              {mode === 'login' ? (
+                <form onSubmit={handleAuthSubmit}>
+                  <div className="input-group" style={{ marginBottom: '1rem' }}>
+                    <input type="text" className="input-field" placeholder="Username / Email ID" value={username} onChange={e => setUsername(e.target.value)} required />
+                  </div>
+                  <div className="input-group" style={{ marginBottom: '1rem' }}>
+                    <input type="password" className="input-field" placeholder="🔒 Password" value={password} onChange={e => setPassword(e.target.value)} required />
+                  </div>
+
+                  <div className="login-options" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '1.5rem', color: '#cbd5e1' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <input type="checkbox" defaultChecked /> Remember me
+                    </label>
+                    <span style={{ cursor: 'pointer' }}>Forgot Password?</span>
+                  </div>
+
+                  {error && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem', padding: '8px', background: 'rgba(239,68,68,0.1)', borderRadius: '6px' }}>{error}</div>}
+
+                  <button type="submit" disabled={loading} className="login-btn" style={{ width: '100%', background: '#0ea5e9' }}>
+                    {loading ? 'Authenticating...' : 'Login →'}
+                  </button>
+
+                  <div style={{ textAlign: 'center', margin: '1rem 0', opacity: 0.5, fontSize: '0.85rem' }}>OR</div>
+
+                  <button type="button" onClick={() => { setMode('register'); setError(''); setSelectedRole(''); }}
+                    className="login-btn" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', width: '100%' }}>
+                    + Create New Account
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleAuthSubmit}>
+                  <div className="input-group" style={{ marginBottom: '0.75rem' }}>
+                    <select className="input-field" value={selectedRole} onChange={e => setSelectedRole(e.target.value)} required style={{ background: 'rgba(0,0,0,0.2)' }}>
+                      <option value="">Select Role...</option>
+                      <option value="admin">IMD Official</option>
+                      <option value="ndrf">NDRF Responder</option>
+                      <option value="civilian">Public User</option>
+                    </select>
+                  </div>
+                  <div className="input-group" style={{ marginBottom: '0.75rem' }}>
+                    <input type="text" className="input-field" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
+                  </div>
+                  <div className="input-group" style={{ marginBottom: '0.75rem' }}>
+                    <input type="email" className="input-field" placeholder="Email (optional)" value={email} onChange={e => setEmail(e.target.value)} />
+                  </div>
+                  <div className="input-group" style={{ marginBottom: '0.75rem' }}>
+                    <input type="password" className="input-field" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+                  </div>
+
+                  {error && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '0.75rem', padding: '8px', background: 'rgba(239,68,68,0.1)', borderRadius: '6px' }}>{error}</div>}
+
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button type="button" onClick={() => setMode('login')} className="login-btn" style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.3)' }}>
+                      Back
+                    </button>
+                    <button type="submit" disabled={loading} className="login-btn" style={{ flex: 2 }}>
+                      {loading ? 'Creating...' : 'Create Account'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Government Portals */}
+      <section className="services-section" style={{
+        background: 'rgba(255,255,255,0.05)',
+        borderTop: '1px solid rgba(255,255,255,0.1)', padding: '4rem 5%', flex: 1
+      }}>
+        <h2 style={{ color: 'white', textAlign: 'center', marginBottom: '3rem', fontSize: '1.8rem', fontWeight: 600 }}>Explore Government Portals</h2>
+        <div className="services-grid">
+          <a href="https://mausam.imd.gov.in" target="_blank" rel="noopener noreferrer" className="service-card card-blue" style={{ background: 'rgba(33,150,243,0.85)', backdropFilter: 'blur(5px)' }}>
+            <div>
+              <h4>India Meteorological Dept (IMD)</h4>
+              <p style={{ fontSize: '0.9rem', opacity: 0.9, marginTop: '10px' }}>Official weather forecasts, cyclone warnings, and climate data for India.</p>
+            </div>
+            <div className="read-more">Visit Portal →</div>
+          </a>
+          <a href="https://moes.gov.in" target="_blank" rel="noopener noreferrer" className="service-card card-yellow" style={{ background: 'rgba(251,192,45,0.9)', backdropFilter: 'blur(5px)' }}>
+            <div>
+              <h4>Ministry of Earth Sciences</h4>
+              <p style={{ fontSize: '0.9rem', marginTop: '10px' }}>Central policies and guidelines for atmospheric and oceanic research.</p>
+            </div>
+            <div className="read-more">Visit Portal →</div>
+          </a>
+          <a href="https://ndma.gov.in" target="_blank" rel="noopener noreferrer" className="service-card card-green" style={{ background: 'rgba(76,175,80,0.85)', backdropFilter: 'blur(5px)' }}>
+            <div>
+              <h4>National Disaster Mgmt</h4>
+              <p style={{ fontSize: '0.9rem', marginTop: '10px' }}>Disaster response, NDRF coordination, and national safety guidelines.</p>
+            </div>
+            <div className="read-more">Visit Portal →</div>
+          </a>
+        </div>
+      </section>
     </main>
   );
 }
