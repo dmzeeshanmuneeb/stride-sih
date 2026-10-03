@@ -1,310 +1,296 @@
 "use client";
 import React, { useRef, useMemo, useEffect, useState } from "react";
-import { Canvas, useFrame, useThree, useLoader } from "@react-three/fiber";
-import { Html, Line, Stars } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
-const EARTH_RADIUS = 10;
-const INITIAL_LAT = 15;
-const INITIAL_LON = 88;
+const CYCLONE_FRAGMENT_SHADER = `
+uniform float uTime;
+uniform vec2 uResolution;
+varying vec2 vUv;
 
-const getSphericalPos = (lat: number, lon: number, radius: number) => {
-  const phi = (90 - lat) * (Math.PI / 180);
-  const theta = (lon + 180) * (Math.PI / 180);
-  return new THREE.Vector3(
-    -(radius * Math.sin(phi) * Math.cos(theta)),
-    radius * Math.cos(phi),
-    radius * Math.sin(phi) * Math.sin(theta)
+// Simplex noise implementation
+vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+
+float snoise(vec2 v) {
+  const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
+                      0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
+                     -0.577350269189626,  // -1.0 + 2.0 * C.x
+                      0.024390243902439); // 1.0 / 41.0
+  vec2 i  = floor(v + dot(v, C.yy) );
+  vec2 x0 = v -   i + dot(i, C.xx);
+  vec2 i1;
+  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i = mod289(i);
+  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+    + i.x + vec3(0.0, i1.x, 1.0 ));
+  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+  m = m*m ;
+  m = m*m ;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+  vec3 g;
+  g.x  = a0.x  * x0.x  + h.x  * x0.y;
+  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
+float fbm(vec2 x) {
+  float v = 0.0;
+  float a = 0.5;
+  vec2 shift = vec2(100.0);
+  mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
+  for (int i = 0; i < 5; ++i) {
+    v += a * snoise(x);
+    x = rot * x * 2.0 + shift;
+    a *= 0.5;
+  }
+  return v;
+}
+
+void main() {
+  vec2 p = (vUv - 0.5) * 2.0;
+  p.x *= uResolution.x / uResolution.y;
+
+  // Center off-center to the left
+  vec2 center = vec2(-0.8, 0.0);
+  vec2 d = p - center;
+  
+  float r = length(d);
+  float angle = atan(d.y, d.x);
+  
+  // Slow rotation
+  float rotation = uTime * -0.07; // 1 full turn ~90s
+  
+  // Spiral distortion
+  float spiral = angle + r * 4.0 - rotation;
+  
+  // Base noise mapped along spiral
+  vec2 uvSpiral = vec2(cos(spiral), sin(spiral)) * r;
+  float noise = fbm(uvSpiral * 3.0 - uTime * 0.1);
+  float noise2 = fbm(uvSpiral * 6.0 + uTime * 0.05);
+  
+  // Mix layers
+  float cloud = noise * 0.7 + noise2 * 0.3;
+  
+  // Eye of the cyclone
+  float eyeWall = smoothstep(0.1, 0.3, r) * smoothstep(1.5, 0.5, r);
+  
+  // Apply spiral bands structure
+  float bands = sin(spiral * 3.0 + fbm(uvSpiral * 2.0) * 3.0) * 0.5 + 0.5;
+  bands = smoothstep(0.3, 0.8, bands);
+  
+  // Final density
+  float density = cloud * eyeWall * (0.4 + 0.6 * bands);
+  density = clamp(density, 0.0, 1.0);
+  
+  // Lighting: Cold white-blue highlights from one side (top-right)
+  vec3 baseColor = vec3(0.02, 0.03, 0.05); // Dark navy ocean
+  vec3 shadowColor = vec3(0.1, 0.15, 0.25);
+  vec3 highlightColor = vec3(0.85, 0.9, 0.95);
+  
+  // Directional lighting
+  vec2 lightDir = normalize(vec2(1.0, 1.0));
+  float light = dot(normalize(d), lightDir) * 0.5 + 0.5;
+  light = mix(0.3, 1.0, light);
+  
+  vec3 finalColor = mix(baseColor, shadowColor, density);
+  finalColor = mix(finalColor, highlightColor, density * density * light);
+  
+  // Stars / Dust layer (very fine)
+  float starNoise = fbm(p * 50.0);
+  float stars = smoothstep(0.8, 1.0, starNoise) * (1.0 - density);
+  finalColor += vec3(stars * 0.3);
+  
+  // Vignette
+  float vignette = smoothstep(2.0, 0.0, length(p));
+  finalColor *= vignette;
+
+  gl_FragColor = vec4(finalColor, 1.0);
+}
+`;
+
+const CYCLONE_VERTEX_SHADER = `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+const CycloneBackground = () => {
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
+  const { size } = useThree();
+
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uResolution: { value: new THREE.Vector2(size.width, size.height) },
+    }),
+    []
+  );
+
+  useFrame((state) => {
+    if (materialRef.current) {
+      materialRef.current.uniforms.uTime.value = state.clock.getElapsedTime();
+      materialRef.current.uniforms.uResolution.value.set(state.size.width, state.size.height);
+    }
+  });
+
+  return (
+    <mesh>
+      <planeGeometry args={[2, 2]} />
+      <shaderMaterial
+        ref={materialRef}
+        vertexShader={CYCLONE_VERTEX_SHADER}
+        fragmentShader={CYCLONE_FRAGMENT_SHADER}
+        uniforms={uniforms}
+        depthWrite={false}
+      />
+    </mesh>
   );
 };
 
-const createCloudPuff = () => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 64;
-  canvas.height = 64;
-  const ctx = canvas.getContext("2d");
-  if (ctx) {
-    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-    gradient.addColorStop(0.2, "rgba(200, 240, 255, 0.8)");
-    gradient.addColorStop(0.6, "rgba(100, 200, 255, 0.2)");
-    gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 64, 64);
-  }
-  return new THREE.CanvasTexture(canvas);
-};
-
-const CycloneClouds = () => {
-  const count = 3000;
-  const meshRef = useRef<THREE.InstancedMesh>(null);
-  const cloudTex = useMemo(() => createCloudPuff(), []);
-
+const ForecastTrack = () => {
+  const [progress, setProgress] = useState(0);
+  
   useEffect(() => {
-    if (!meshRef.current) return;
-    const dummy = new THREE.Object3D();
-    const color = new THREE.Color();
-    const colors = new Float32Array(count * 3);
-
-    for (let i = 0; i < count; i++) {
-      const arms = 6;
-      const armIndex = i % arms;
-      const t = Math.random();
-      const r = 0.05 + t * 0.8;
-      const baseAngle = (armIndex / arms) * Math.PI * 2;
-      const spiralTwist = r * 8; 
-      const angleVariance = (Math.random() - 0.5) * 1.2 * (1 - t * 0.5); 
-      const angle = baseAngle - spiralTwist + angleVariance;
-      
-      const x = Math.cos(angle) * r;
-      const y = Math.sin(angle) * r;
-      const z = (Math.random() - 0.5) * 0.1 + 0.05; 
-      
-      const scale = 0.03 + t * 0.15 + Math.random() * 0.04;
-
-      dummy.position.set(x, y, z);
-      dummy.rotation.z = Math.random() * Math.PI * 2;
-      dummy.scale.set(scale, scale, scale);
-      dummy.updateMatrix();
-      
-      meshRef.current.setMatrixAt(i, dummy.matrix);
-
-      // Cyberpunk glowing colors near center, white outer
-      if (t < 0.3) {
-        color.setRGB(0.2, 0.8, 1);
-      } else {
-        const intensity = 0.9 - t * 0.3;
-        color.setRGB(intensity, intensity, intensity + 0.1);
-      }
-      color.toArray(colors, i * 3);
-    }
+    // Draw the track once on load over 2.5 seconds
+    const timer = setTimeout(() => {
+      let start = performance.now();
+      const animate = (time: number) => {
+        const elapsed = (time - start) / 2500;
+        if (elapsed < 1) {
+          setProgress(elapsed);
+          requestAnimationFrame(animate);
+        } else {
+          setProgress(1);
+        }
+      };
+      requestAnimationFrame(animate);
+    }, 1000); // 1s delay before drawing
     
-    meshRef.current.instanceMatrix.needsUpdate = true;
-    meshRef.current.geometry.setAttribute("color", new THREE.InstancedBufferAttribute(colors, 3));
+    return () => clearTimeout(timer);
   }, []);
 
-  useFrame(({ clock }) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.z = -clock.getElapsedTime() * 0.5;
-    }
-  });
+  if (progress === 0) return null;
 
-  return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} renderOrder={2}>
-      <planeGeometry args={[1, 1]} />
-      <meshBasicMaterial 
-        map={cloudTex} 
-        vertexColors 
-        transparent 
-        opacity={0.6}
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
-    </instancedMesh>
-  );
-};
+  // The eye is at (-0.8, 0) in screen space. Let's convert to world space for the line.
+  // Using an OrthographicCamera, coordinates match aspect ratio.
+  const { viewport } = useThree();
+  const eyeX = -0.8 * (viewport.width / 2);
+  const eyeY = 0;
+  
+  // Coast target
+  const targetX = 0.2 * (viewport.width / 2);
+  const targetY = 0.4 * (viewport.width / 2);
 
-const HUDChips = ({ latLon }: { latLon: { lat: number, lon: number } }) => {
-  return (
-    <Html position={[0.7, 0.7, 0]} center style={{ pointerEvents: 'none' }}>
-      <div style={{
-        background: "rgba(5, 7, 13, 0.6)",
-        backdropFilter: "blur(8px)",
-        border: "1px solid rgba(47, 212, 255, 0.3)",
-        boxShadow: "0 0 15px rgba(47, 212, 255, 0.2)",
-        padding: "1rem",
-        borderRadius: "8px",
-        color: "#ffffff",
-        fontFamily: "'Space Grotesk', sans-serif",
-        width: "220px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "0.5rem"
-      }}>
-        <div style={{ fontSize: "0.7rem", color: "#2fd4ff", letterSpacing: "2px", fontWeight: 700, textTransform: "uppercase" }}>Target Lock</div>
-        <div style={{ fontSize: "1.2rem", fontWeight: 700 }}>Cyclone 04B</div>
-        
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", marginTop: "0.5rem" }}>
-          <span style={{ color: "#8b9bb4" }}>Wind</span>
-          <span style={{ color: "#ff7a2f", fontWeight: 600 }}>185 km/h</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-          <span style={{ color: "#8b9bb4" }}>Pressure</span>
-          <span style={{ color: "#2fd4ff", fontWeight: 600 }}>940 hPa</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem" }}>
-          <span style={{ color: "#8b9bb4" }}>Landfall ETA</span>
-          <span style={{ color: "#ffffff", fontWeight: 600 }}>36h</span>
-        </div>
-        <div style={{ width: "100%", height: "2px", background: "linear-gradient(90deg, #ff7a2f, transparent)", marginTop: "0.5rem" }} />
-      </div>
-    </Html>
-  );
-};
-
-const InteractiveCycloneSystem = () => {
-  const [latLon, setLatLon] = useState({ lat: INITIAL_LAT, lon: INITIAL_LON });
-  const groupRef = useRef<THREE.Group>(null);
-
-  useFrame(() => {
-    setLatLon(prev => ({
-      lat: prev.lat + 0.001,
-      lon: prev.lon - 0.001
-    }));
+  // Curve points
+  const points = [];
+  const segments = 50;
+  const currentSegments = Math.max(1, Math.floor(segments * progress));
+  
+  for (let i = 0; i <= currentSegments; i++) {
+    const t = i / segments;
+    // Simple quadratic bezier curve
+    const cx = eyeX + (targetX - eyeX) * 0.5;
+    const cy = eyeY + (targetY - eyeY) * 0.8; // Bend upwards
     
-    if (groupRef.current) {
-      const pos = getSphericalPos(latLon.lat, latLon.lon, EARTH_RADIUS + 0.02);
-      groupRef.current.position.copy(pos);
-      groupRef.current.lookAt(new THREE.Vector3(0, 0, 0));
-    }
-  });
-
-  const trajectoryPoints: [number, number, number][] = [];
-  for (let i = 0; i <= 10; i++) {
-    const pLat = latLon.lat + i * 1.5;
-    const pLon = latLon.lon - i * 1.2;
-    const p = getSphericalPos(pLat, pLon, EARTH_RADIUS + 0.01);
-    trajectoryPoints.push([p.x, p.y, p.z]);
+    const x = (1-t)*(1-t)*eyeX + 2*(1-t)*t*cx + t*t*targetX;
+    const y = (1-t)*(1-t)*eyeY + 2*(1-t)*t*cy + t*t*targetY;
+    points.push(new THREE.Vector3(x, y, 0));
   }
 
-  return (
-    <>
-      <group ref={groupRef}>
-        <CycloneClouds />
-        <HUDChips latLon={latLon} />
-      </group>
-
-      <group>
-        <Line
-          points={trajectoryPoints}
-          color="#ff7a2f"
-          lineWidth={2}
-          dashed={true}
-          dashSize={0.2}
-          dashScale={1}
-          transparent
-          opacity={0.8}
-        />
-      </group>
-    </>
-  );
-};
-
-const PulsingMarker = ({ lat, lon, label }: { lat: number, lon: number, label: string }) => {
-  const pos = getSphericalPos(lat, lon, EARTH_RADIUS + 0.005);
-  return (
-    <Html position={[pos.x, pos.y, pos.z]} center style={{ pointerEvents: 'none' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ fontSize: "0.6rem", color: "#2fd4ff", fontWeight: 700, letterSpacing: "1px", marginBottom: "4px", textShadow: "0 0 10px #2fd4ff" }}>
-          {label}
-        </div>
-        <div className="marker-pulse" />
-      </div>
-    </Html>
-  );
-};
-
-const EarthMap = () => {
-  let texture = null;
-  try {
-    texture = useLoader(THREE.TextureLoader, '/satellite_bg.jpg');
-    texture.colorSpace = THREE.SRGBColorSpace;
-  } catch(e) {}
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  
+  const endPoint = points[points.length - 1];
 
   return (
     <group>
-      <mesh name="EarthSphere">
-        <sphereGeometry args={[EARTH_RADIUS, 64, 64]} />
-        <meshStandardMaterial 
-          map={texture || undefined}
-          color={texture ? "#aaaaaa" : "#05070d"} 
-          roughness={0.9}
-        />
-      </mesh>
+      <primitive object={new THREE.Line(
+        geometry, 
+        new THREE.LineDashedMaterial({ color: "#ff7a2f", dashSize: 0.2, gapSize: 0.2, transparent: true, opacity: 0.6, linewidth: 1 })
+      )} />
       
-      {/* Fresnel Atmosphere */}
-      <mesh>
-        <sphereGeometry args={[EARTH_RADIUS + 0.2, 64, 64]} />
-        <meshBasicMaterial 
-          color="#1e6bff" 
-          transparent 
-          opacity={0.15} 
-          blending={THREE.AdditiveBlending} 
-          side={THREE.BackSide} 
-        />
-      </mesh>
-
-      <PulsingMarker lat={22.57} lon={88.36} label="KOLKATA" />
-      <PulsingMarker lat={13.08} lon={80.27} label="CHENNAI" />
-      <PulsingMarker lat={19.07} lon={72.87} label="MUMBAI" />
+      {/* Pulsing dot at the end */}
+      {progress > 0 && (
+        <mesh position={[endPoint.x, endPoint.y, 0]}>
+          <circleGeometry args={[0.04, 16]} />
+          <meshBasicMaterial color="#ff7a2f" />
+          {progress === 1 && (
+            <Html center>
+              <div style={{
+                width: "8px", height: "8px",
+                borderRadius: "50%",
+                background: "#ff7a2f",
+                boxShadow: "0 0 10px #ff7a2f",
+                animation: "pulse 2s infinite ease-out"
+              }} />
+              <style dangerouslySetInnerHTML={{__html: `
+                @keyframes pulse {
+                  0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(255,122,47,0.7); }
+                  70% { transform: scale(2.5); opacity: 0; box-shadow: 0 0 0 10px rgba(255,122,47,0); }
+                  100% { transform: scale(1); opacity: 0; }
+                }
+              `}} />
+            </Html>
+          )}
+        </mesh>
+      )}
     </group>
   );
 };
 
-const SceneSetup = () => {
-  const { camera, mouse } = useThree();
+const Scene = () => {
   const groupRef = useRef<THREE.Group>(null);
-
-  useEffect(() => {
-    const target = getSphericalPos(18, 80, EARTH_RADIUS);
-    const camPos = getSphericalPos(10, 88, EARTH_RADIUS + 5);
-    camera.position.copy(camPos);
-    camera.lookAt(target);
-    camera.updateProjectionMatrix();
-  }, [camera]);
-
+  const { mouse } = useThree();
+  
   useFrame(() => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = mouse.x * 0.03;
-      groupRef.current.rotation.x = -mouse.y * 0.03;
+      // "barely noticeable parallax on mouse move (max 10px)"
+      // Mapping mouse (-1 to 1) to a tiny translation
+      groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, mouse.x * 0.1, 0.05);
+      groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, mouse.y * 0.1, 0.05);
     }
   });
 
   return (
     <group ref={groupRef}>
-      <ambientLight intensity={0.1} />
-      <directionalLight position={[10, 5, 10]} intensity={1.5} color="#2fd4ff" />
-      <directionalLight position={[-10, 0, -10]} intensity={0.5} color="#1e6bff" />
-      
-      <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
-      
-      <EarthMap />
-      <InteractiveCycloneSystem />
+      <CycloneBackground />
+      <ForecastTrack />
     </group>
   );
 };
 
 export default function LoginVisualization() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduceMotion(mediaQuery.matches);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
-    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0, opacity: mounted ? 1 : 0, transition: "opacity 1.5s ease" }}>
-      <Canvas>
-        <color attach="background" args={['#020305']} />
-        <SceneSetup />
+    <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0, background: "#05070C" }}>
+      <Canvas 
+        orthographic 
+        camera={{ position: [0, 0, 1], zoom: 1 }}
+        frameloop={reduceMotion ? "demand" : "always"}
+        dpr={Math.min(window.devicePixelRatio, 1.5)}
+      >
+        <Scene />
       </Canvas>
-      <div style={{
-        position: "absolute",
-        top: 0, right: 0, bottom: 0, width: "100%",
-        background: "linear-gradient(90deg, transparent 40%, rgba(5,7,13,0.9) 70%, #05070d 100%)",
-        pointerEvents: "none"
-      }} />
-
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes pulseMarker {
-          0% { transform: scale(0.5); opacity: 1; box-shadow: 0 0 0 0 rgba(47, 212, 255, 0.7); }
-          70% { transform: scale(2); opacity: 0; box-shadow: 0 0 0 10px rgba(47, 212, 255, 0); }
-          100% { transform: scale(0.5); opacity: 0; }
-        }
-        .marker-pulse {
-          width: 8px;
-          height: 8px;
-          background: #2fd4ff;
-          border-radius: 50%;
-          animation: pulseMarker 2s infinite;
-        }
-      `}} />
     </div>
   );
 }

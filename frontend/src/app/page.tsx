@@ -1,47 +1,10 @@
 "use client";
-import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle2, Globe2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowRight } from 'lucide-react';
 import LandingPage from '../components/LandingPage';
 import LoginVisualization from '../components/LoginVisualization';
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-// --- Framer Motion Variants ---
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.3 }
-  }
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
-};
-
-const FloatingLabelInput = ({ label, type, value, onChange, required = false }: any) => {
-  const [focused, setFocused] = useState(false);
-  return (
-    <div style={{ position: "relative", marginBottom: "1.5rem" }} className="input-group">
-      <input
-        type={type}
-        value={value}
-        onChange={onChange}
-        required={required}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        className="glass-input"
-        placeholder=" "
-      />
-      <label className={`floating-label ${(focused || value) ? 'active' : ''}`}>
-        {label}
-      </label>
-      <div className="input-glow" />
-    </div>
-  );
-};
 
 export default function Home() {
   const [showLanding, setShowLanding] = useState(true);
@@ -55,9 +18,6 @@ export default function Home() {
   const [success, setSuccess] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [mounted, setMounted] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     setMounted(true);
@@ -65,31 +25,7 @@ export default function Home() {
       const raw = localStorage.getItem('stride_user');
       if (raw) setCurrentUser(JSON.parse(raw));
     } catch { }
-
-    const updateCursor = (e: MouseEvent) => {
-      setCursorPos({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', updateCursor);
-    return () => window.removeEventListener('mousemove', updateCursor);
   }, []);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -5;
-    const rotateY = ((x - centerX) / centerX) * 5;
-
-    cardRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-  };
-
-  const handleMouseLeave = () => {
-    if (!cardRef.current) return;
-    cardRef.current.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
-  };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,16 +54,15 @@ export default function Home() {
         localStorage.setItem("stride_user", JSON.stringify(data.user));
         
         setSuccess(true);
-        setIsTransitioning(true);
         setTimeout(() => {
           const userRole = data.user.role;
           const dest = userRole === "admin" ? "/dashboard" : userRole === "ndrf" ? "/map" : "/reports";
           window.location.href = dest;
-        }, 1500);
+        }, 800);
 
       } else if (mode === "register" && data.ok) {
         setMode("login"); setSelectedRole(""); setError("");
-        alert(`Account created! You can now log in as ${username}.`);
+        alert(`Account created. You can now log in.`);
         setLoading(false);
       }
     } catch {
@@ -146,394 +81,414 @@ export default function Home() {
     <>
       {showLanding && <LandingPage onEnter={() => setShowLanding(false)} />}
       
-      {/* Custom Global Cursor Glow */}
-      <div className="cursor-glow" style={{ left: cursorPos.x, top: cursorPos.y }} />
-
-      <main style={{ 
-        minHeight: '100vh', 
-        position: 'relative', 
-        display: showLanding ? 'none' : 'flex',
-        flexDirection: 'column',
-        background: '#05070d',
-        color: '#EAEAEA',
-        fontFamily: "'Space Grotesk', sans-serif",
-        overflow: 'hidden'
-      }}>
+      <main className="editorial-layout" style={{ display: showLanding ? 'none' : 'flex' }}>
         
         <LoginVisualization />
 
-        <div className="noise-overlay" />
+        {/* Global Light Grain */}
+        <div className="film-grain" />
 
-        {/* Transition Overlay */}
-        <div style={{
-          position: "absolute",
-          top: 0, left: 0, width: "100%", height: "100%",
-          background: "#05070d",
-          opacity: isTransitioning ? 1 : 0,
-          pointerEvents: "none",
-          transition: "opacity 1s cubic-bezier(0.4, 0, 0.2, 1)",
-          zIndex: 9999
-        }} />
-
-        {/* Top Navbar */}
-        <motion.nav 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          style={{
-            position: 'relative',
-            zIndex: 10,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '2rem 4%',
-            pointerEvents: 'none'
-          }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div className="logo-glow">
-              <Globe2 size={28} color="#2fd4ff" />
-            </div>
-            <div>
-              <div style={{ fontSize: "1.2rem", fontWeight: 700, letterSpacing: "2px", color: "#FFFFFF", textShadow: "0 0 10px rgba(47, 212, 255, 0.5)" }}>
-                STRIDE-AI
-              </div>
-            </div>
+        {/* Transparent Nav */}
+        <nav className="nav-bar">
+          <div className="nav-brand">
+            <img src="/stride_ai_logo.png" alt="STRIDE-AI" style={{ height: "24px", width: "24px", objectFit: "contain" }} />
+            <span className="nav-wordmark">STRIDE-AI / TRACK MOES SIH</span>
           </div>
-          
-          <div style={{ display: "flex", alignItems: "center", gap: "2rem", pointerEvents: "auto" }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: "rgba(5,7,13,0.5)", padding: "8px 16px", borderRadius: "20px", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.05)" }}>
+          <div className="nav-actions">
+            <div className="status-indicator">
               <div className="status-dot" />
-              <div style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "1.5px", color: "#2fd4ff" }}>SYSTEM ONLINE</div>
+              <span>System online</span>
             </div>
             <select className="lang-select">
               <option value="en">EN</option>
               <option value="hi">HI</option>
             </select>
           </div>
-        </motion.nav>
+        </nav>
 
-        {/* Main Content Area */}
-        <div style={{
-          position: 'relative',
-          zIndex: 10,
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          padding: '0 5%',
-          opacity: mounted && !showLanding ? 1 : 0,
-          gap: '2rem',
-          flexWrap: 'wrap'
-        }}>
+        {/* Asymmetric Content */}
+        <div className="content-container" style={{ opacity: mounted && !showLanding ? 1 : 0, transition: 'opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s' }}>
           
-          <div style={{ flex: '1 1 50%', minWidth: '300px', pointerEvents: 'none' }} />
+          <div className="left-column">
+            <h1 className="headline">Forecast the storm before it forms.</h1>
+            <p className="sub-headline">Advanced tropical cyclone intelligence for the Bay of Bengal.</p>
+            
+            <div className="technical-footer">
+              LSTM-CNN · TCIR dataset · Bay of Bengal
+            </div>
+          </div>
 
-          <motion.div 
-            initial="hidden"
-            animate={mounted && !showLanding ? "show" : "hidden"}
-            variants={staggerContainer}
-            style={{ flex: '1 1 35%', maxWidth: '440px', marginLeft: "auto", marginRight: "2rem" }}
-          >
-            <motion.div 
-              variants={fadeUp}
-              ref={cardRef}
-              className="glass-card"
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-            >
-              <div className="card-glare" />
-
+          <div className="right-column">
+            <div className="login-card">
               {currentUser ? (
-                <div style={{ textAlign: 'left', position: "relative", zIndex: 2 }}>
-                  <h3 style={{ fontSize: "1.5rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#FFFFFF" }}>Welcome back</h3>
-                  <p style={{ fontSize: '0.9rem', color: "#8b9bb4", marginBottom: '2rem' }}>{currentUser.username} &mdash; {currentUser.role_label}</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {currentUser.role === 'admin' && <a href="/dashboard" className="btn-primary">Go to Dashboard</a>}
-                    {(currentUser.role === 'admin' || currentUser.role === 'ndrf') && <a href="/map" className="btn-primary">Interactive Map</a>}
-                    <a href="/reports" className="btn-secondary">Bulletins &amp; Reports</a>
+                <div>
+                  <h3 className="card-title">Welcome back</h3>
+                  <p className="card-subtitle">{currentUser.username} &mdash; {currentUser.role_label}</p>
+                  
+                  <div className="action-stack">
+                    {currentUser.role === 'admin' && <a href="/dashboard" className="solid-btn">Go to Dashboard</a>}
+                    {(currentUser.role === 'admin' || currentUser.role === 'ndrf') && <a href="/map" className="solid-btn">Interactive Map</a>}
+                    <a href="/reports" className="ghost-btn">Bulletins &amp; Reports</a>
                   </div>
-                  <button onClick={handleLogout} className="btn-secondary" style={{ marginTop: '2rem', width: '100%' }}>Sign Out</button>
+                  <button onClick={handleLogout} className="ghost-btn sign-out-btn">Sign Out</button>
                 </div>
               ) : (
-                <div style={{ position: "relative", zIndex: 2 }}>
-                  <motion.h3 variants={fadeUp} style={{ fontSize: "1.5rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#FFFFFF", letterSpacing: "1px" }}>
-                    {mode === 'login' ? 'Access Port' : 'Initialize Account'}
-                  </motion.h3>
-                  <motion.p variants={fadeUp} style={{ fontSize: '0.9rem', color: "#8b9bb4", marginBottom: '2.5rem' }}>
-                    Secure gateway to STRIDE-AI cyclone forecasting.
-                  </motion.p>
+                <form onSubmit={handleAuthSubmit}>
+                  <h3 className="card-title">{mode === 'login' ? 'Welcome back' : 'Create an account'}</h3>
+                  <p className="card-subtitle">
+                    {mode === 'login' ? 'Sign in to access intelligence.' : 'Register for access.'}
+                  </p>
 
-                  <form onSubmit={handleAuthSubmit}>
-                    {mode === 'login' ? (
-                      <>
-                        <motion.div variants={fadeUp}>
-                          <FloatingLabelInput label="Email or Username" type="text" value={username} onChange={(e: any) => setUsername(e.target.value)} required />
-                        </motion.div>
-                        <motion.div variants={fadeUp}>
-                          <FloatingLabelInput label="Password" type="password" value={password} onChange={(e: any) => setPassword(e.target.value)} required />
-                        </motion.div>
+                  {mode === 'login' ? (
+                    <>
+                      <div className="input-group">
+                        <label className="input-label">Email or Username</label>
+                        <input type="text" className="flat-input" value={username} onChange={e => setUsername(e.target.value)} required />
+                      </div>
+                      <div className="input-group">
+                        <label className="input-label">Password</label>
+                        <input type="password" className="flat-input" value={password} onChange={e => setPassword(e.target.value)} required />
+                      </div>
 
-                        <motion.div variants={fadeUp} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '2.5rem', color: '#8b9bb4' }}>
-                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                            <input type="checkbox" defaultChecked className="cyber-checkbox" /> Remember me
-                          </label>
-                          <span className="hover-cyan" style={{ cursor: 'pointer', transition: "color 0.2s" }}>
-                            Forgot password?
-                          </span>
-                        </motion.div>
-                      </>
-                    ) : (
-                      <>
-                        <motion.div variants={fadeUp} style={{ marginBottom: "1.5rem" }} className="input-group">
-                          <select className="glass-input active" value={selectedRole} onChange={e => setSelectedRole(e.target.value)} required>
-                            <option value="" disabled>Select Clearance Level...</option>
-                            <option value="admin">IMD Official</option>
-                            <option value="ndrf">NDRF Responder</option>
-                            <option value="civilian">Public User</option>
-                          </select>
-                          <div className="input-glow" />
-                        </motion.div>
-                        <motion.div variants={fadeUp}><FloatingLabelInput label="Username" type="text" value={username} onChange={(e: any) => setUsername(e.target.value)} required /></motion.div>
-                        <motion.div variants={fadeUp}><FloatingLabelInput label="Email (optional)" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} /></motion.div>
-                        <motion.div variants={fadeUp}><FloatingLabelInput label="Password" type="password" value={password} onChange={(e: any) => setPassword(e.target.value)} required /></motion.div>
-                      </>
-                    )}
+                      <div className="form-meta">
+                        <label className="remember-me">
+                          <input type="checkbox" className="custom-checkbox" defaultChecked />
+                          <span>Remember me</span>
+                        </label>
+                        <span className="muted-link">Forgot password?</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="input-group">
+                        <label className="input-label">Role</label>
+                        <select className="flat-input" value={selectedRole} onChange={e => setSelectedRole(e.target.value)} required>
+                          <option value="" disabled>Select Role...</option>
+                          <option value="admin">IMD Official</option>
+                          <option value="ndrf">NDRF Responder</option>
+                          <option value="civilian">Public User</option>
+                        </select>
+                      </div>
+                      <div className="input-group">
+                        <label className="input-label">Username</label>
+                        <input type="text" className="flat-input" value={username} onChange={e => setUsername(e.target.value)} required />
+                      </div>
+                      <div className="input-group">
+                        <label className="input-label">Email (optional)</label>
+                        <input type="email" className="flat-input" value={email} onChange={e => setEmail(e.target.value)} />
+                      </div>
+                      <div className="input-group">
+                        <label className="input-label">Password</label>
+                        <input type="password" className="flat-input" value={password} onChange={e => setPassword(e.target.value)} required />
+                      </div>
+                    </>
+                  )}
 
-                    {error && (
-                      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} style={{ color: '#ff4a4a', fontSize: '0.8rem', marginBottom: '1.5rem', padding: '12px', background: 'rgba(255, 74, 74, 0.1)', border: '1px solid rgba(255, 74, 74, 0.3)', borderRadius: '6px' }}>
-                        {error}
-                      </motion.div>
-                    )}
+                  {error && <div className="error-message">{error}</div>}
 
-                    <motion.div variants={fadeUp} style={{ display: 'flex', gap: '1rem', flexDirection: mode === 'register' ? 'row' : 'column' }}>
-                      {mode === 'register' && (
-                        <button type="button" onClick={() => setMode('login')} className="btn-secondary" style={{ flex: 1 }}>Back</button>
+                  <div className="form-actions">
+                    <button type="submit" disabled={loading || success} className="solid-btn">
+                      {success ? 'Authenticating...' : loading ? (
+                        <div className="spinner" />
+                      ) : (
+                        <>{mode === 'login' ? 'Sign in' : 'Create account'} <ArrowRight size={16} className="btn-arrow" /></>
                       )}
-                      
-                      <button type="submit" disabled={loading || success} className="btn-primary magnetic-btn" style={{ flex: 2 }}>
-                        <div className="btn-shimmer" />
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', position: 'relative', zIndex: 2 }}>
-                          {success ? (
-                            <><CheckCircle2 size={18} /> Access Granted</>
-                          ) : loading ? (
-                            <div className="spinner" />
-                          ) : (
-                            <>{mode === 'login' ? 'SIGN IN' : 'CREATE ACCOUNT'} <ArrowRight size={18} className="btn-arrow" /></>
-                          )}
-                        </span>
-                      </button>
-                    </motion.div>
+                    </button>
+                  </div>
 
-                    {mode === 'login' && (
-                      <>
-                        <motion.div variants={fadeUp} style={{ display: "flex", alignItems: "center", margin: '2rem 0' }}>
-                          <div style={{ flex: 1, height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1))" }} />
-                          <div style={{ padding: "0 1rem", fontSize: '0.7rem', color: "#8b9bb4", letterSpacing: "2px" }}>OR</div>
-                          <div style={{ flex: 1, height: "1px", background: "linear-gradient(270deg, transparent, rgba(255,255,255,0.1))" }} />
-                        </motion.div>
-
-                        <motion.button variants={fadeUp} type="button" onClick={() => { setMode('register'); setError(''); setSelectedRole(''); }} className="btn-secondary">
-                          Create an account
-                        </motion.button>
-                      </>
-                    )}
-                  </form>
-                </div>
+                  {mode === 'login' ? (
+                    <button type="button" onClick={() => { setMode('register'); setError(''); setSelectedRole(''); }} className="ghost-btn mt-4">
+                      Create an account
+                    </button>
+                  ) : (
+                    <button type="button" onClick={() => setMode('login')} className="ghost-btn mt-4">
+                      Back to login
+                    </button>
+                  )}
+                </form>
               )}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
-
-        <motion.footer 
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-          style={{ position: "absolute", bottom: "1.5rem", width: "100%", textAlign: "center", fontSize: "0.75rem", color: "#8b9bb4", letterSpacing: "1px", pointerEvents: "none", zIndex: 10 }}
-        >
-          POWERED BY LSTM-CNN <span style={{ color: "#ff7a2f" }}>•</span> TRAINED ON TCIR DATASET
-        </motion.footer>
       </main>
 
       <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
+
         :root {
-          --cyan: #2fd4ff;
-          --orange: #ff7a2f;
-          --bg-dark: #05070d;
+          --base: #05070C;
+          --surface: rgba(10, 14, 24, 0.55);
+          --text: #EDEFF4;
+          --muted: #8A93A6;
+          --accent: #ff7a2f;
+          --border: rgba(255, 255, 255, 0.08);
+          --ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .cursor-glow {
-          position: fixed;
-          width: 300px;
-          height: 300px;
-          background: radial-gradient(circle, rgba(47, 212, 255, 0.15) 0%, rgba(0,0,0,0) 70%);
-          border-radius: 50%;
-          transform: translate(-50%, -50%);
-          pointer-events: none;
-          z-index: 9999;
-          mix-blend-mode: screen;
+        .editorial-layout {
+          min-height: 100vh;
+          position: relative;
+          background: var(--base);
+          color: var(--text);
+          font-family: 'Inter', sans-serif;
+          overflow: hidden;
+          flex-direction: column;
         }
 
-        .noise-overlay {
+        .film-grain {
           position: absolute;
           inset: 0;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-          opacity: 0.03;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+          opacity: 0.035;
           pointer-events: none;
           z-index: 1;
         }
 
+        .nav-bar {
+          position: relative;
+          z-index: 10;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 2rem 4vw;
+          pointer-events: none;
+        }
+        .nav-brand {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        .nav-wordmark {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.7rem;
+          color: var(--muted);
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+        .nav-actions {
+          display: flex;
+          align-items: center;
+          gap: 2rem;
+          pointer-events: auto;
+        }
+        .status-indicator {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-family: 'Inter', sans-serif;
+          font-size: 0.8rem;
+          color: var(--muted);
+        }
         .status-dot {
-          width: 8px; height: 8px;
+          width: 6px; height: 6px;
           background: #10b981;
           border-radius: 50%;
-          box-shadow: 0 0 10px #10b981;
-          animation: pulseDot 2s infinite;
         }
-        @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
-
         .lang-select {
           background: transparent;
-          color: #8b9bb4;
+          color: var(--muted);
           border: none;
-          font-family: inherit;
-          font-weight: 600;
+          font-family: 'Inter', sans-serif;
+          font-size: 0.8rem;
           cursor: pointer;
           outline: none;
         }
 
-        .glass-card {
+        .content-container {
           position: relative;
-          background: rgba(10, 15, 25, 0.4);
+          z-index: 10;
+          flex: 1;
+          display: flex;
+          align-items: center;
+          padding: 0 4vw;
+          gap: 4vw;
+        }
+        .left-column {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          position: relative;
+          height: 100%;
+        }
+        .headline {
+          font-family: 'Instrument Serif', serif;
+          font-size: clamp(3rem, 6vw, 5.5rem);
+          line-height: 1.05;
+          letter-spacing: -0.02em;
+          margin: 0 0 1rem 0;
+          color: var(--text);
+          font-weight: 400;
+          max-width: 700px;
+        }
+        .sub-headline {
+          font-size: 1.125rem;
+          color: var(--muted);
+          max-width: 500px;
+          line-height: 1.5;
+          margin: 0;
+        }
+        .technical-footer {
+          position: absolute;
+          bottom: 2rem;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.65rem;
+          color: var(--muted);
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+
+        .right-column {
+          flex: 0 0 420px;
+        }
+        
+        .login-card {
+          background: var(--surface);
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid var(--border);
           border-radius: 16px;
-          padding: 3rem 2.5rem;
-          box-shadow: 0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
-          transition: transform 0.1s ease;
-          transform-style: preserve-3d;
-          overflow: hidden;
+          padding: 2.5rem;
+          box-shadow: 0 24px 48px rgba(0,0,0,0.4);
         }
-        .glass-card::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          border-radius: 16px;
-          padding: 1px;
-          background: linear-gradient(135deg, rgba(47, 212, 255, 0.5), rgba(255, 122, 47, 0.1) 50%, rgba(255, 255, 255, 0.05));
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          pointer-events: none;
+        .card-title {
+          font-size: 1.25rem;
+          font-weight: 500;
+          margin: 0 0 0.25rem 0;
+          color: var(--text);
+          letter-spacing: -0.01em;
+        }
+        .card-subtitle {
+          font-size: 0.875rem;
+          color: var(--muted);
+          margin: 0 0 2rem 0;
         }
 
-        .card-glare {
-          position: absolute;
-          top: 0; left: -100%; width: 50%; height: 100%;
-          background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.05), rgba(255,255,255,0));
-          transform: skewX(-20deg);
-          pointer-events: none;
+        .input-group { margin-bottom: 1.25rem; }
+        .input-label {
+          display: block;
+          font-size: 0.75rem;
+          color: var(--muted);
+          margin-bottom: 0.5rem;
+          font-weight: 500;
         }
-        .glass-card:hover .card-glare {
-          animation: glare 1.5s ease-in-out;
-        }
-        @keyframes glare { 100% { left: 200%; } }
-
-        .input-group { position: relative; }
-        .glass-input {
+        .flat-input {
           width: 100%;
-          padding: 1rem 1rem 0.5rem;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 8px;
-          color: #fff;
+          padding: 0.75rem 1rem;
+          background: rgba(0,0,0,0.3);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          color: var(--text);
+          font-family: inherit;
+          font-size: 0.9rem;
+          outline: none;
+          transition: all 0.2s var(--ease);
+          box-sizing: border-box;
+        }
+        .flat-input:focus {
+          border-color: rgba(255,255,255,0.3);
+          box-shadow: 0 0 0 3px rgba(47, 212, 255, 0.1);
+        }
+
+        .form-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 2rem;
+          font-size: 0.8rem;
+          color: var(--muted);
+        }
+        .remember-me {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+        }
+        .custom-checkbox {
+          appearance: none;
+          width: 16px; height: 16px;
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 4px;
+          background: transparent;
+          cursor: pointer;
+          position: relative;
+        }
+        .custom-checkbox:checked {
+          background: var(--text);
+        }
+        .muted-link {
+          cursor: pointer;
+          transition: color 0.2s var(--ease);
+        }
+        .muted-link:hover { color: var(--text); }
+
+        .solid-btn {
+          width: 100%;
+          padding: 0.875rem;
+          background: var(--text);
+          color: var(--base);
+          border: none;
+          border-radius: 10px;
           font-family: inherit;
           font-size: 0.95rem;
-          outline: none;
-          transition: all 0.3s ease;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 0.5rem;
+          transition: opacity 0.2s var(--ease);
         }
-        .glass-input:focus {
-          background: rgba(47, 212, 255, 0.05);
-          border-color: rgba(47, 212, 255, 0.4);
+        .solid-btn:hover:not(:disabled) {
+          opacity: 0.9;
         }
-        .floating-label {
-          position: absolute;
-          left: 1rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #8b9bb4;
-          font-size: 0.9rem;
-          pointer-events: none;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .floating-label.active {
-          top: 0.6rem;
-          font-size: 0.65rem;
-          color: var(--cyan);
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        }
-        .input-glow {
-          position: absolute;
-          bottom: -1px; left: 0; width: 0%; height: 1px;
-          background: linear-gradient(90deg, var(--cyan), var(--orange));
-          transition: width 0.3s ease;
-        }
-        .glass-input:focus ~ .input-glow { width: 100%; box-shadow: 0 0 10px var(--cyan); }
+        .solid-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        .cyber-checkbox {
-          appearance: none; width: 16px; height: 16px;
-          border: 1px solid rgba(255,255,255,0.2); border-radius: 4px;
-          background: rgba(255,255,255,0.05); cursor: pointer;
-          position: relative; transition: all 0.2s;
-        }
-        .cyber-checkbox:checked {
-          background: var(--cyan); border-color: var(--cyan);
-          box-shadow: 0 0 10px rgba(47, 212, 255, 0.5);
-        }
-        .hover-cyan:hover { color: var(--cyan) !important; text-shadow: 0 0 8px rgba(47, 212, 255, 0.5); }
+        .btn-arrow { transition: transform 0.2s var(--ease); }
+        .solid-btn:hover .btn-arrow { transform: translateX(4px); }
 
-        .btn-primary {
-          position: relative;
-          width: 100%; padding: 1rem;
-          background: linear-gradient(90deg, #1e6bff, var(--cyan));
-          border: none; border-radius: 8px;
-          color: #fff; font-family: inherit; font-size: 0.95rem; font-weight: 700;
-          letter-spacing: 1px; cursor: pointer; overflow: hidden;
-          box-shadow: 0 10px 20px rgba(30, 107, 255, 0.3);
-          transition: all 0.3s ease;
+        .ghost-btn {
+          width: 100%;
+          background: transparent;
+          border: none;
+          color: var(--muted);
+          font-size: 0.875rem;
+          cursor: pointer;
+          transition: color 0.2s var(--ease);
+          text-align: center;
+          padding: 0.5rem;
         }
-        .btn-primary:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 15px 30px rgba(47, 212, 255, 0.4);
-        }
-        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-        .btn-shimmer {
-          position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-          transform: skewX(-20deg);
-        }
-        .btn-primary:hover .btn-shimmer { animation: shimmer 1s infinite; }
-        @keyframes shimmer { 100% { left: 200%; } }
-        
-        .btn-arrow { transition: transform 0.3s ease; }
-        .btn-primary:hover .btn-arrow { transform: translateX(5px); }
+        .ghost-btn:hover { color: var(--text); }
 
-        .btn-secondary {
-          width: 100%; padding: 1rem;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
-          color: #EAEAEA; font-family: inherit; font-size: 0.9rem; font-weight: 600;
-          cursor: pointer; transition: all 0.3s ease;
-        }
-        .btn-secondary:hover {
-          background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3);
+        .error-message {
+          color: #ff6b6b;
+          font-size: 0.8rem;
+          margin-bottom: 1.5rem;
+          padding: 0.75rem;
+          background: rgba(255, 107, 107, 0.1);
+          border: 1px solid rgba(255, 107, 107, 0.2);
+          border-radius: 8px;
         }
 
         .spinner {
-          width: 20px; height: 20px;
-          border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
-          border-radius: 50%; animation: spin 1s linear infinite;
+          width: 18px; height: 18px;
+          border: 2px solid rgba(0,0,0,0.2); border-top-color: var(--base);
+          border-radius: 50%; animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        .action-stack { display: flex; flex-direction: column; gap: 1rem; }
+        .sign-out-btn { margin-top: 1rem; }
+        .mt-4 { margin-top: 1rem; }
+
+        @media (max-width: 900px) {
+          .content-container { flex-direction: column; padding: 2rem 4vw; gap: 2rem; justify-content: center; }
+          .left-column { flex: none; height: auto; text-align: center; align-items: center; }
+          .headline { font-size: 2.5rem; }
+          .technical-footer { position: static; margin-top: 2rem; }
+          .right-column { width: 100%; max-width: none; flex: none; }
+          .login-card { padding: 2rem; }
+        }
       `}} />
     </>
   );
