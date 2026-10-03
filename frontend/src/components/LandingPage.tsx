@@ -301,16 +301,6 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
             (e.target as HTMLImageElement).style.display = 'none';
           }}
         />
-        <div
-          style={{
-            color: "white",
-            fontSize: "1.2rem",
-            fontWeight: 700,
-            letterSpacing: "2px",
-          }}
-        >
-          STRIDE-AI
-        </div>
       </div>
 
       <div
