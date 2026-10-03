@@ -91,17 +91,20 @@ export default function Home() {
         {/* Transparent Nav */}
         <nav className="nav-bar">
           <div className="nav-brand">
-            <img src="/stride_ai_logo.png" alt="STRIDE-AI" style={{ height: "24px", width: "24px", objectFit: "contain" }} />
-            <span className="nav-wordmark">STRIDE-AI / TRACK MOES SIH</span>
+            <img src="/stride_ai_logo.png" alt="" style={{ height: "20px", width: "20px", objectFit: "contain" }} />
+            <div className="nav-brand-text">
+              <span className="nav-title">STRIDE-AI</span>
+              <span className="nav-subtitle">TROPICAL CYCLONE INTELLIGENCE</span>
+            </div>
           </div>
           <div className="nav-actions">
             <div className="status-indicator">
               <div className="status-dot" />
-              <span>System online</span>
+              <span>SYSTEM ONLINE</span>
             </div>
             <select className="lang-select">
-              <option value="en">EN</option>
-              <option value="hi">HI</option>
+              <option value="en">ENGLISH</option>
+              <option value="hi">HINDI</option>
             </select>
           </div>
         </nav>
@@ -111,10 +114,10 @@ export default function Home() {
           
           <div className="left-column">
             <h1 className="headline">Forecast the storm before it forms.</h1>
-            <p className="sub-headline">Advanced tropical cyclone intelligence for the Bay of Bengal.</p>
+            <p className="sub-headline">AI-powered tropical cyclone intelligence for the Bay of Bengal.</p>
             
-            <div className="technical-footer">
-              LSTM-CNN · TCIR dataset · Bay of Bengal
+            <div className="product-label">
+              REAL-TIME ATMOSPHERIC INTELLIGENCE
             </div>
           </div>
 
@@ -134,9 +137,9 @@ export default function Home() {
                 </div>
               ) : (
                 <form onSubmit={handleAuthSubmit}>
-                  <h3 className="card-title">{mode === 'login' ? 'Welcome back' : 'Create an account'}</h3>
+                  <h3 className="card-title">{mode === 'login' ? 'Access STRIDE-AI' : 'Create an account'}</h3>
                   <p className="card-subtitle">
-                    {mode === 'login' ? 'Sign in to access intelligence.' : 'Register for access.'}
+                    {mode === 'login' ? 'Sign in to access the forecasting platform.' : 'Register for access.'}
                   </p>
 
                   {mode === 'login' ? (
@@ -256,13 +259,23 @@ export default function Home() {
         .nav-brand {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 1rem;
         }
-        .nav-wordmark {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 0.7rem;
+        .nav-brand-text {
+          display: flex;
+          flex-direction: column;
+          gap: 0.15rem;
+        }
+        .nav-title {
+          font-weight: 600;
+          font-size: 0.95rem;
+          color: var(--text);
+          letter-spacing: 0.02em;
+        }
+        .nav-subtitle {
+          font-size: 0.65rem;
           color: var(--muted);
-          letter-spacing: 0.05em;
+          letter-spacing: 0.1em;
           text-transform: uppercase;
         }
         .nav-actions {
@@ -276,11 +289,13 @@ export default function Home() {
           align-items: center;
           gap: 0.5rem;
           font-family: 'Inter', sans-serif;
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           color: var(--muted);
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
         }
         .status-dot {
-          width: 6px; height: 6px;
+          width: 5px; height: 5px;
           background: #10b981;
           border-radius: 50%;
         }
@@ -289,7 +304,8 @@ export default function Home() {
           color: var(--muted);
           border: none;
           font-family: 'Inter', sans-serif;
-          font-size: 0.8rem;
+          font-size: 0.75rem;
+          letter-spacing: 0.05em;
           cursor: pointer;
           outline: none;
         }
@@ -326,20 +342,17 @@ export default function Home() {
           color: var(--muted);
           max-width: 500px;
           line-height: 1.5;
-          margin: 0;
+          margin: 0 0 2rem 0;
         }
-        .technical-footer {
-          position: absolute;
-          bottom: 2rem;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 0.65rem;
+        .product-label {
+          font-size: 0.7rem;
           color: var(--muted);
-          letter-spacing: 0.05em;
+          letter-spacing: 0.15em;
           text-transform: uppercase;
         }
 
         .right-column {
-          flex: 0 0 420px;
+          flex: 0 0 380px;
         }
         
         .login-card {
