@@ -224,10 +224,10 @@ export default function Home() {
               /* ── NOT LOGGED IN ── */
               <>
                 <h3 style={{ fontSize: "1.5rem", fontWeight: 700, margin: "0 0 0.25rem 0" }}>
-                  {mode === 'login' ? 'ACCESS STRIDE-AI' : 'INITIALIZE ACCOUNT'}
+                  {mode === 'login' ? 'WELCOME TO STRIDE-AI' : 'INITIALIZE ACCOUNT'}
                 </h3>
-                <p style={{ fontSize: '0.85rem', color: "#64748b", marginBottom: '2rem', letterSpacing: "1px" }}>
-                  AI FORECASTING COMMAND CENTER
+                <p style={{ fontSize: '0.85rem', color: "#64748b", marginBottom: '2rem', letterSpacing: "0.5px" }}>
+                  AI-powered tropical cyclone intelligence
                 </p>
 
                 {mode === 'login' ? (
@@ -263,7 +263,7 @@ export default function Home() {
                     {error && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1.5rem', padding: '10px', background: 'rgba(239,68,68,0.1)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.3)' }}>⚠️ {error}</div>}
 
                     <button type="submit" disabled={loading} className="primary-glass-btn">
-                      {loading ? 'AUTHENTICATING...' : 'ACCESS SYSTEM →'}
+                      {loading ? 'AUTHENTICATING...' : 'ACCESS STRIDE-AI →'}
                     </button>
 
                     <div style={{ display: "flex", alignItems: "center", margin: '2rem 0', opacity: 0.3 }}>

@@ -1,137 +1,226 @@
 "use client";
 import React, { useRef, useMemo, useEffect, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Stars, Html } from "@react-three/drei";
+import { Canvas, useFrame, useThree, useLoader } from "@react-three/fiber";
+import { Html, Line } from "@react-three/drei";
 import * as THREE from "three";
 
-const AtmosphericModel = () => {
-  const innerRef = useRef<THREE.Group>(null);
-  const outerRef = useRef<THREE.Group>(null);
-  const windRef = useRef<THREE.Group>(null);
-  const coreRef = useRef<THREE.Mesh>(null);
-  const { mouse, camera } = useThree();
-  
-  const targetCameraPos = useRef(new THREE.Vector3(0, 0, 8));
+const R = 5; // Earth Radius
+const CYCLONE_LAT = 20;
+const CYCLONE_LON = 85;
 
-  // Inner vortex
-  const innerParticles = useMemo(() => {
-    const pts = [];
-    for (let i = 0; i < 2000; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = Math.random() * 1.5 + 0.2;
-      const spiral = angle + r * 4;
-      const x = Math.cos(spiral) * r;
-      const z = Math.sin(spiral) * r;
-      const y = (Math.random() - 0.5) * 0.5 + (2 - r) * 0.3;
-      pts.push(x, y, z);
-    }
-    return new Float32Array(pts);
-  }, []);
+// Convert Lat/Lon to spherical coordinates
+const getSphericalPos = (lat: number, lon: number, radius: number) => {
+  const phi = (90 - lat) * (Math.PI / 180);
+  const theta = (lon + 180) * (Math.PI / 180);
+  const x = -(radius * Math.sin(phi) * Math.cos(theta));
+  const y = radius * Math.cos(phi);
+  const z = radius * Math.sin(phi) * Math.sin(theta);
+  return new THREE.Vector3(x, y, z);
+};
 
-  // Outer flow
-  const outerParticles = useMemo(() => {
-    const pts = [];
-    for (let i = 0; i < 3000; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = Math.random() * 3 + 1.5;
-      const spiral = angle + r * 2;
-      const x = Math.cos(spiral) * r;
-      const z = Math.sin(spiral) * r;
-      const y = (Math.random() - 0.5) * 0.2 + (4 - r) * 0.1;
-      pts.push(x, y, z);
-    }
-    return new Float32Array(pts);
-  }, []);
+const VolumetricCyclone = () => {
+  const count = 3000;
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const pos = getSphericalPos(CYCLONE_LAT, CYCLONE_LON, R + 0.02);
 
-  // Wind curves
-  const windParticles = useMemo(() => {
-    const pts = [];
-    for (let i = 0; i < 1500; i++) {
+  useEffect(() => {
+    if (!meshRef.current || !groupRef.current) return;
+    
+    // Orient the group so it sits flat on the surface
+    groupRef.current.position.copy(pos);
+    groupRef.current.lookAt(new THREE.Vector3(0, 0, 0)); // Z points to center
+
+    const dummy = new THREE.Object3D();
+    const color = new THREE.Color();
+    const colorArray = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const r = Math.random() * 4 + 0.5;
-      const spiral = angle + r * 3;
+      // Exponential distribution to cluster near eye but keep eye clear
+      const r = Math.random() < 0.05 ? Math.random() * 0.05 : 0.08 + Math.pow(Math.random(), 1.5) * 0.4;
+      const spiral = angle + r * 5;
+      
       const x = Math.cos(spiral) * r;
-      const z = Math.sin(spiral) * r;
-      const y = (Math.random() - 0.5) * 0.8;
-      pts.push(x, y, z);
+      const y = Math.sin(spiral) * r;
+      
+      // Radar intensity / height
+      let height = 0;
+      if (r < 0.08) {
+         height = 0.01;
+         color.set("#020617"); // clear eye
+      } else if (r < 0.15) {
+         height = 0.15 * (1 - (r - 0.08) / 0.07);
+         color.set(THREE.MathUtils.lerp(0x4c0519, 0xe11d48, (r - 0.08) / 0.07)); // maroon to red
+      } else if (r < 0.25) {
+         height = 0.08 * (1 - (r - 0.15) / 0.1);
+         color.set(THREE.MathUtils.lerp(0xe11d48, 0xf59e0b, (r - 0.15) / 0.1)); // red to orange
+      } else if (r < 0.35) {
+         height = 0.04 * (1 - (r - 0.25) / 0.1);
+         color.set(THREE.MathUtils.lerp(0xf59e0b, 0x10b981, (r - 0.25) / 0.1)); // orange to green
+      } else {
+         height = 0.015;
+         color.set(THREE.MathUtils.lerp(0x10b981, 0x0ea5e9, (r - 0.35) / 0.15)); // green to blue
+      }
+      
+      // Since Z points to center, -Z points outward to space
+      dummy.position.set(x, y, -height / 2);
+      dummy.scale.set(0.008, 0.008, height);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+      color.toArray(colorArray, i * 3);
     }
-    return new Float32Array(pts);
-  }, []);
+    
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    meshRef.current.geometry.setAttribute('color', new THREE.InstancedBufferAttribute(colorArray, 3));
+  }, [pos]);
 
   useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    if (innerRef.current) innerRef.current.rotation.y = -t * 0.15;
-    if (outerRef.current) outerRef.current.rotation.y = -t * 0.05;
-    if (windRef.current) windRef.current.rotation.y = -t * 0.08;
-    
-    if (coreRef.current) {
-      const scale = 1 + Math.sin(t * 3) * 0.1;
-      coreRef.current.scale.set(scale, scale, scale);
+    if (groupRef.current) {
+      // slowly rotate the cyclone on its own Z axis
+      groupRef.current.rotation.z = -clock.getElapsedTime() * 0.2;
     }
-
-    // Subtle parallax
-    targetCameraPos.current.x = mouse.x * 1.5;
-    targetCameraPos.current.y = mouse.y * 1.5;
-    
-    camera.position.x += (targetCameraPos.current.x - camera.position.x) * 0.02;
-    camera.position.y += (targetCameraPos.current.y - camera.position.y) * 0.02;
-    camera.lookAt(0, 0, 0);
   });
 
   return (
-    <group rotation={[0.4, 0, 0]}>
-      {/* Core Eye Accent */}
-      <mesh ref={coreRef} position={[0, 0, 0]}>
-        <sphereGeometry args={[0.3, 32, 32]} />
-        <meshBasicMaterial color="#f97316" transparent opacity={0.15} blending={THREE.AdditiveBlending} />
+    <group ref={groupRef}>
+      <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial vertexColors transparent opacity={0.85} />
+      </instancedMesh>
+    </group>
+  );
+};
+
+const ForecastTrack = () => {
+  // Generate forecast points along a curve starting from the cyclone
+  const pts: [number, number, number][] = [];
+  const markers = [];
+  
+  // Track bends north-west
+  for (let i = 0; i <= 4; i++) {
+    const p = getSphericalPos(CYCLONE_LAT + i * 2.5, CYCLONE_LON - i * 1.5, R + 0.03);
+    pts.push([p.x, p.y, p.z]);
+    if (i > 0) {
+      markers.push({ pos: p, label: `+${i * 12}H` });
+    }
+  }
+
+  return (
+    <group>
+      <Line
+        points={pts}
+        color="#ffffff"
+        lineWidth={1.5}
+        dashed={true}
+        dashSize={0.05}
+        dashScale={1}
+        transparent
+        opacity={0.8}
+      />
+      {markers.map((m, idx) => (
+        <group key={idx} position={[m.pos.x, m.pos.y, m.pos.z]}>
+          <mesh>
+            <sphereGeometry args={[0.02, 16, 16]} />
+            <meshBasicMaterial color="#ffffff" />
+          </mesh>
+          <Html position={[0.05, 0.05, 0]} center className="forecast-label">
+            <div style={{ color: "white", fontSize: "0.55rem", fontWeight: 600, textShadow: "0 1px 4px rgba(0,0,0,0.8)", fontFamily: "Inter", whiteSpace: "nowrap" }}>
+              {m.label}
+            </div>
+          </Html>
+        </group>
+      ))}
+    </group>
+  );
+};
+
+const EarthSystem = () => {
+  const earthGroup = useRef<THREE.Group>(null);
+  const { mouse, camera } = useThree();
+  
+  let texture = null;
+  try {
+    texture = useLoader(THREE.TextureLoader, '/satellite_bg.jpg');
+  } catch(e) {}
+
+  // Position camera to look across the earth at the cyclone
+  useEffect(() => {
+    const cyclonePos = getSphericalPos(CYCLONE_LAT, CYCLONE_LON, R);
+    // Camera slightly south-east of the cyclone, looking at it
+    const camPos = getSphericalPos(CYCLONE_LAT - 15, CYCLONE_LON + 20, R + 1.2);
+    camera.position.copy(camPos);
+    camera.lookAt(cyclonePos);
+    camera.updateProjectionMatrix();
+  }, [camera]);
+
+  useFrame(() => {
+    if (earthGroup.current) {
+      // Subtle earth rotation independent of mouse
+      earthGroup.current.rotation.y += 0.0001;
+      
+      // Parallax interaction (very subtle)
+      const targetX = mouse.x * 0.05;
+      const targetY = mouse.y * 0.05;
+      earthGroup.current.rotation.z += (targetX - earthGroup.current.rotation.z) * 0.05;
+      earthGroup.current.rotation.x += (-targetY - earthGroup.current.rotation.x) * 0.05;
+    }
+  });
+
+  return (
+    <group ref={earthGroup}>
+      {/* Base Earth */}
+      <mesh>
+        <sphereGeometry args={[R, 64, 64]} />
+        <meshStandardMaterial 
+          map={texture || undefined}
+          color={texture ? "#ffffff" : "#020617"} 
+          roughness={0.8}
+          metalness={0.1}
+        />
+      </mesh>
+      
+      {/* Atmosphere Glow */}
+      <mesh>
+        <sphereGeometry args={[R + 0.1, 64, 64]} />
+        <meshBasicMaterial color="#38bdf8" transparent opacity={0.05} blending={THREE.AdditiveBlending} side={THREE.BackSide} />
       </mesh>
 
-      <group ref={innerRef}>
-        <points>
-          <bufferGeometry>
-            <bufferAttribute attach="attributes-position" args={[innerParticles, 3]} />
-          </bufferGeometry>
-          <pointsMaterial size={0.03} color="#38bdf8" transparent opacity={0.8} blending={THREE.AdditiveBlending} depthWrite={false} />
-        </points>
-      </group>
+      <VolumetricCyclone />
+      <ForecastTrack />
+
+      {/* Subtle Scientific Overlays */}
+      <Html position={getSphericalPos(CYCLONE_LAT + 5, CYCLONE_LON + 15, R + 0.1).toArray()} center>
+        <div style={{
+          borderLeft: "1px solid rgba(255,255,255,0.4)",
+          paddingLeft: "8px",
+          color: "rgba(255,255,255,0.8)",
+          fontFamily: "Inter",
+          fontSize: "0.6rem",
+          letterSpacing: "1px",
+          pointerEvents: "none",
+          whiteSpace: "nowrap",
+          textShadow: "0 2px 4px rgba(0,0,0,0.8)"
+        }}>
+          RADAR REFLECTIVITY<br/>
+          <span style={{color: "#f59e0b", fontWeight: 600}}>HIGH INTENSITY</span>
+        </div>
+      </Html>
       
-      <group ref={outerRef}>
-        <points>
-          <bufferGeometry>
-            <bufferAttribute attach="attributes-position" args={[outerParticles, 3]} />
-          </bufferGeometry>
-          <pointsMaterial size={0.025} color="#0284c7" transparent opacity={0.4} blending={THREE.AdditiveBlending} depthWrite={false} />
-        </points>
-      </group>
-
-      <group ref={windRef}>
-        <points>
-          <bufferGeometry>
-            <bufferAttribute attach="attributes-position" args={[windParticles, 3]} />
-          </bufferGeometry>
-          <pointsMaterial size={0.015} color="#0ea5e9" transparent opacity={0.3} blending={THREE.AdditiveBlending} depthWrite={false} />
-        </points>
-      </group>
-
-      {/* Floating Holographic Labels */}
-      <Html position={[2.5, 1.5, 0]} center zIndexRange={[100, 0]}>
-        <div style={{ color: "#38bdf8", fontFamily: "Inter", fontSize: "0.75rem", letterSpacing: "1px", textShadow: "0 0 10px rgba(56,189,248,0.8)", whiteSpace: "nowrap" }}>
-          <div style={{ fontSize: "0.6rem", color: "#94a3b8", marginBottom: "2px" }}>CONFIDENCE</div>
-          <div style={{ fontWeight: 600, fontSize: "1rem" }}>94.7%</div>
-        </div>
-      </Html>
-
-      <Html position={[-2.5, 1, 0]} center zIndexRange={[100, 0]}>
-        <div style={{ color: "#34d399", fontFamily: "Inter", fontSize: "0.75rem", letterSpacing: "1px", textShadow: "0 0 10px rgba(52,211,153,0.8)", whiteSpace: "nowrap" }}>
-          <div style={{ fontSize: "0.6rem", color: "#94a3b8", marginBottom: "2px" }}>INTENSITY</div>
-          <div style={{ fontWeight: 600, fontSize: "1rem" }}>128 km/h</div>
-        </div>
-      </Html>
-
-      <Html position={[1.5, -1.5, 1]} center zIndexRange={[100, 0]}>
-        <div style={{ color: "#f87171", fontFamily: "Inter", fontSize: "0.75rem", letterSpacing: "1px", textShadow: "0 0 10px rgba(248,113,113,0.8)", whiteSpace: "nowrap" }}>
-          <div style={{ fontSize: "0.6rem", color: "#94a3b8", marginBottom: "2px" }}>TRACK CONFIDENCE</div>
-          <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>HIGH</div>
+      <Html position={getSphericalPos(CYCLONE_LAT - 8, CYCLONE_LON - 10, R + 0.1).toArray()} center>
+        <div style={{
+          borderLeft: "1px solid rgba(255,255,255,0.4)",
+          paddingLeft: "8px",
+          color: "rgba(255,255,255,0.8)",
+          fontFamily: "Inter",
+          fontSize: "0.6rem",
+          letterSpacing: "1px",
+          pointerEvents: "none",
+          whiteSpace: "nowrap",
+          textShadow: "0 2px 4px rgba(0,0,0,0.8)"
+        }}>
+          WIND FIELD VECTOR<br/>
+          <span style={{color: "#38bdf8", fontWeight: 600}}>120 KNOTS</span>
         </div>
       </Html>
     </group>
@@ -144,11 +233,11 @@ export default function LoginVisualization() {
 
   return (
     <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0, opacity: mounted ? 1 : 0, transition: "opacity 2s ease" }}>
-      <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
+      <Canvas>
         <color attach="background" args={['#020617']} />
-        <ambientLight intensity={0.5} />
-        <Stars radius={100} depth={50} count={3000} factor={3} saturation={0} fade speed={1} />
-        <AtmosphericModel />
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[10, 10, 5]} intensity={1.5} color="#ffffff" />
+        <EarthSystem />
       </Canvas>
     </div>
   );
