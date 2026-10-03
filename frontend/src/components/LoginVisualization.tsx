@@ -179,18 +179,19 @@ const InteractiveCycloneSystem = () => {
     }
   };
 
-  // Forecast path based on current position
-  const trajectoryPoints: [number, number, number][] = [];
-  const markers = [];
-  for (let i = 0; i <= 5; i++) {
-    // Project path NW
-    const pLat = latLon.lat + i * 2;
-    const pLon = latLon.lon - i * 1.5;
-    const p = getSphericalPos(pLat, pLon, EARTH_RADIUS + 0.01);
-    trajectoryPoints.push([p.x, p.y, p.z]);
-    if (i > 0) {
-      markers.push({ pos: p, label: `+${i * 12}H` });
-    }
+  // Trajectory removed as requested
+
+  // Subtle Isobar Contours
+  const contourPoints1: [number, number, number][] = [];
+  const contourPoints2: [number, number, number][] = [];
+  for (let i = 0; i <= 60; i++) {
+    const angle = (i / 60) * Math.PI * 2;
+    // Contour 1 (Inner)
+    const p1 = getSphericalPos(latLon.lat + Math.cos(angle) * 3, latLon.lon + Math.sin(angle) * 3, EARTH_RADIUS + 0.005);
+    contourPoints1.push([p1.x, p1.y, p1.z]);
+    // Contour 2 (Outer)
+    const p2 = getSphericalPos(latLon.lat + Math.cos(angle) * 6, latLon.lon + Math.sin(angle) * 6, EARTH_RADIUS + 0.005);
+    contourPoints2.push([p2.x, p2.y, p2.z]);
   }
 
   return (
@@ -212,31 +213,10 @@ const InteractiveCycloneSystem = () => {
         <CycloneClouds />
       </group>
 
-      {/* Trajectory */}
+      {/* Subtle Atmospheric Contours */}
       <group>
-        <Line
-          points={trajectoryPoints}
-          color="#a3a3a3"
-          lineWidth={1.5}
-          dashed={true}
-          dashSize={0.05}
-          dashScale={1}
-          transparent
-          opacity={0.6}
-        />
-        {markers.map((m, idx) => (
-          <group key={idx} position={[m.pos.x, m.pos.y, m.pos.z]}>
-            <mesh>
-              <circleGeometry args={[0.02, 16]} />
-              <meshBasicMaterial color="#d4d4d4" />
-            </mesh>
-            <Html position={[0.05, 0.05, 0]} center>
-              <div style={{ color: "#a3a3a3", fontSize: "0.6rem", fontWeight: 500, fontFamily: "Inter", whiteSpace: "nowrap" }}>
-                {m.label}
-              </div>
-            </Html>
-          </group>
-        ))}
+        <Line points={contourPoints1} color="#ffffff" lineWidth={1} transparent opacity={0.05} />
+        <Line points={contourPoints2} color="#ffffff" lineWidth={1} transparent opacity={0.03} />
       </group>
     </>
   );

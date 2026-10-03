@@ -116,11 +116,16 @@ export default function Home() {
           padding: '2rem 3rem',
           pointerEvents: 'none'
         }}>
-          {/* Top Left */}
+          {/* Top Left Branding */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <img src="/stride_ai_logo.png" alt="STRIDE-AI" style={{ height: "40px", width: "40px", objectFit: "contain" }} />
-            <div style={{ fontSize: "1.1rem", fontWeight: 600, letterSpacing: "1px", color: "#FFFFFF" }}>
-              STRIDE-AI
+            <div>
+              <div style={{ fontSize: "1.1rem", fontWeight: 600, letterSpacing: "1px", color: "#FFFFFF" }}>
+                STRIDE-AI
+              </div>
+              <div style={{ fontSize: "0.65rem", fontWeight: 500, color: "#888888", letterSpacing: "1px", marginTop: "2px" }}>
+                TROPICAL CYCLONE INTELLIGENCE
+              </div>
             </div>
           </div>
           
@@ -191,11 +196,11 @@ export default function Home() {
             ) : (
               /* ── NOT LOGGED IN ── */
               <>
-                <h3 style={{ fontSize: "1.25rem", fontWeight: 500, margin: "0 0 0.25rem 0", color: "#FFFFFF" }}>
-                  {mode === 'login' ? 'WELCOME BACK' : 'CREATE ACCOUNT'}
+                <h3 style={{ fontSize: "1.25rem", fontWeight: 500, margin: "0 0 0.25rem 0", color: "#FFFFFF", letterSpacing: "1px" }}>
+                  STRIDE-AI
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: "#888888", marginBottom: '2.5rem' }}>
-                  Access the STRIDE-AI forecasting platform.
+                  Access the cyclone forecasting platform.
                 </p>
 
                 {mode === 'login' ? (
