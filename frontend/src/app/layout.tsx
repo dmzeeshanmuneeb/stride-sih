@@ -84,7 +84,7 @@ function NavShell({ children }: { children: React.ReactNode }) {
             </div>
           </header>
 
-          <nav className="nav-bar-global">
+          <nav className="nav-bar">
             <a href="/" className="nav-link">HOME</a>
             
             {user && (

@@ -89,7 +89,7 @@ export default function Home() {
         <div className="film-grain" />
 
         {/* Transparent Nav */}
-        <nav className="nav-bar">
+        <nav className="editorial-nav">
           <div className="nav-brand">
             <img src="/stride_ai_logo.png" alt="" style={{ height: "20px", width: "20px", objectFit: "contain" }} />
             <div className="nav-brand-text">
@@ -247,7 +247,7 @@ export default function Home() {
           z-index: 1;
         }
 
-        .nav-bar {
+        .editorial-nav {
           position: relative;
           z-index: 10;
           display: flex;
