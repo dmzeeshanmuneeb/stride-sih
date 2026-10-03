@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from 'react';
+import LandingPage from '../components/LandingPage';
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export default function Home() {
+  const [showLanding, setShowLanding] = useState(true);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [mode, setMode] = useState<"login" | "register">("login");
   const [username, setUsername] = useState("");
@@ -67,7 +69,9 @@ export default function Home() {
   };
 
   return (
-    <main className="animated-bg" style={{ minHeight: '100vh', position: 'relative' }}>
+    <>
+      {showLanding && <LandingPage onEnter={() => setShowLanding(false)} />}
+      <main className="animated-bg" style={{ minHeight: '100vh', position: 'relative', display: showLanding ? 'none' : 'block' }}>
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes rotateEarth {
           0% { background-position: 0% 50%; }
@@ -247,5 +251,6 @@ export default function Home() {
         </div>
       </section>
     </main>
+    </>
   );
 }

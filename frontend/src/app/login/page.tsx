@@ -94,9 +94,9 @@ export default function LoginPage() {
     }}>
       {/* Logo + Title */}
       <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-        <img src="/stride_logo.png" alt="Stride AI" style={{ height: "72px", marginBottom: "1rem" }} />
-        <p style={{ color: "#38bdf8", fontSize: "0.9rem", margin: 0, letterSpacing: "0.08em" }}>
-          DEVELOPED FOR SIH · MINISTRY OF EARTH SCIENCES TRACK
+        <img src="/stride_ai_logo.png" alt="Stride AI" style={{ height: "72px", marginBottom: "1rem" }} />
+        <p style={{ color: "#38bdf8", fontSize: "0.9rem", margin: 0, letterSpacing: "0.08em", fontWeight: "bold" }}>
+          STRIDE - SIH · MINISTRY OF EARTH SCIENCES TRACK
         </p>
       </div>
 
