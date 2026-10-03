@@ -116,13 +116,21 @@ export default function Home() {
           padding: '2rem 3rem',
           pointerEvents: 'none'
         }}>
-          {/* Top Left */}
-          <div style={{ fontSize: "1rem", fontWeight: 600, letterSpacing: "2px", color: "#FFFFFF" }}>
-            STRIDE-AI
+          {/* Top Left Branding */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <img src="/stride_ai_logo.png" alt="STRIDE-AI" style={{ height: "36px", width: "36px", objectFit: "contain" }} />
+            <div>
+              <div style={{ fontSize: "1rem", fontWeight: 600, letterSpacing: "1px", color: "#FFFFFF" }}>
+                STRIDE-AI
+              </div>
+              <div style={{ fontSize: "0.65rem", fontWeight: 500, color: "#94a3b8", letterSpacing: "1px", marginTop: "2px" }}>
+                AI CYCLONE INTELLIGENCE
+              </div>
+            </div>
           </div>
           
           {/* Top Right */}
-          <div style={{ fontSize: "0.85rem", fontWeight: 500, letterSpacing: "2px", color: "#888888" }}>
+          <div style={{ fontSize: "0.75rem", fontWeight: 500, letterSpacing: "1px", color: "#64748b" }}>
             SYSTEM ONLINE
           </div>
         </nav>
@@ -184,9 +192,12 @@ export default function Home() {
             ) : (
               /* ── NOT LOGGED IN ── */
               <>
-                <h3 style={{ fontSize: "1rem", fontWeight: 600, margin: "0 0 1.5rem 0", color: "#FFFFFF", letterSpacing: "2px" }}>
-                  LOGIN
+                <h3 style={{ fontSize: "1.1rem", fontWeight: 500, margin: "0 0 0.5rem 0", color: "#FFFFFF", letterSpacing: "1px" }}>
+                  STRIDE-AI
                 </h3>
+                <p style={{ fontSize: '0.8rem', color: "#94a3b8", marginBottom: '2.5rem' }}>
+                  Access the cyclone forecasting platform.
+                </p>
 
                 {mode === 'login' ? (
                   <form onSubmit={handleAuthSubmit}>
