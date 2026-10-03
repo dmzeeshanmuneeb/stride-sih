@@ -218,7 +218,7 @@ export default function LandingPage({ onEnter }: { onEnter: () => void }) {
         <img
           src="/stride_ai_logo.png"
           alt="STRIDE-AI"
-          style={{ height: "48px", width: "48px", objectFit: "contain", borderRadius: "50%", background: "white" }}
+          style={{ height: "72px", width: "72px", objectFit: "contain" }}
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = 'none';
           }}
