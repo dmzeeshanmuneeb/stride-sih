@@ -52,13 +52,12 @@ export default function Home() {
         localStorage.setItem("stride_token", data.token);
         localStorage.setItem("stride_user", JSON.stringify(data.user));
         
-        // Premium transition before redirecting
         setIsTransitioning(true);
         setTimeout(() => {
           const userRole = data.user.role;
           const dest = userRole === "admin" ? "/dashboard" : userRole === "ndrf" ? "/map" : "/reports";
           window.location.href = dest;
-        }, 1200);
+        }, 1000);
 
       } else if (mode === "register" && data.ok) {
         setMode("login"); setSelectedRole(""); setError("");
@@ -87,25 +86,24 @@ export default function Home() {
         position: 'relative', 
         display: showLanding ? 'none' : 'flex',
         flexDirection: 'column',
-        background: '#020617',
-        color: 'white',
+        background: '#111111', // Dark solid base
+        color: '#EAEAEA',
         fontFamily: "'Inter', sans-serif",
         overflow: 'hidden'
       }}>
         
-        {/* Background 3D Visualization */}
+        {/* Interactive Weather Visualization */}
         <LoginVisualization />
 
         {/* Transition Overlay */}
         <div style={{
           position: "absolute",
           top: 0, left: 0, width: "100%", height: "100%",
-          background: "white",
+          background: "#111111",
           opacity: isTransitioning ? 1 : 0,
           pointerEvents: "none",
-          transition: "opacity 1.2s ease-in-out",
-          zIndex: 9999,
-          mixBlendMode: "overlay"
+          transition: "opacity 1s ease",
+          zIndex: 9999
         }} />
 
         {/* Minimal Navigation */}
@@ -121,19 +119,18 @@ export default function Home() {
           {/* Top Left */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <img src="/stride_ai_logo.png" alt="STRIDE-AI" style={{ height: "40px", width: "40px", objectFit: "contain" }} />
-            <div>
-              <div style={{ fontSize: "1.2rem", fontWeight: 700, letterSpacing: "2px" }}>STRIDE-AI</div>
-              <div style={{ fontSize: "0.7rem", color: "#38bdf8", letterSpacing: "1px", fontWeight: 600, marginTop: "4px" }}>● AI FORECASTING SYSTEM</div>
+            <div style={{ fontSize: "1.1rem", fontWeight: 600, letterSpacing: "1px", color: "#FFFFFF" }}>
+              STRIDE-AI
             </div>
           </div>
           
           {/* Top Right */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', color: "#888888", fontSize: "0.8rem", fontWeight: 500 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#10b981", boxShadow: "0 0 10px #10b981" }} />
-              <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600, letterSpacing: "1px" }}>SYSTEM STATUS <span style={{ color: "white" }}>ONLINE</span></div>
+              <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981" }} />
+              <div>SYSTEM ONLINE</div>
             </div>
-            <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 600 }}>Language: <span style={{ color: "white" }}>EN</span></div>
+            <div>Language: EN</div>
           </div>
         </nav>
 
@@ -147,168 +144,141 @@ export default function Home() {
           alignItems: 'center',
           padding: '0 5%',
           opacity: mounted && !showLanding ? 1 : 0,
-          transform: mounted && !showLanding ? 'translateY(0)' : 'translateY(20px)',
-          transition: 'all 1s ease 0.5s',
+          transform: mounted && !showLanding ? 'translateY(0)' : 'translateY(10px)',
+          transition: 'all 1.5s ease 0.5s',
           gap: '2rem',
           flexWrap: 'wrap'
         }}>
           
-          {/* Left Side: Empty space to let 3D visualization show */}
-          <div style={{ flex: '1 1 50%', minWidth: '300px' }}>
-            {/* 3D Model is here underneath */}
-          </div>
+          {/* Left Side: Empty space for Map/Cyclone */}
+          <div style={{ flex: '1 1 50%', minWidth: '300px', pointerEvents: 'none' }}></div>
 
-          {/* Right Side: Glassmorphism Login Panel */}
+          {/* Right Side: Restrained Professional Login Panel */}
           <div style={{
-            flex: '1 1 40%',
-            maxWidth: '480px',
-            background: "rgba(15, 23, 42, 0.4)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(56, 189, 248, 0.2)",
-            borderRadius: "16px",
-            padding: "3rem",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(56, 189, 248, 0.05)",
-            position: "relative",
-            overflow: "hidden",
+            flex: '1 1 35%',
+            maxWidth: '420px',
+            background: "#171717",
+            border: "1px solid #2A2A2A",
+            borderRadius: "6px",
+            padding: "3rem 2.5rem",
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
             marginLeft: "auto",
-            transition: "transform 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease",
-            transform: isTransitioning ? "scale(1.05) translateZ(50px)" : "scale(1)",
+            marginRight: "2rem",
+            transition: "opacity 0.5s ease",
             opacity: isTransitioning ? 0 : 1,
           }}>
-            {/* Top accent glow */}
-            <div style={{ position: "absolute", top: 0, left: "10%", width: "80%", height: "1px", background: "linear-gradient(90deg, transparent, #38bdf8, transparent)", opacity: 0.8 }} />
 
             {mounted && currentUser ? (
               /* ── LOGGED IN STATE ── */
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '3rem', margin: '1rem 0' }}>
-                  {currentUser.role === 'admin' ? '🛰️' : currentUser.role === 'ndrf' ? '🚨' : '🏠'}
-                </div>
-                <h3 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: '0.25rem' }}>Welcome back!</h3>
-                <p style={{ fontSize: '0.9rem', color: "#94a3b8", marginBottom: '0.25rem' }}>{currentUser.username}</p>
-                <span style={{
-                  display: 'inline-block', fontSize: '0.75rem', fontWeight: 700,
-                  background: currentUser.role === 'admin' ? 'rgba(29, 78, 216, 0.2)' : currentUser.role === 'ndrf' ? 'rgba(194, 65, 12, 0.2)' : 'rgba(6, 95, 70, 0.2)',
-                  color: currentUser.role === 'admin' ? '#60a5fa' : currentUser.role === 'ndrf' ? '#fb923c' : '#34d399',
-                  border: `1px solid ${currentUser.role === 'admin' ? '#3b82f6' : currentUser.role === 'ndrf' ? '#ea580c' : '#10b981'}`,
-                  padding: '4px 12px', borderRadius: '20px', marginBottom: '2rem',
-                }}>
-                  {currentUser.role_label}
-                </span>
+              <div style={{ textAlign: 'left' }}>
+                <h3 style={{ fontSize: "1.25rem", fontWeight: 600, margin: "0 0 0.5rem 0", color: "#FFFFFF" }}>Welcome back</h3>
+                <p style={{ fontSize: '0.85rem', color: "#888888", marginBottom: '2rem' }}>{currentUser.username} &mdash; {currentUser.role_label}</p>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {currentUser.role === 'admin' && (
-                    <a href="/dashboard" className="glass-btn">
-                      🛰️ Go to AI Dashboard
-                    </a>
+                    <a href="/dashboard" className="pro-btn">Go to Dashboard</a>
                   )}
                   {(currentUser.role === 'admin' || currentUser.role === 'ndrf') && (
-                    <a href="/map" className="glass-btn warning-btn">
-                      🗺️ Interactive Map
-                    </a>
+                    <a href="/map" className="pro-btn">Interactive Map</a>
                   )}
-                  <a href="/reports" className="glass-btn success-btn">
-                    📋 Bulletins &amp; Reports
-                  </a>
+                  <a href="/reports" className="pro-btn">Bulletins &amp; Reports</a>
                 </div>
 
-                <button onClick={handleLogout} style={{
-                  marginTop: '2rem', background: 'transparent', border: '1px solid rgba(239,68,68,0.3)',
-                  color: '#ef4444', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', width: '100%',
-                  fontSize: '0.85rem', fontWeight: 600, transition: "all 0.2s"
-                }} onMouseOver={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                <button onClick={handleLogout} className="pro-btn-secondary" style={{ marginTop: '2rem', width: '100%' }}>
                   Sign Out
                 </button>
               </div>
             ) : (
               /* ── NOT LOGGED IN ── */
               <>
-                <h3 style={{ fontSize: "1.5rem", fontWeight: 700, margin: "0 0 0.25rem 0" }}>
-                  {mode === 'login' ? 'WELCOME TO STRIDE-AI' : 'INITIALIZE ACCOUNT'}
+                <h3 style={{ fontSize: "1.25rem", fontWeight: 500, margin: "0 0 0.25rem 0", color: "#FFFFFF" }}>
+                  {mode === 'login' ? 'WELCOME BACK' : 'CREATE ACCOUNT'}
                 </h3>
-                <p style={{ fontSize: '0.85rem', color: "#64748b", marginBottom: '2rem', letterSpacing: "0.5px" }}>
-                  AI-powered tropical cyclone intelligence
+                <p style={{ fontSize: '0.85rem', color: "#888888", marginBottom: '2.5rem' }}>
+                  Access the STRIDE-AI forecasting platform.
                 </p>
 
                 {mode === 'login' ? (
                   <form onSubmit={handleAuthSubmit}>
                     <div style={{ marginBottom: '1.25rem' }}>
-                      <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.5rem", fontWeight: 600 }}>Email / Username</label>
+                      <label style={{ display: "block", fontSize: "0.75rem", color: "#888888", marginBottom: "0.5rem" }}>Email / Username</label>
                       <input 
                         type="text" 
-                        className="glass-input" 
+                        className="pro-input" 
                         value={username} 
                         onChange={e => setUsername(e.target.value)} 
                         required 
                       />
                     </div>
                     <div style={{ marginBottom: '1.25rem' }}>
-                      <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.5rem", fontWeight: 600 }}>Password</label>
+                      <label style={{ display: "block", fontSize: "0.75rem", color: "#888888", marginBottom: "0.5rem" }}>Password</label>
                       <input 
                         type="password" 
-                        className="glass-input" 
+                        className="pro-input" 
                         value={password} 
                         onChange={e => setPassword(e.target.value)} 
                         required 
                       />
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '2rem', color: '#94a3b8' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '2.5rem', color: '#888888' }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                        <input type="checkbox" defaultChecked style={{ accentColor: "#0ea5e9" }} /> Remember me
+                        <input type="checkbox" defaultChecked style={{ accentColor: "#444" }} /> Remember me
                       </label>
-                      <span style={{ cursor: 'pointer', color: "#38bdf8", transition: "color 0.2s" }}>Forgot?</span>
+                      <span style={{ cursor: 'pointer', transition: "color 0.2s" }} onMouseOver={e => e.currentTarget.style.color = 'white'} onMouseOut={e => e.currentTarget.style.color = '#888888'}>
+                        Forgot password?
+                      </span>
                     </div>
 
-                    {error && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1.5rem', padding: '10px', background: 'rgba(239,68,68,0.1)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.3)' }}>⚠️ {error}</div>}
+                    {error && <div style={{ color: '#FCA5A5', fontSize: '0.8rem', marginBottom: '1.5rem', padding: '12px', background: '#3F1D1D', border: '1px solid #7F1D1D', borderRadius: '4px' }}>{error}</div>}
 
-                    <button type="submit" disabled={loading} className="primary-glass-btn">
-                      {loading ? 'AUTHENTICATING...' : 'ACCESS STRIDE-AI →'}
+                    <button type="submit" disabled={loading} className="pro-btn primary">
+                      {loading ? 'Authenticating...' : 'SIGN IN →'}
                     </button>
 
-                    <div style={{ display: "flex", alignItems: "center", margin: '2rem 0', opacity: 0.3 }}>
-                      <div style={{ flex: 1, height: "1px", background: "white" }} />
-                      <div style={{ padding: "0 1rem", fontSize: '0.75rem', fontWeight: 600, letterSpacing: "1px" }}>OR</div>
-                      <div style={{ flex: 1, height: "1px", background: "white" }} />
+                    <div style={{ display: "flex", alignItems: "center", margin: '2rem 0' }}>
+                      <div style={{ flex: 1, height: "1px", background: "#2A2A2A" }} />
+                      <div style={{ padding: "0 1rem", fontSize: '0.7rem', color: "#555555", letterSpacing: "1px" }}>OR</div>
+                      <div style={{ flex: 1, height: "1px", background: "#2A2A2A" }} />
                     </div>
 
                     <button type="button" onClick={() => { setMode('register'); setError(''); setSelectedRole(''); }}
-                      className="secondary-glass-btn">
-                      CREATE NEW ACCOUNT
+                      className="pro-btn-secondary">
+                      Create an account
                     </button>
                   </form>
                 ) : (
                   <form onSubmit={handleAuthSubmit}>
                     <div style={{ marginBottom: '1rem' }}>
-                      <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.5rem", fontWeight: 600 }}>Clearance Level / Role</label>
-                      <select className="glass-input" value={selectedRole} onChange={e => setSelectedRole(e.target.value)} required>
-                        <option value="" style={{ color: "black" }}>Select Role...</option>
-                        <option value="admin" style={{ color: "black" }}>IMD Official</option>
-                        <option value="ndrf" style={{ color: "black" }}>NDRF Responder</option>
-                        <option value="civilian" style={{ color: "black" }}>Public User</option>
+                      <label style={{ display: "block", fontSize: "0.75rem", color: "#888888", marginBottom: "0.5rem" }}>Role</label>
+                      <select className="pro-input" value={selectedRole} onChange={e => setSelectedRole(e.target.value)} required>
+                        <option value="">Select Role...</option>
+                        <option value="admin">IMD Official</option>
+                        <option value="ndrf">NDRF Responder</option>
+                        <option value="civilian">Public User</option>
                       </select>
                     </div>
                     <div style={{ marginBottom: '1rem' }}>
-                      <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.5rem", fontWeight: 600 }}>Username</label>
-                      <input type="text" className="glass-input" value={username} onChange={e => setUsername(e.target.value)} required />
+                      <label style={{ display: "block", fontSize: "0.75rem", color: "#888888", marginBottom: "0.5rem" }}>Username</label>
+                      <input type="text" className="pro-input" value={username} onChange={e => setUsername(e.target.value)} required />
                     </div>
                     <div style={{ marginBottom: '1rem' }}>
-                      <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.5rem", fontWeight: 600 }}>Email (optional)</label>
-                      <input type="email" className="glass-input" value={email} onChange={e => setEmail(e.target.value)} />
+                      <label style={{ display: "block", fontSize: "0.75rem", color: "#888888", marginBottom: "0.5rem" }}>Email (optional)</label>
+                      <input type="email" className="pro-input" value={email} onChange={e => setEmail(e.target.value)} />
                     </div>
-                    <div style={{ marginBottom: '1.5rem' }}>
-                      <label style={{ display: "block", fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.5rem", fontWeight: 600 }}>Password</label>
-                      <input type="password" className="glass-input" value={password} onChange={e => setPassword(e.target.value)} required />
+                    <div style={{ marginBottom: '2rem' }}>
+                      <label style={{ display: "block", fontSize: "0.75rem", color: "#888888", marginBottom: "0.5rem" }}>Password</label>
+                      <input type="password" className="pro-input" value={password} onChange={e => setPassword(e.target.value)} required />
                     </div>
 
-                    {error && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem', padding: '10px', background: 'rgba(239,68,68,0.1)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.3)' }}>⚠️ {error}</div>}
+                    {error && <div style={{ color: '#FCA5A5', fontSize: '0.8rem', marginBottom: '1.5rem', padding: '12px', background: '#3F1D1D', border: '1px solid #7F1D1D', borderRadius: '4px' }}>{error}</div>}
 
                     <div style={{ display: 'flex', gap: '12px' }}>
-                      <button type="button" onClick={() => setMode('login')} className="secondary-glass-btn" style={{ flex: 1, padding: "0.85rem" }}>
-                        BACK
+                      <button type="button" onClick={() => setMode('login')} className="pro-btn-secondary" style={{ flex: 1 }}>
+                        Back
                       </button>
-                      <button type="submit" disabled={loading} className="primary-glass-btn" style={{ flex: 2, padding: "0.85rem" }}>
-                        {loading ? 'INITIALIZING...' : 'INITIALIZE'}
+                      <button type="submit" disabled={loading} className="pro-btn primary" style={{ flex: 2 }}>
+                        {loading ? 'Creating...' : 'Create account'}
                       </button>
                     </div>
                   </form>
@@ -317,117 +287,81 @@ export default function Home() {
             )}
           </div>
         </div>
-
-        {/* Bottom System Information */}
-        <div style={{
-          position: 'relative',
-          zIndex: 10,
-          padding: '2rem 3rem',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          pointerEvents: 'none'
-        }}>
-          <div style={{ fontSize: "0.75rem", color: "#64748b", letterSpacing: "2px", fontWeight: 600 }}>REAL-TIME ATMOSPHERIC INTELLIGENCE</div>
-          <div style={{ fontSize: "0.75rem", color: "#475569", letterSpacing: "1px", marginTop: "4px" }}>STRIDE-AI FORECAST ENGINE</div>
-        </div>
       </main>
 
       <style dangerouslySetInnerHTML={{__html: `
-        .glass-input {
+        .pro-input {
           width: 100%;
-          padding: 0.85rem 1rem;
-          background: rgba(15, 23, 42, 0.6);
-          border: 1px solid rgba(148, 163, 184, 0.2);
-          border-radius: 8px;
-          color: white;
+          padding: 0.75rem 1rem;
+          background: #111111;
+          border: 1px solid #333333;
+          border-radius: 4px;
+          color: #EAEAEA;
           font-family: 'Inter', sans-serif;
-          font-size: 0.95rem;
+          font-size: 0.9rem;
           outline: none;
-          transition: all 0.3s ease;
+          transition: border-color 0.2s ease;
           box-sizing: border-box;
         }
-        .glass-input:focus {
-          border-color: rgba(56, 189, 248, 0.6);
-          box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
-          background: rgba(15, 23, 42, 0.8);
+        .pro-input:focus {
+          border-color: #666666;
         }
-        .primary-glass-btn {
+        
+        .pro-btn {
+          display: block;
           width: 100%;
-          padding: 1rem;
-          background: rgba(14, 165, 233, 0.15);
-          border: 1px solid rgba(56, 189, 248, 0.4);
-          border-radius: 8px;
-          color: #38bdf8;
-          font-family: 'Inter', sans-serif;
-          font-weight: 700;
-          font-size: 0.95rem;
-          letterSpacing: 1px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 15px rgba(14, 165, 233, 0.1);
-        }
-        .primary-glass-btn:hover {
-          background: rgba(14, 165, 233, 0.25);
-          border-color: rgba(56, 189, 248, 0.8);
-          box-shadow: 0 8px 25px rgba(14, 165, 233, 0.25);
-          transform: translateY(-2px);
-          color: white;
-        }
-        .secondary-glass-btn {
-          width: 100%;
-          padding: 1rem;
-          background: transparent;
-          border: 1px solid rgba(148, 163, 184, 0.3);
-          border-radius: 8px;
-          color: #cbd5e1;
-          font-family: 'Inter', sans-serif;
-          font-weight: 600;
-          font-size: 0.85rem;
-          letterSpacing: 1px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        .secondary-glass-btn:hover {
-          background: rgba(255, 255, 255, 0.05);
-          border-color: rgba(148, 163, 184, 0.6);
-          color: white;
-        }
-        .glass-btn {
           padding: 0.85rem;
-          border-radius: 8px;
-          background: rgba(29, 78, 216, 0.15);
-          border: 1px solid rgba(59, 130, 246, 0.4);
-          color: #60a5fa;
-          text-decoration: none;
+          background: #222222;
+          border: 1px solid #444444;
+          border-radius: 4px;
+          color: #FFFFFF;
+          font-family: 'Inter', sans-serif;
+          font-size: 0.85rem;
+          font-weight: 500;
           text-align: center;
+          text-decoration: none;
+          cursor: pointer;
+          transition: background 0.2s ease;
+          box-sizing: border-box;
+        }
+        .pro-btn:hover:not(:disabled) {
+          background: #2A2A2A;
+        }
+        .pro-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        .pro-btn.primary {
+          background: #EAEAEA;
+          color: #111111;
+          border-color: #EAEAEA;
           font-weight: 600;
-          font-size: 0.9rem;
+        }
+        .pro-btn.primary:hover:not(:disabled) {
+          background: #FFFFFF;
+        }
+
+        .pro-btn-secondary {
+          display: block;
+          width: 100%;
+          padding: 0.85rem;
+          background: transparent;
+          border: 1px solid #333333;
+          border-radius: 4px;
+          color: #A3A3A3;
+          font-family: 'Inter', sans-serif;
+          font-size: 0.85rem;
+          font-weight: 500;
+          text-align: center;
+          cursor: pointer;
           transition: all 0.2s ease;
+          box-sizing: border-box;
         }
-        .glass-btn:hover {
-          background: rgba(29, 78, 216, 0.25);
-          border-color: #3b82f6;
-          color: white;
-          transform: translateY(-2px);
-        }
-        .warning-btn {
-          background: rgba(194, 65, 12, 0.15);
-          border-color: rgba(249, 115, 22, 0.4);
-          color: #fb923c;
-        }
-        .warning-btn:hover {
-          background: rgba(194, 65, 12, 0.25);
-          border-color: #f97316;
-        }
-        .success-btn {
-          background: rgba(6, 95, 70, 0.15);
-          border-color: rgba(16, 185, 129, 0.4);
-          color: #34d399;
-        }
-        .success-btn:hover {
-          background: rgba(6, 95, 70, 0.25);
-          border-color: #10b981;
+        .pro-btn-secondary:hover {
+          color: #EAEAEA;
+          border-color: #555555;
+          background: #1A1A1A;
         }
       `}} />
     </>
