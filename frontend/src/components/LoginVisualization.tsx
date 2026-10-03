@@ -159,93 +159,107 @@ const CycloneBackground = () => {
 };
 
 const ForecastTrack = () => {
-  const [progress, setProgress] = useState(0);
-  
-  useEffect(() => {
-    // Draw the track once on load over 2.5 seconds
-    const timer = setTimeout(() => {
-      let start = performance.now();
-      const animate = (time: number) => {
-        const elapsed = (time - start) / 2500;
-        if (elapsed < 1) {
-          setProgress(elapsed);
-          requestAnimationFrame(animate);
-        } else {
-          setProgress(1);
-        }
-      };
-      requestAnimationFrame(animate);
-    }, 1000); // 1s delay before drawing
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (progress === 0) return null;
-
-  // The eye is at (-0.8, 0) in screen space. Let's convert to world space for the line.
-  // Using an OrthographicCamera, coordinates match aspect ratio.
   const { viewport } = useThree();
-  const eyeX = -0.8 * (viewport.width / 2);
-  const eyeY = 0;
-  
-  // Coast target
-  const targetX = 0.2 * (viewport.width / 2);
-  const targetY = 0.4 * (viewport.width / 2);
+  const lineRef = useRef<THREE.Line>(null);
+  const dotRef = useRef<THREE.Mesh>(null);
+  const [showHtml, setShowHtml] = useState(false);
 
-  // Curve points
-  const points = [];
-  const segments = 50;
-  const currentSegments = Math.max(1, Math.floor(segments * progress));
-  
-  for (let i = 0; i <= currentSegments; i++) {
-    const t = i / segments;
-    // Simple quadratic bezier curve
-    const cx = eyeX + (targetX - eyeX) * 0.5;
-    const cy = eyeY + (targetY - eyeY) * 0.8; // Bend upwards
+  // Pre-calculate the entire curve once
+  const { points, endPoint } = useMemo(() => {
+    const eyeX = -0.8 * (viewport.width / 2);
+    const eyeY = 0;
+    const targetX = 0.2 * (viewport.width / 2);
+    const targetY = 0.4 * (viewport.width / 2);
     
-    const x = (1-t)*(1-t)*eyeX + 2*(1-t)*t*cx + t*t*targetX;
-    const y = (1-t)*(1-t)*eyeY + 2*(1-t)*t*cy + t*t*targetY;
-    points.push(new THREE.Vector3(x, y, 0));
-  const endPoint = points[points.length - 1];
+    const pts = [];
+    const segments = 50;
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      const cx = eyeX + (targetX - eyeX) * 0.5;
+      const cy = eyeY + (targetY - eyeY) * 0.8;
+      const x = (1-t)*(1-t)*eyeX + 2*(1-t)*t*cx + t*t*targetX;
+      const y = (1-t)*(1-t)*eyeY + 2*(1-t)*t*cy + t*t*targetY;
+      pts.push(new THREE.Vector3(x, y, 0));
+    }
+    return { points: pts, endPoint: pts[pts.length - 1] };
+  }, [viewport.width]);
+
+  const geometry = useMemo(() => {
+    const g = new THREE.BufferGeometry().setFromPoints(points);
+    g.setDrawRange(0, 0); // Start hidden
+    return g;
+  }, [points]);
+
+  useEffect(() => {
+    if (lineRef.current) {
+      lineRef.current.computeLineDistances(); // Required for dashed lines
+    }
+  }, [geometry]);
+
+  // Animate outside of React render loop
+  const startTime = useRef(0);
+  useFrame((state) => {
+    if (startTime.current === 0) startTime.current = state.clock.elapsedTime;
+    
+    const elapsed = state.clock.elapsedTime - startTime.current;
+    if (elapsed < 1.0) return; // Wait 1 second before drawing
+    
+    const duration = 2.5;
+    const progress = Math.min(1.0, (elapsed - 1.0) / duration);
+    
+    if (lineRef.current) {
+      const count = Math.max(1, Math.floor(points.length * progress));
+      lineRef.current.geometry.setDrawRange(0, count);
+    }
+    
+    if (dotRef.current) {
+      dotRef.current.visible = progress > 0;
+      const currentIdx = Math.max(0, Math.floor((points.length - 1) * progress));
+      dotRef.current.position.copy(points[currentIdx]);
+    }
+    
+    if (progress === 1.0 && !showHtml) {
+      setShowHtml(true);
+    }
+  });
 
   return (
     <group>
-      <Line
-        points={points}
-        color="#ff7a2f"
-        lineWidth={1}
-        dashed={true}
-        dashSize={0.2}
-        gapSize={0.2}
-        transparent
-        opacity={0.6}
-      />
+      {/* @ts-ignore */}
+      <line ref={lineRef}>
+        <primitive object={geometry} attach="geometry" />
+        <lineDashedMaterial 
+          color="#ff7a2f" 
+          dashSize={0.2} 
+          gapSize={0.2} 
+          transparent 
+          opacity={0.6} 
+          linewidth={1} 
+        />
+      </line>
       
-      {/* Pulsing dot at the end */}
-      {progress > 0 && (
-        <mesh position={[endPoint.x, endPoint.y, 0]}>
-          <circleGeometry args={[0.04, 16]} />
-          <meshBasicMaterial color="#ff7a2f" />
-          {progress === 1 && (
-            <Html center>
-              <div style={{
-                width: "8px", height: "8px",
-                borderRadius: "50%",
-                background: "#ff7a2f",
-                boxShadow: "0 0 10px #ff7a2f",
-                animation: "pulse 2s infinite ease-out"
-              }} />
-              <style dangerouslySetInnerHTML={{__html: `
-                @keyframes pulse {
-                  0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(255,122,47,0.7); }
-                  70% { transform: scale(2.5); opacity: 0; box-shadow: 0 0 0 10px rgba(255,122,47,0); }
-                  100% { transform: scale(1); opacity: 0; }
-                }
-              `}} />
-            </Html>
-          )}
-        </mesh>
-      )}
+      <mesh ref={dotRef} visible={false}>
+        <circleGeometry args={[0.04, 16]} />
+        <meshBasicMaterial color="#ff7a2f" />
+        {showHtml && (
+          <Html center>
+            <div style={{
+              width: "8px", height: "8px",
+              borderRadius: "50%",
+              background: "#ff7a2f",
+              boxShadow: "0 0 10px #ff7a2f",
+              animation: "pulse 2s infinite ease-out"
+            }} />
+            <style dangerouslySetInnerHTML={{__html: `
+              @keyframes pulse {
+                0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(255,122,47,0.7); }
+                70% { transform: scale(2.5); opacity: 0; box-shadow: 0 0 0 10px rgba(255,122,47,0); }
+                100% { transform: scale(1); opacity: 0; }
+              }
+            `}} />
+          </Html>
+        )}
+      </mesh>
     </group>
   );
 };
