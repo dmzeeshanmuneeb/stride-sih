@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef, useMemo, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html, Line } from "@react-three/drei";
 import * as THREE from "three";
 
 const CYCLONE_FRAGMENT_SHADER = `
@@ -206,18 +206,20 @@ const ForecastTrack = () => {
     const x = (1-t)*(1-t)*eyeX + 2*(1-t)*t*cx + t*t*targetX;
     const y = (1-t)*(1-t)*eyeY + 2*(1-t)*t*cy + t*t*targetY;
     points.push(new THREE.Vector3(x, y, 0));
-  }
-
-  const geometry = new THREE.BufferGeometry().setFromPoints(points);
-  
   const endPoint = points[points.length - 1];
 
   return (
     <group>
-      <primitive object={new THREE.Line(
-        geometry, 
-        new THREE.LineDashedMaterial({ color: "#ff7a2f", dashSize: 0.2, gapSize: 0.2, transparent: true, opacity: 0.6, linewidth: 1 })
-      )} />
+      <Line
+        points={points}
+        color="#ff7a2f"
+        lineWidth={1}
+        dashed={true}
+        dashSize={0.2}
+        gapSize={0.2}
+        transparent
+        opacity={0.6}
+      />
       
       {/* Pulsing dot at the end */}
       {progress > 0 && (
@@ -287,7 +289,7 @@ export default function LoginVisualization() {
         orthographic 
         camera={{ position: [0, 0, 1], zoom: 1 }}
         frameloop={reduceMotion ? "demand" : "always"}
-        dpr={Math.min(window.devicePixelRatio, 1.5)}
+        dpr={[1, 1.5]}
       >
         <Scene />
       </Canvas>
