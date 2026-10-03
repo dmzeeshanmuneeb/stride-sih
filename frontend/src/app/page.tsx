@@ -116,26 +116,14 @@ export default function Home() {
           padding: '2rem 3rem',
           pointerEvents: 'none'
         }}>
-          {/* Top Left Branding */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <img src="/stride_ai_logo.png" alt="STRIDE-AI" style={{ height: "40px", width: "40px", objectFit: "contain" }} />
-            <div>
-              <div style={{ fontSize: "1.1rem", fontWeight: 600, letterSpacing: "1px", color: "#FFFFFF" }}>
-                STRIDE-AI
-              </div>
-              <div style={{ fontSize: "0.65rem", fontWeight: 500, color: "#888888", letterSpacing: "1px", marginTop: "2px" }}>
-                TROPICAL CYCLONE INTELLIGENCE
-              </div>
-            </div>
+          {/* Top Left */}
+          <div style={{ fontSize: "1rem", fontWeight: 600, letterSpacing: "2px", color: "#FFFFFF" }}>
+            STRIDE-AI
           </div>
           
           {/* Top Right */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', color: "#888888", fontSize: "0.8rem", fontWeight: 500 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#10b981" }} />
-              <div>SYSTEM ONLINE</div>
-            </div>
-            <div>Language: EN</div>
+          <div style={{ fontSize: "0.85rem", fontWeight: 500, letterSpacing: "2px", color: "#888888" }}>
+            SYSTEM ONLINE
           </div>
         </nav>
 
@@ -196,12 +184,9 @@ export default function Home() {
             ) : (
               /* ── NOT LOGGED IN ── */
               <>
-                <h3 style={{ fontSize: "1.25rem", fontWeight: 500, margin: "0 0 0.25rem 0", color: "#FFFFFF", letterSpacing: "1px" }}>
-                  STRIDE-AI
+                <h3 style={{ fontSize: "1rem", fontWeight: 600, margin: "0 0 1.5rem 0", color: "#FFFFFF", letterSpacing: "2px" }}>
+                  LOGIN
                 </h3>
-                <p style={{ fontSize: '0.85rem', color: "#888888", marginBottom: '2.5rem' }}>
-                  Access the cyclone forecasting platform.
-                </p>
 
                 {mode === 'login' ? (
                   <form onSubmit={handleAuthSubmit}>

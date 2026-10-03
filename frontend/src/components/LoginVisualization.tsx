@@ -1,198 +1,110 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-
-interface Vector2 {
-  x: number;
-  y: number;
-}
-
-interface Mountain {
-  id: number;
-  x: number;
-  y: number;
-}
+import React, { useState, useEffect } from "react";
 
 export default function LoginVisualization() {
   const [mounted, setMounted] = useState(false);
-  
-  // Cyclone state
-  const [cyclonePos, setCyclonePos] = useState<Vector2>({ x: 80, y: 50 }); // percentages
-  const [isDragging, setIsDragging] = useState(false);
-  const cycloneRef = useRef<HTMLDivElement>(null);
-  
-  // Mountains state
-  const [mountains, setMountains] = useState<Mountain[]>([]);
-  
-  // Animation loop references
-  const requestRef = useRef<number>(0);
-  const posRef = useRef(cyclonePos);
-  const dragRef = useRef(isDragging);
-  const mountainsRef = useRef(mountains);
-
   useEffect(() => setMounted(true), []);
-
-  useEffect(() => {
-    posRef.current = cyclonePos;
-    dragRef.current = isDragging;
-    mountainsRef.current = mountains;
-  }, [cyclonePos, isDragging, mountains]);
-
-  // Main game loop
-  const update = () => {
-    if (!dragRef.current) {
-      let { x, y } = posRef.current;
-      
-      // Target is central India (~40% x, 50% y)
-      const targetX = 40;
-      const targetY = 50;
-      
-      // Calculate direction
-      const dx = targetX - x;
-      const dy = targetY - y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      
-      if (dist > 1) {
-        let moveX = (dx / dist) * 0.05; // speed
-        let moveY = (dy / dist) * 0.05;
-
-        // Collision detection with mountains
-        let hit = false;
-        for (const m of mountainsRef.current) {
-          const mdx = m.x - x;
-          const mdy = m.y - y;
-          const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-          if (mdist < 5) { // Collision radius (5%)
-            hit = true;
-            // Bounce back
-            moveX = -moveX * 10;
-            moveY = -moveY * 10;
-            break;
-          }
-        }
-
-        // Apply movement
-        setCyclonePos({ x: x + moveX, y: y + moveY });
-      }
-    }
-    requestRef.current = requestAnimationFrame(update);
-  };
-
-  useEffect(() => {
-    requestRef.current = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(requestRef.current!);
-  }, []);
-
-  // Handlers
-  const handlePointerDown = (e: React.PointerEvent) => {
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (isDragging) {
-      // Calculate percentage based on window size
-      const x = (e.clientX / window.innerWidth) * 100;
-      const y = (e.clientY / window.innerHeight) * 100;
-      setCyclonePos({ x, y });
-    }
-  };
-
-  const handlePointerUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleBackgroundClick = (e: React.MouseEvent) => {
-    if (isDragging) return; // Don't place mountain if just finishing a drag
-    const x = (e.clientX / window.innerWidth) * 100;
-    const y = (e.clientY / window.innerHeight) * 100;
-    setMountains([...mountains, { id: Date.now(), x, y }]);
-  };
 
   if (!mounted) return null;
 
   return (
-    <div 
-      style={{
-        position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0,
-        background: "url('/satellite_bg.jpg') no-repeat center center",
-        backgroundSize: "cover",
-        overflow: "hidden",
-        cursor: "crosshair" // Indicates you can click to place something
-      }}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-      onClick={handleBackgroundClick}
-    >
-      {/* Dark overlay for better text readability on login panel */}
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.4)", pointerEvents: "none" }} />
+    <div style={{ 
+      position: "absolute", top: 0, left: 0, width: "100%", height: "100%", 
+      zIndex: 0, background: "#080808", overflow: "hidden" 
+    }}>
       
-      {/* Instructions */}
+      {/* Background Map - Deeply Faded */}
       <div style={{
-        position: "absolute", top: "2rem", left: "2rem", 
-        color: "white", fontFamily: "monospace", 
-        background: "rgba(0,0,0,0.6)", padding: "1rem", borderRadius: "8px",
-        pointerEvents: "none"
+         position: "absolute", top: "-10%", left: "-10%", right: "-10%", bottom: "-10%",
+         background: "url('/satellite_bg.jpg') no-repeat center center",
+         backgroundSize: "cover", 
+         opacity: 0.08, 
+         pointerEvents: "none",
+         filter: "grayscale(100%) contrast(150%)"
+      }} />
+
+      {/* Schematic Diagram */}
+      <div style={{
+         position: "absolute", top: "25%", left: "8%",
+         color: "#EAEAEA", fontFamily: "'Inter', sans-serif", pointerEvents: "none",
+         userSelect: "none"
       }}>
-        <h3 style={{ margin: "0 0 0.5rem 0", color: "#38bdf8" }}>🌀 Fun Cyclone Simulator!</h3>
-        <ul style={{ margin: 0, paddingLeft: "1.2rem", fontSize: "0.9rem" }}>
-          <li>Drag the cyclone to move it back.</li>
-          <li>Click anywhere to place a mountain ⛰️</li>
-          <li>Mountains will obstruct and bounce the cyclone!</li>
-        </ul>
-      </div>
+         {/* Location Label */}
+         <div style={{ 
+           fontSize: "0.85rem", fontWeight: 600, letterSpacing: "6px", 
+           color: "#555555", marginBottom: "4rem", display: "flex", alignItems: "center", gap: "1rem" 
+         }}>
+            <div style={{ width: "30px", height: "1px", background: "#555555" }} />
+            INDIA / BAY OF BENGAL
+         </div>
+         
+         <div style={{ position: "relative", width: "500px", height: "400px", marginLeft: "4rem" }}>
+            
+            {/* The Cyclone Schematic */}
+            <div style={{ 
+              position: "absolute", top: 0, left: 0, 
+              display: "flex", flexDirection: "column", alignItems: "center",
+              animation: "float 6s ease-in-out infinite"
+            }}>
+               <div style={{ fontSize: "1.5rem", color: "#444", marginBottom: "0.5rem", letterSpacing: "15px" }}>
+                 ☁ ☁ ☁
+               </div>
+               
+               <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+                 <div style={{ fontSize: "1.5rem", color: "#444" }}>☁</div>
+                 <div style={{ fontSize: "1.1rem", fontWeight: 600, letterSpacing: "4px", color: "#A3A3A3" }}>
+                   CYCLONE
+                 </div>
+                 <div style={{ fontSize: "1.5rem", color: "#444" }}>☁</div>
+               </div>
+               
+               <div style={{ display: "flex", alignItems: "center", gap: "2rem", margin: "0.5rem 0" }}>
+                 <div style={{ fontSize: "1.5rem", color: "#444" }}>☁</div>
+                 <div style={{ 
+                   fontSize: "2.5rem", color: "#38bdf8", 
+                   textShadow: "0 0 30px rgba(56,189,248,0.4)",
+                   animation: "pulse 3s infinite"
+                 }}>
+                   ◉
+                 </div>
+                 <div style={{ fontSize: "1.5rem", color: "#444" }}>☁</div>
+               </div>
+               
+               <div style={{ fontSize: "1.5rem", color: "#444", marginTop: "0.5rem", letterSpacing: "8px" }}>
+                 ☁ ☁ ☁ ☁ ☁
+               </div>
+            </div>
 
-      {/* Mountains */}
-      {mountains.map(m => (
-        <div key={m.id} style={{
-          position: "absolute",
-          left: `${m.x}%`,
-          top: `${m.y}%`,
-          transform: "translate(-50%, -50%)",
-          fontSize: "4rem", // Big mountain
-          pointerEvents: "none",
-          textShadow: "0 10px 20px rgba(0,0,0,0.5)"
-        }}>
-          ⛰️
-        </div>
-      ))}
-
-      {/* Cyclone */}
-      <div 
-        ref={cycloneRef}
-        onPointerDown={handlePointerDown}
-        style={{
-          position: "absolute",
-          left: `${cyclonePos.x}%`,
-          top: `${cyclonePos.y}%`,
-          transform: "translate(-50%, -50%)",
-          width: "120px", height: "120px",
-          cursor: isDragging ? "grabbing" : "grab",
-          touchAction: "none" // Prevents scrolling on touch
-        }}
-      >
-        <div style={{
-          width: "100%", height: "100%",
-          background: "radial-gradient(circle, rgba(255,255,255,0.9) 10%, rgba(100,200,255,0.6) 40%, rgba(255,255,255,0) 70%)",
-          borderRadius: "50%",
-          animation: "spin 2s linear infinite",
-          boxShadow: "0 0 40px rgba(255,255,255,0.4)",
-          display: "flex", justifyContent: "center", alignItems: "center"
-        }}>
-          {/* Swirls to make spinning obvious */}
-          <div style={{
-            position: "absolute", width: "100%", height: "100%",
-            border: "8px dashed rgba(255,255,255,0.8)",
-            borderRadius: "50%",
-            boxSizing: "border-box"
-          }} />
-          <div style={{ fontSize: "2rem" }}>🌀</div>
-        </div>
+            {/* Trajectory Arrows */}
+            <div style={{ position: "absolute", top: "180px", left: "100px", fontSize: "1.5rem", color: "#333" }}>↘</div>
+            <div style={{ position: "absolute", top: "220px", left: "140px", fontSize: "1.5rem", color: "#444" }}>↘</div>
+            <div style={{ position: "absolute", top: "260px", left: "180px", fontSize: "1.5rem", color: "#555" }}>↘</div>
+            
+            {/* Destination Target */}
+            <div style={{ 
+              position: "absolute", top: "300px", left: "220px", 
+              display: "flex", alignItems: "center", gap: "1rem" 
+            }}>
+               <div style={{ fontSize: "1.5rem", color: "#888" }}>→</div>
+               <div style={{ fontSize: "1rem", fontWeight: 600, letterSpacing: "5px", color: "#EAEAEA" }}>
+                 INDIA
+               </div>
+               <div style={{ 
+                 width: "8px", height: "8px", background: "transparent", 
+                 border: "2px solid #38bdf8", borderRadius: "50%", marginLeft: "0.5rem" 
+               }} />
+            </div>
+         </div>
       </div>
 
       <style dangerouslySetInnerHTML={{__html: `
-        @keyframes spin {
-          100% { transform: rotate(-360deg); }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-15px); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(0.95); }
         }
       `}} />
     </div>
