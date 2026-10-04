@@ -10,10 +10,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <title>STRIDE-AI | MoES Intelligence</title>
+        <title>STRIDE-AI | MoES Operational Terminal</title>
         <meta name="description" content="Professional Meteorological Operations Software" />
       </head>
-      <body className={inter.className} style={{ margin: 0, padding: 0, backgroundColor: '#07111F', color: '#f5f5f7' }}>
+      <body className={inter.className} style={{ margin: 0, padding: 0, backgroundColor: '#10141a', color: '#e2e4e9' }}>
         <NavShell>{children}</NavShell>
       </body>
     </html>
@@ -42,81 +42,87 @@ function NavShell({ children }: { children: React.ReactNode }) {
   if (!mounted) return <>{children}</>;
 
   const isHome = pathname === '/' || pathname === '/login';
+  if (isHome) return <>{children}</>;
 
-  if (isHome) {
-    return <>{children}</>;
-  }
+  // Determine current module name
+  let moduleName = 'Dashboard';
+  if (pathname === '/dashboard') moduleName = 'Prediction Model';
+  if (pathname === '/map') moduleName = 'Interactive Map';
+  if (pathname === '/reports') moduleName = 'Bulletins & Reports';
+  if (pathname === '/history') moduleName = 'Data History';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       
-      {/* HEADER */}
+      {/* HEADER - 64px professional operational header */}
       <header style={{
-        height: '72px',
-        backgroundColor: '#0A1422',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        height: '64px',
+        backgroundColor: '#0c0f13',
+        borderBottom: '1px solid #1f2530',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 24px',
         flexShrink: 0
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <img src="/stride_ai_logo.png" alt="Logo" style={{ height: '36px', width: '36px', objectFit: 'contain' }} />
-          <div>
-            <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, letterSpacing: '0.05em', color: '#f5f5f7' }}>STRIDE-AI</h1>
-            <span style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>MoES SIH Operations</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img src="/stride_ai_logo.png" alt="Logo" style={{ height: '24px', width: '24px', objectFit: 'contain', filter: 'grayscale(1) brightness(1.5)' }} />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <h1 style={{ margin: 0, fontSize: '13px', fontWeight: 600, letterSpacing: '0.05em', color: '#e2e4e9' }}>STRIDE-AI</h1>
+              <span style={{ fontSize: '9px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.1em' }}>MOES / CYCLONE INTELLIGENCE</span>
+            </div>
+          </div>
+          
+          <div style={{ width: '1px', height: '24px', backgroundColor: '#1f2530' }}></div>
+          
+          <div style={{ fontSize: '13px', fontWeight: 500, color: '#e2e4e9', letterSpacing: '0.02em' }}>
+            {moduleName}
           </div>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#86868b', fontSize: '0.85rem' }}>
-            <span>EN</span>
-            <div style={{ width: '1px', height: '12px', background: 'rgba(255,255,255,0.1)' }}></div>
-            <span style={{ cursor: 'pointer' }}>Search...</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', fontSize: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981' }}>
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }}></div>
+            <span style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.05em' }}>SYSTEM OPERATIONAL</span>
           </div>
           
+          <div style={{ width: '1px', height: '16px', backgroundColor: '#1f2530' }}></div>
+          
+          <span style={{ color: '#8a94a6' }}>EN</span>
+          
           {user && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{user.username}</span>
-                <span style={{ fontSize: '0.7rem', color: '#3b82f6', textTransform: 'uppercase' }}>{user.role}</span>
+            <>
+              <div style={{ width: '1px', height: '16px', backgroundColor: '#1f2530' }}></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ color: '#e2e4e9' }}>{user.username} <span style={{ color: '#8a94a6' }}>({user.role})</span></span>
+                <button onClick={handleLogout} style={{
+                  background: 'none', border: 'none', color: '#8a94a6', fontSize: '12px', cursor: 'pointer', padding: 0, textDecoration: 'underline'
+                }}>
+                  Sign Out
+                </button>
               </div>
-              <button onClick={handleLogout} style={{
-                background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: '#f5f5f7',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                fontSize: '0.75rem',
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'background 0.2s'
-              }}>
-                Sign Out
-              </button>
-            </div>
+            </>
           )}
         </div>
       </header>
 
-      {/* BODY */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         
-        {/* SIDEBAR */}
+        {/* SIDEBAR - narrow, technical navigation rail */}
         <aside style={{
-          width: '240px',
-          backgroundColor: '#07111F',
-          borderRight: '1px solid rgba(255,255,255,0.08)',
+          width: '220px',
+          backgroundColor: '#0c0f13',
+          borderRight: '1px solid #1f2530',
           display: 'flex',
           flexDirection: 'column',
           padding: '24px 0',
           flexShrink: 0
         }}>
-          <div style={{ fontSize: '0.65rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 24px', marginBottom: '12px' }}>
+          <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 24px', marginBottom: '8px' }}>
             Intelligence
           </div>
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column' }}>
             {user?.role === 'admin' && (
               <NavLink href="/dashboard" label="Prediction Model" isActive={pathname === '/dashboard'} />
             )}
@@ -128,10 +134,10 @@ function NavShell({ children }: { children: React.ReactNode }) {
 
           {user?.role === 'admin' && (
             <>
-              <div style={{ fontSize: '0.65rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 24px', margin: '24px 0 12px' }}>
-                Data & Archives
+              <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 24px', margin: '24px 0 8px' }}>
+                Data
               </div>
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <nav style={{ display: 'flex', flexDirection: 'column' }}>
                 <NavLink href="/history" label="Data History" isActive={pathname === '/history'} />
               </nav>
             </>
@@ -139,8 +145,8 @@ function NavShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* MAIN CONTENT AREA */}
-        <main style={{ flex: 1, overflowY: 'auto', backgroundColor: '#0D1826', padding: '32px' }}>
-          <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+        <main style={{ flex: 1, overflowY: 'auto', backgroundColor: '#10141a', padding: '32px' }}>
+          <div style={{ maxWidth: '1600px', margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
             {children}
           </div>
         </main>
@@ -154,13 +160,12 @@ function NavLink({ href, label, isActive }: { href: string, label: string, isAct
     <a href={href} style={{
       display: 'block',
       padding: '8px 24px',
-      fontSize: '0.85rem',
-      color: isActive ? '#f5f5f7' : '#86868b',
+      fontSize: '13px',
+      color: isActive ? '#ffffff' : '#8a94a6',
       textDecoration: 'none',
-      backgroundColor: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
-      borderLeft: `3px solid ${isActive ? '#3b82f6' : 'transparent'}`,
-      fontWeight: isActive ? 500 : 400,
-      transition: 'all 0.2s'
+      backgroundColor: isActive ? '#1f2530' : 'transparent',
+      borderLeft: `2px solid ${isActive ? '#3b82f6' : 'transparent'}`,
+      fontWeight: isActive ? 500 : 400
     }}>
       {label}
     </a>

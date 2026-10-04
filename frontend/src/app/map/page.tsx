@@ -6,7 +6,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const MapComponent = dynamic(() => import('../../components/MapComponent'), {
   ssr: false,
-  loading: () => <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86868b', fontSize: '0.85rem' }}>Initializing geospatial data...</div>
+  loading: () => <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5f697a', fontSize: '13px' }}>Loading geospatial grid...</div>
 });
 
 export default function MapPage() {
@@ -22,7 +22,7 @@ export default function MapPage() {
         const result = await res.json();
         setLiveData(result);
       } catch (err: any) {
-        setError("Connection timeout. Systems unreachable.");
+        setError("Connection timeout. Upstream systems unreachable.");
       }
       finally { setLoading(false); }
     };
@@ -31,106 +31,108 @@ export default function MapPage() {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading || error) {
-    return (
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A1422', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <div style={{ fontSize: '0.85rem', color: error ? '#ef4444' : '#86868b' }}>
-          {error || 'Acquiring satellite feed...'}
-        </div>
-      </div>
-    );
-  }
-
-  const cyclones = liveData?.cyclones || [];
+  const DataRow = ({ label, value }: { label: string, value: React.ReactNode }) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '13px' }}>
+      <span style={{ color: '#8a94a6' }}>{label}</span>
+      <span style={{ color: '#e2e4e9', fontFamily: 'monospace' }}>{value}</span>
+    </div>
+  );
 
   return (
-    <>
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      
+      {/* PAGE HEADER */}
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #1f2530', paddingBottom: '24px' }}>
         <div>
-          <div style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Interactive Map</div>
-          <h2 style={{ color: '#f5f5f7', margin: 0, fontSize: '1.4rem', fontWeight: 600 }}>Live Tracking Feed</h2>
+          <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>INTERACTIVE MAP</div>
+          <h2 style={{ color: '#ffffff', margin: 0, fontSize: '28px', fontWeight: 400, letterSpacing: '-0.01em' }}>Live Satellite Telemetry</h2>
         </div>
-        <div style={{ display: 'flex', gap: '24px', color: '#a1a1a6', fontSize: '0.75rem' }}>
-          <div>Source: <span style={{ color: '#f5f5f7' }}>NASA GIBS</span></div>
-          <div>Sync: <span style={{ color: '#f5f5f7' }}>{liveData?.timestamp ? new Date(liveData.timestamp + 'Z').toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit' }) : 'N/A'}</span></div>
-          <div>Active Systems: <span style={{ color: '#f5f5f7' }}>{cyclones.length}</span></div>
+        
+        <div style={{ display: 'flex', gap: '24px', color: '#8a94a6', fontSize: '13px', alignItems: 'flex-end' }}>
+          <div>Source: <span style={{ color: '#e2e4e9' }}>NASA GIBS</span></div>
+          <div>Sync: <span style={{ color: '#e2e4e9' }}>{liveData?.timestamp ? new Date(liveData.timestamp + 'Z').toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit' }) : '--:--'}</span></div>
+          <div>Tracked Targets: <span style={{ color: '#3b82f6', fontWeight: 500 }}>{liveData?.cyclones?.length || 0}</span></div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flex: 1, gap: '24px', minHeight: '600px' }}>
-        
-        {/* MAIN VISUALIZATION AREA */}
-        <div style={{ flex: 1, background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', overflow: 'hidden', position: 'relative' }}>
-          <MapComponent
-            cyclones={cyclones}
-            setSelectedCyclone={setSelectedCyclone}
-            overlayTruecolor={liveData?.overlay_truecolor}
-            overlayIr={liveData?.overlay_ir}
-          />
-
-          <div style={{
-            position: 'absolute', bottom: '16px', left: '16px', zIndex: 900,
-            background: 'rgba(7, 17, 31, 0.8)', backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255,255,255,0.1)', padding: '12px', borderRadius: '6px',
-            fontSize: '0.7rem', color: '#a1a1a6'
-          }}>
-            <div style={{ color: '#f5f5f7', marginBottom: '8px', fontWeight: 500 }}>LEGEND</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}><div style={{width:'8px',height:'8px',border:'1px solid #a1a1a6',borderRadius:'50%'}}></div> Genesis</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}><div style={{width:'8px',height:'2px',background:'#a1a1a6'}}></div> Observed</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}><div style={{width:'8px',height:'8px',background:'#f5f5f7',borderRadius:'50%'}}></div> Active</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{width:'8px',height:'1px',background:'#3b82f6',borderStyle:'dashed'}}></div> Forecast</div>
+      {loading || error ? (
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #1f2530', background: '#0c0f13' }}>
+          <div style={{ fontSize: '13px', color: error ? '#ef4444' : '#8a94a6' }}>
+            {error || 'Acquiring satellite feed...'}
           </div>
         </div>
+      ) : (
+        <div style={{ display: 'flex', flex: 1, gap: '24px', minHeight: 0 }}>
+          
+          {/* MAIN VISUALIZATION AREA */}
+          <div style={{ flex: 1, background: '#0c0f13', border: '1px solid #1f2530', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+            <MapComponent
+              cyclones={liveData?.cyclones || []}
+              setSelectedCyclone={setSelectedCyclone}
+              overlayTruecolor={liveData?.overlay_truecolor}
+              overlayIr={liveData?.overlay_ir}
+            />
 
-        {/* SIDE INSPECTOR PANEL */}
-        <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {selectedCyclone ? (
-            <>
-              <div style={{ background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '16px' }}>
-                <div style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>Selected System</div>
-                <div style={{ fontSize: '1.2rem', fontWeight: 500, color: '#f5f5f7', marginBottom: '4px' }}>{selectedCyclone.name}</div>
-                <div style={{ fontSize: '0.75rem', color: '#a1a1a6' }}>ID: {selectedCyclone.cyclone_id} · {selectedCyclone.basin}</div>
-              </div>
-
-              <div style={{ background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '16px' }}>
-                <div style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>Telemetry</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', color: '#86868b' }}>Velocity</div>
-                    <div style={{ fontSize: '1rem', color: '#f5f5f7' }}>{selectedCyclone.intensity.vmax_knots} kt</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', color: '#86868b' }}>Pressure</div>
-                    <div style={{ fontSize: '1rem', color: '#f5f5f7' }}>{selectedCyclone.intensity.pressure_hpa} hPa</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', color: '#86868b' }}>Category</div>
-                    <div style={{ fontSize: '0.9rem', color: '#f5f5f7' }}>{selectedCyclone.intensity.category}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', color: '#86868b' }}>Location</div>
-                    <div style={{ fontSize: '0.9rem', color: '#f5f5f7' }}>{selectedCyclone.current_pos[0].toFixed(1)}°, {selectedCyclone.current_pos[1].toFixed(1)}°</div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '16px', overflow: 'hidden' }}>
-                <div style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>Multispectral Views</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  <img src={selectedCyclone.spectral_thumbnails.thermal_ir} style={{ width: '100%', borderRadius: '4px', filter: 'grayscale(100%)' }} alt="IR" title="Thermal IR" />
-                  <img src={selectedCyclone.spectral_thumbnails.water_vapor} style={{ width: '100%', borderRadius: '4px', filter: 'grayscale(100%)' }} alt="WV" title="Water Vapor" />
-                  <img src={selectedCyclone.spectral_thumbnails.visible} style={{ width: '100%', borderRadius: '4px', filter: 'grayscale(100%)' }} alt="VIS" title="Visible" />
-                  <img src={selectedCyclone.spectral_thumbnails.mid_ir} style={{ width: '100%', borderRadius: '4px', filter: 'grayscale(100%)' }} alt="PMW" title="Microwave Proxy" />
-                </div>
-              </div>
-            </>
-          ) : (
-            <div style={{ flex: 1, background: '#0A1422', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', textAlign: 'center' }}>
-              <div style={{ fontSize: '0.8rem', color: '#86868b' }}>Select an active system on the map to inspect details.</div>
+            <div style={{
+              position: 'absolute', bottom: '16px', left: '16px', zIndex: 900,
+              background: '#0c0f13', border: '1px solid #1f2530', padding: '12px 16px',
+              fontSize: '11px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em'
+            }}>
+              <div style={{ marginBottom: '8px', color: '#5f697a' }}>Legend</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}><div style={{width:'8px',height:'8px',border:'1px solid #8a94a6',borderRadius:'50%'}}></div> Genesis Node</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}><div style={{width:'8px',height:'2px',background:'#8a94a6'}}></div> Observed Path</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}><div style={{width:'8px',height:'8px',background:'#3b82f6',borderRadius:'50%'}}></div> Active Position</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{width:'8px',height:'1px',background:'#3b82f6',borderStyle:'dashed'}}></div> Forecast Vector</div>
             </div>
-          )}
+          </div>
+
+          {/* RIGHT PANEL - INSPECTOR */}
+          <div style={{ width: '320px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+            <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #1f2530', paddingBottom: '8px', marginBottom: '16px' }}>Target Inspector</div>
+            
+            {selectedCyclone ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div>
+                  <div style={{ fontSize: '16px', color: '#e2e4e9', fontWeight: 500 }}>{selectedCyclone.name}</div>
+                  <div style={{ fontSize: '12px', color: '#5f697a' }}>ID: {selectedCyclone.cyclone_id} | Basin: {selectedCyclone.basin}</div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Telemetry</div>
+                  <DataRow label="Wind Velocity" value={`${selectedCyclone.intensity.vmax_knots} kt`} />
+                  <DataRow label="Central Pressure" value={`${selectedCyclone.intensity.pressure_hpa} hPa`} />
+                  <DataRow label="IMD Designation" value={selectedCyclone.intensity.category} />
+                  <DataRow label="Coordinates" value={`${selectedCyclone.current_pos[0].toFixed(2)}N, ${selectedCyclone.current_pos[1].toFixed(2)}E`} />
+                </div>
+
+                <div>
+                  <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Multispectral Channels</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <img src={selectedCyclone.spectral_thumbnails.thermal_ir} style={{ width: '100%', border: '1px solid #1f2530', filter: 'grayscale(100%)' }} alt="IR" />
+                      <div style={{ fontSize: '10px', color: '#5f697a', marginTop: '4px', textAlign: 'center' }}>IR (Ch 31)</div>
+                    </div>
+                    <div>
+                      <img src={selectedCyclone.spectral_thumbnails.water_vapor} style={{ width: '100%', border: '1px solid #1f2530', filter: 'grayscale(100%)' }} alt="WV" />
+                      <div style={{ fontSize: '10px', color: '#5f697a', marginTop: '4px', textAlign: 'center' }}>Water Vapor</div>
+                    </div>
+                    <div>
+                      <img src={selectedCyclone.spectral_thumbnails.visible} style={{ width: '100%', border: '1px solid #1f2530', filter: 'grayscale(100%)' }} alt="VIS" />
+                      <div style={{ fontSize: '10px', color: '#5f697a', marginTop: '4px', textAlign: 'center' }}>Visible</div>
+                    </div>
+                    <div>
+                      <img src={selectedCyclone.spectral_thumbnails.mid_ir} style={{ width: '100%', border: '1px solid #1f2530', filter: 'grayscale(100%)' }} alt="PMW" />
+                      <div style={{ fontSize: '10px', color: '#5f697a', marginTop: '4px', textAlign: 'center' }}>Microwave</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ fontSize: '13px', color: '#5f697a' }}>Select a target on the map grid to inspect numerical outputs and raw channels.</div>
+            )}
+          </div>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 }

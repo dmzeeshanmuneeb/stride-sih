@@ -13,68 +13,94 @@ export default function ReportsPage() {
   }, []);
 
   if (loading) {
-    return <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86868b', fontSize: '0.85rem' }}>Establishing connection to GDACS...</div>;
+    return <div style={{ padding: '40px 0', color: '#5f697a', fontSize: '13px' }}>Establishing link to GDACS...</div>;
   }
 
   const indianCyclones = liveData?.indian_cyclones || [];
 
   return (
     <>
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #1f2530', paddingBottom: '24px' }}>
         <div>
-          <div style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Intelligence</div>
-          <h2 style={{ color: '#f5f5f7', margin: 0, fontSize: '1.4rem', fontWeight: 600 }}>Bulletins & Reports</h2>
+          <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>INTELLIGENCE</div>
+          <h2 style={{ color: '#ffffff', margin: 0, fontSize: '28px', fontWeight: 400, letterSpacing: '-0.01em' }}>Bulletins & Reports</h2>
+          <p style={{ margin: '8px 0 0 0', color: '#8a94a6', fontSize: '13px' }}>Synchronized intelligence from Global Disaster Alert and Coordination System.</p>
         </div>
-        <div style={{ fontSize: '0.75rem', color: '#86868b' }}>
-          Sync: {liveData?.timestamp ? new Date(liveData.timestamp + 'Z').toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'short', timeStyle: 'short' }) : 'N/A'}
-        </div>
-      </div>
-
-      <div style={{ background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: indianCyclones.length > 0 ? '#ef4444' : '#10b981' }}></div>
-        <div style={{ fontSize: '0.85rem', color: '#f5f5f7' }}>
-          {indianCyclones.length > 0 ? `${indianCyclones.length} Active System(s) Detected in Region` : 'System Nominal. No Active Anomalies.'}
+        <div style={{ fontSize: '13px', color: '#8a94a6' }}>
+          Last sync: <span style={{ color: '#e2e4e9' }}>{liveData?.timestamp ? new Date(liveData.timestamp + 'Z').toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'short', timeStyle: 'short' }) : '--:--'}</span>
         </div>
       </div>
 
-      {indianCyclones.length > 0 && (
-        <div style={{ display: 'grid', gap: '16px' }}>
+      <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #1f2530', paddingBottom: '8px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
+        <span>Monitored Regional Entities</span>
+        <span style={{ color: indianCyclones.length > 0 ? '#ef4444' : '#10b981' }}>
+          {indianCyclones.length} Active System(s)
+        </span>
+      </div>
+
+      {indianCyclones.length > 0 ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
           {indianCyclones.map((c: any, i: number) => (
-            <div key={i} style={{ background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 500 }}>{c.name}</h3>
-                <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  {c.alert_level?.toUpperCase()}
-                </span>
+            <div key={i} style={{ display: 'flex', gap: '32px' }}>
+              {/* Left Details */}
+              <div style={{ flex: '1 1 30%', borderRight: '1px solid #1f2530', paddingRight: '24px' }}>
+                <div style={{ fontSize: '18px', color: '#e2e4e9', fontWeight: 500, marginBottom: '4px' }}>{c.name}</div>
+                <div style={{ fontSize: '12px', color: '#ef4444', marginBottom: '16px' }}>{c.alert_level?.toUpperCase()} ALERT</div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                    <span style={{ color: '#5f697a' }}>Coordinates</span>
+                    <span style={{ color: '#e2e4e9', fontFamily: 'monospace' }}>{c.lat?.toFixed(2)}N, {c.lon?.toFixed(2)}E</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                    <span style={{ color: '#5f697a' }}>Severity</span>
+                    <span style={{ color: '#e2e4e9' }}>{c.severity}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                    <span style={{ color: '#5f697a' }}>Sector</span>
+                    <span style={{ color: '#e2e4e9' }}>{c.country}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                    <span style={{ color: '#5f697a' }}>Issued</span>
+                    <span style={{ color: '#8a94a6' }}>{c.pub_date}</span>
+                  </div>
+                </div>
               </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
-                <div>
-                  <div style={{ fontSize: '0.7rem', color: '#86868b', marginBottom: '4px' }}>Coordinates</div>
-                  <div style={{ fontSize: '0.85rem' }}>{c.lat?.toFixed(2)}°, {c.lon?.toFixed(2)}°</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.7rem', color: '#86868b', marginBottom: '4px' }}>Severity</div>
-                  <div style={{ fontSize: '0.85rem' }}>{c.severity}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.7rem', color: '#86868b', marginBottom: '4px' }}>Sector</div>
-                  <div style={{ fontSize: '0.85rem' }}>{c.country}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.7rem', color: '#86868b', marginBottom: '4px' }}>Issued</div>
-                  <div style={{ fontSize: '0.85rem' }}>{c.pub_date}</div>
-                </div>
+
+              {/* Right Description */}
+              <div style={{ flex: '1 1 70%' }}>
+                {c.description && (
+                  <div style={{ fontSize: '14px', color: '#a1a1a6', lineHeight: 1.6, marginBottom: '24px' }}>
+                    {c.description}
+                  </div>
+                )}
+                
+                {c.alert_info && (
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>Predictive Assessment</div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '16px' }}>
+                      <tbody>
+                        <tr style={{ borderBottom: '1px solid #1f2530' }}>
+                          <td style={{ padding: '6px 0', color: '#8a94a6' }}>Target Vector</td>
+                          <td style={{ padding: '6px 0', color: '#e2e4e9' }}>{c.alert_info.primary_target}</td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid #1f2530' }}>
+                          <td style={{ padding: '6px 0', color: '#8a94a6' }}>Estimated Arrival</td>
+                          <td style={{ padding: '6px 0', color: '#e2e4e9' }}>{c.alert_info.eta}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div style={{ fontSize: '13px', color: '#8a94a6' }}>
+                      <span style={{ color: '#5f697a' }}>Protocol:</span> {c.alert_info.action}
+                    </div>
+                  </div>
+                )}
               </div>
-              
-              {c.description && (
-                <div style={{ fontSize: '0.85rem', color: '#a1a1a6', lineHeight: 1.5, background: '#07111F', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.04)' }}>
-                  {c.description}
-                </div>
-              )}
             </div>
           ))}
         </div>
+      ) : (
+        <div style={{ fontSize: '13px', color: '#5f697a' }}>Routine monitoring ongoing. No action required.</div>
       )}
     </>
   );

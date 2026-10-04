@@ -10,9 +10,6 @@ export default function Dashboard() {
   const [sampleIdx, setSampleIdx] = useState(0);
   const [maxIdx, setMaxIdx] = useState(10000);
   const [file, setFile] = useState<File | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
-  const [selectedHour, setSelectedHour] = useState(24);
-  const [mapHtml, setMapHtml] = useState("");
 
   useEffect(() => {
     fetch(`${API}/api/dataset-info`).then(r => r.json()).then(d => {
@@ -45,70 +42,43 @@ export default function Dashboard() {
         return;
       }
       setData(result);
-      if (result.map_html) setMapHtml(result.map_html);
-      setSelectedHour(24);
-      setActiveTab("overview");
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
-  const onSliderChange = async (hour: number) => {
-    setSelectedHour(hour);
-    try {
-      const res = await fetch(`${API}/api/map?selected_hour=${hour}`);
-      const result = await res.json();
-      if (result.map_html) setMapHtml(result.map_html);
-    } catch (err) { console.error(err); }
-  };
-
-  const downloadPdf = async () => {
-    const res = await fetch(`${API}/api/pdf`);
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "MoES_Cyclone_Advisory.pdf";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const tabStyle = (tab: string) => ({
-    padding: '8px 16px',
-    cursor: 'pointer',
-    fontWeight: 500,
-    color: activeTab === tab ? '#f5f5f7' : '#86868b',
-    background: activeTab === tab ? 'rgba(255,255,255,0.06)' : 'transparent',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '0.85rem',
-    transition: 'all 0.2s'
-  });
+  const DataRow = ({ label, value, highlight = false }: { label: string, value: React.ReactNode, highlight?: boolean }) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #1f2530', fontSize: '13px' }}>
+      <span style={{ color: '#8a94a6' }}>{label}</span>
+      <span style={{ color: highlight ? '#3b82f6' : '#e2e4e9', fontWeight: highlight ? 500 : 400 }}>{value}</span>
+    </div>
+  );
 
   return (
     <>
       {/* PAGE HEADER */}
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #1f2530', paddingBottom: '24px' }}>
         <div>
-          <div style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>Prediction Model</div>
-          <h2 style={{ color: '#f5f5f7', margin: 0, fontSize: '1.4rem', fontWeight: 600 }}>Multispectral Inference System</h2>
+          <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>PREDICTION MODEL</div>
+          <h2 style={{ color: '#ffffff', margin: 0, fontSize: '28px', fontWeight: 400, letterSpacing: '-0.01em' }}>Multispectral Inference System</h2>
+          <p style={{ margin: '8px 0 0 0', color: '#8a94a6', fontSize: '13px' }}>MoES Multi-Spectral Prediction & Trajectory System utilizing TCIR datasets.</p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#0A1422', padding: '6px 8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <select value={inputType} onChange={e => setInputType(e.target.value as any)} style={{ padding: '6px 10px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)', background: '#07111F', color: '#f5f5f7', outline: 'none', fontSize: '0.8rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <select value={inputType} onChange={e => setInputType(e.target.value as any)} style={{ padding: '6px 12px', border: '1px solid #2d3545', background: '#0c0f13', color: '#e2e4e9', outline: 'none', fontSize: '13px', borderRadius: '4px' }}>
             <option value="dataset">Dataset Index</option>
             <option value="upload">Upload Array</option>
           </select>
 
           {inputType === "dataset" ? (
             <input type="number" min={0} max={maxIdx} value={sampleIdx} onChange={e => setSampleIdx(Number(e.target.value))}
-              style={{ width: '80px', padding: '6px 10px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)', background: '#07111F', color: '#f5f5f7', outline: 'none', fontSize: '0.8rem' }} />
+              style={{ width: '80px', padding: '6px 12px', border: '1px solid #2d3545', background: '#0c0f13', color: '#e2e4e9', outline: 'none', fontSize: '13px', borderRadius: '4px' }} />
           ) : (
             <input type="file" accept=".npy" onChange={e => setFile(e.target.files?.[0] || null)}
-              style={{ width: '180px', fontSize: '0.8rem', color: '#f5f5f7' }} />
+              style={{ width: '180px', fontSize: '13px', color: '#e2e4e9' }} />
           )}
 
           <button onClick={runAnalysis} disabled={loading}
-            style={{ padding: '6px 16px', background: loading ? '#0A1422' : '#3b82f6', color: loading ? '#86868b' : '#ffffff', border: '1px solid', borderColor: loading ? 'rgba(255,255,255,0.1)' : '#3b82f6', borderRadius: '4px', fontWeight: 500, fontSize: '0.8rem', cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}>
+            style={{ padding: '6px 16px', background: '#2d3545', color: '#ffffff', border: '1px solid #3d4657', borderRadius: '4px', fontSize: '13px', cursor: loading ? 'not-allowed' : 'pointer' }}>
             {loading ? 'Processing...' : 'Execute'}
           </button>
         </div>
@@ -116,203 +86,132 @@ export default function Dashboard() {
 
       {/* EMPTY STATE */}
       {!data && !loading && (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A1422', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '0.75rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>System Standby</div>
-            <p style={{ color: '#a1a1a6', fontSize: '0.9rem', margin: 0 }}>Select a dataset index or provide multispectral tensor array to initialize.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '120px 0', border: '1px solid #1f2530', background: '#0c0f13' }}>
+          <div style={{ fontSize: '11px', color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '6px', height: '6px', background: '#10b981', borderRadius: '50%' }}></div>
+            SYSTEM READY
           </div>
+          <div style={{ color: '#8a94a6', fontSize: '14px' }}>Select a dataset index or provide multispectral tensor array to begin inference.</div>
         </div>
       )}
 
-      {/* RESULTS AREA */}
+      {/* OPEN WORKSPACE LAYOUT */}
       {data && data.success && (
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px' }}>
-            <button style={tabStyle('overview')} onClick={() => setActiveTab('overview')}>Overview</button>
-            <button style={tabStyle('map')} onClick={() => setActiveTab('map')}>Forecast Map</button>
-            <button style={tabStyle('trajectory')} onClick={() => setActiveTab('trajectory')}>Trajectory</button>
-            <button style={tabStyle('alerts')} onClick={() => setActiveTab('alerts')}>Threat Assessment</button>
-            <button style={tabStyle('tensors')} onClick={() => setActiveTab('tensors')}>Tensors</button>
-          </div>
-
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-
-            {/* TAB 1: OVERVIEW */}
-            {activeTab === 'overview' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '16px' }}>
-                
-                {/* Confidence Card */}
-                <div style={{ gridColumn: 'span 4', background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '24px' }}>Stage 1 Confidence</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
-                    <div style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '50%', background: `conic-gradient(${data.active ? '#3b82f6' : '#475569'} ${(data.s1_prob * 100)}%, #07111F 0)` }}>
-                      <div style={{ position: 'absolute', inset: '4px', background: '#0A1422', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '1.2rem', fontWeight: 500 }}>{(data.s1_prob * 100).toFixed(0)}%</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.75rem', color: '#86868b' }}>Detection Status</div>
-                      <div style={{ fontSize: '0.9rem', color: data.active ? '#10b981' : '#ef4444', fontWeight: 500 }}>
-                        {data.active ? 'ACTIVE ANOMALY' : 'NO ANOMALY'}
-                      </div>
-                    </div>
+        <div style={{ display: 'flex', gap: '32px' }}>
+          
+          {/* MAIN VISUALIZATION WORKSPACE */}
+          <div style={{ flex: '1 1 65%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            {/* Tensors */}
+            <section>
+              <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #1f2530', paddingBottom: '8px', marginBottom: '16px' }}>Input Multispectral Signatures</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                {data.images?.map((img: string, idx: number) => (
+                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <img src={img} alt={`CH-${idx}`} style={{ width: '100%', border: '1px solid #1f2530', filter: 'grayscale(100%)' }} />
+                    <div style={{ fontSize: '11px', color: '#5f697a', textAlign: 'center' }}>CH-{idx}</div>
                   </div>
-                </div>
-
-                {data.active && (
-                  <>
-                    {/* Kinematics Card */}
-                    <div style={{ gridColumn: 'span 8', background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px' }}>
-                      <div style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '20px' }}>Kinematics & Intensity</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-                        <div>
-                          <div style={{ fontSize: '0.75rem', color: '#86868b', marginBottom: '4px' }}>Predicted VMAX</div>
-                          <div style={{ fontSize: '1.4rem', fontWeight: 500 }}>{data.pred_vmax?.toFixed(1)} kt</div>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '0.75rem', color: '#86868b', marginBottom: '4px' }}>Heading</div>
-                          <div style={{ fontSize: '1.4rem', fontWeight: 500 }}>{data.heading?.toFixed(1)}°</div>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '0.75rem', color: '#86868b', marginBottom: '4px' }}>Speed</div>
-                          <div style={{ fontSize: '1.4rem', fontWeight: 500 }}>{data.speed?.toFixed(1)} kt</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* IMD Classification Card */}
-                    <div style={{ gridColumn: 'span 12', background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px' }}>
-                      <div style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>IMD Classification Scale</div>
-                      <div style={{ display: 'flex', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.08)', background: '#07111F' }}>
-                        {[
-                          { name: 'LPA', cat: 'LPA' }, { name: 'D', cat: 'D' }, { name: 'DD', cat: 'DD' },
-                          { name: 'CS', cat: 'CS' }, { name: 'SCS', cat: 'SCS' }, { name: 'VSCS', cat: 'VSCS' }, { name: 'ESCS+', cat: 'ESCS' }
-                        ].map((tier, index) => {
-                          const isActive = (data.imd_cat || '').includes(`(${tier.cat})`) || (tier.cat === 'ESCS' && (data.imd_cat || '').includes('(SuCS)'));
-                          return (
-                            <div key={tier.cat} style={{ flex: 1, padding: '10px 4px', borderRight: index < 6 ? '1px solid rgba(255,255,255,0.05)' : 'none', background: isActive ? '#3b82f6' : 'transparent', color: isActive ? '#fff' : '#86868b', fontWeight: isActive ? 500 : 400, fontSize: '0.8rem', textAlign: 'center' }}>
-                              {tier.name}
-                            </div>
-                          )
-                        })}
-                      </div>
-                      <div style={{ marginTop: '16px', fontSize: '0.85rem', color: '#a1a1a6' }}>
-                        Assigned Designation: <span style={{ color: '#f5f5f7', fontWeight: 500 }}>{data.imd_cat}</span>
-                      </div>
-                    </div>
-                  </>
-                )}
+                ))}
               </div>
-            )}
+            </section>
 
-            {/* TAB 2: MAP */}
-            {activeTab === 'map' && data.active && (
-              <div style={{ background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', display: 'flex', flexDirection: 'column', flex: 1, minHeight: '500px' }}>
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#86868b', textTransform: 'uppercase' }}>Forecast Horizon</div>
-                  <input type="range" min={6} max={72} step={6} value={selectedHour} onChange={e => onSliderChange(Number(e.target.value))} style={{ flex: 1, accentColor: '#3b82f6' }} />
-                  <div style={{ fontSize: '0.85rem', fontWeight: 500, color: '#f5f5f7', minWidth: '40px', textAlign: 'right' }}>+{selectedHour}h</div>
-                </div>
-                <div style={{ flex: 1, position: 'relative' }}>
-                  <iframe srcDoc={mapHtml} style={{ width: '100%', height: '100%', border: 'none' }} title="Forecast" />
-                </div>
-              </div>
-            )}
-
-            {/* TAB 3: TRAJECTORY */}
-            {activeTab === 'trajectory' && data.active && (
-              <div style={{ background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+            {/* Trajectory */}
+            {data.active && (
+              <section>
+                <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #1f2530', paddingBottom: '8px', marginBottom: '16px' }}>Forecast Trajectory Log</div>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: '#07111F' }}>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: '#86868b', fontWeight: 500 }}>Hour</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: '#86868b', fontWeight: 500 }}>Time (UTC)</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: '#86868b', fontWeight: 500 }}>Coordinates</th>
-                      <th style={{ padding: '12px 16px', textAlign: 'left', color: '#86868b', fontWeight: 500 }}>Status</th>
+                    <tr style={{ borderBottom: '1px solid #1f2530' }}>
+                      <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Hour</th>
+                      <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Time (UTC)</th>
+                      <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Latitude</th>
+                      <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Longitude</th>
+                      <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.traj_points?.map((pt: any, i: number) => (
-                      <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                        <td style={{ padding: '12px 16px', fontWeight: 500 }}>+{pt.hour}h</td>
-                        <td style={{ padding: '12px 16px', color: '#a1a1a6' }}>{pt.time}</td>
-                        <td style={{ padding: '12px 16px' }}>{pt.lat?.toFixed(2)}°N, {pt.lon?.toFixed(2)}°E</td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <span style={{ color: pt.status.includes('LAND') ? '#ef4444' : '#10b981', fontSize: '0.75rem', fontWeight: 600 }}>{pt.status}</span>
-                        </td>
+                      <tr key={i} style={{ borderBottom: '1px solid #1a1e27' }}>
+                        <td style={{ padding: '8px 0', color: '#e2e4e9' }}>+{pt.hour}h</td>
+                        <td style={{ padding: '8px 0', color: '#8a94a6' }}>{pt.time}</td>
+                        <td style={{ padding: '8px 0', color: '#e2e4e9' }}>{pt.lat?.toFixed(2)}°</td>
+                        <td style={{ padding: '8px 0', color: '#e2e4e9' }}>{pt.lon?.toFixed(2)}°</td>
+                        <td style={{ padding: '8px 0', color: pt.status.includes('LAND') ? '#eab308' : '#8a94a6' }}>{pt.status}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </section>
             )}
 
-            {/* TAB 4: ALERTS */}
-            {activeTab === 'alerts' && data.active && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px', borderLeft: `3px solid ${data.alert_info?.level === 'RED ALERT' ? '#ef4444' : '#f97316'}` }}>
-                  <div style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Action Directive</div>
-                  <h3 style={{ color: '#f5f5f7', margin: '0 0 8px 0', fontSize: '1.1rem', fontWeight: 500 }}>{data.alert_info?.badge}</h3>
-                  <p style={{ color: '#a1a1a6', fontSize: '0.85rem', margin: 0 }}>{data.alert_info?.action}</p>
-                </div>
-
-                <div style={{ background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', overflow: 'hidden' }}>
-                  <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 500 }}>Regional Impact Assessment</div>
-                    <button onClick={downloadPdf} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#f5f5f7', padding: '4px 12px', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer' }}>Export PDF</button>
-                  </div>
-                  
-                  {data.alert_info?.impacts?.length > 0 ? (
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                      <thead>
-                        <tr style={{ background: '#07111F', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                          <th style={{ padding: '12px 16px', textAlign: 'left', color: '#86868b', fontWeight: 500 }}>Location</th>
-                          <th style={{ padding: '12px 16px', textAlign: 'left', color: '#86868b', fontWeight: 500 }}>Region</th>
-                          <th style={{ padding: '12px 16px', textAlign: 'left', color: '#86868b', fontWeight: 500 }}>Distance</th>
-                          <th style={{ padding: '12px 16px', textAlign: 'left', color: '#86868b', fontWeight: 500 }}>ETA</th>
+            {/* Alert / Impact */}
+            {data.active && data.alert_info && (
+              <section>
+                <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #1f2530', paddingBottom: '8px', marginBottom: '16px' }}>Impact Assessment Matrix</div>
+                {data.alert_info.impacts?.length > 0 ? (
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid #1f2530' }}>
+                        <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Sector/City</th>
+                        <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Distance</th>
+                        <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>ETA</th>
+                        <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Directive</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.alert_info.impacts.map((imp: any, i: number) => (
+                        <tr key={i} style={{ borderBottom: '1px solid #1a1e27' }}>
+                          <td style={{ padding: '8px 0', color: '#e2e4e9' }}>{imp.city}, {imp.state}</td>
+                          <td style={{ padding: '8px 0', color: '#8a94a6' }}>{imp.dist_km} km</td>
+                          <td style={{ padding: '8px 0', color: '#8a94a6' }}>{imp.eta_hour}</td>
+                          <td style={{ padding: '8px 0', color: imp.alert.includes('RED') ? '#ef4444' : imp.alert.includes('ORANGE') ? '#f97316' : '#10b981' }}>{imp.alert}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {data.alert_info.impacts.map((imp: any, i: number) => (
-                          <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                            <td style={{ padding: '12px 16px' }}>
-                              {imp.city} <span style={{ marginLeft: '8px', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', background: imp.alert.includes('RED') ? 'rgba(239,68,68,0.1)' : 'rgba(249,115,22,0.1)', color: imp.alert.includes('RED') ? '#ef4444' : '#f97316' }}>{imp.alert.replace(' ALERT', '')}</span>
-                            </td>
-                            <td style={{ padding: '12px 16px', color: '#a1a1a6' }}>{imp.state}</td>
-                            <td style={{ padding: '12px 16px' }}>{imp.dist_km} km</td>
-                            <td style={{ padding: '12px 16px' }}>{imp.eta_hour}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <div style={{ padding: '16px', color: '#86868b', fontSize: '0.85rem' }}>No proximate risks detected.</div>
-                  )}
-                </div>
-              </div>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div style={{ fontSize: '13px', color: '#8a94a6' }}>No immediate regional impact vectors detected.</div>
+                )}
+              </section>
             )}
 
-            {/* TAB 5: TENSORS */}
-            {activeTab === 'tensors' && (
-              <div style={{ background: '#0A1422', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '20px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-                  {data.images?.map((img: string, idx: number) => (
-                    <div key={idx} style={{ background: '#07111F', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <img src={img} alt={`Channel ${idx}`} style={{ width: '100%', display: 'block', filter: 'grayscale(100%) contrast(1.1)' }} />
-                      <div style={{ padding: '8px', fontSize: '0.7rem', color: '#86868b', textAlign: 'center' }}>CH-{idx}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
-        </div>
-      )}
 
-      {/* Warning for inactive */}
-      {data && !data.active && activeTab !== 'tensors' && activeTab !== 'overview' && (
-        <div style={{ background: '#0A1422', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', color: '#86868b', fontSize: '0.85rem' }}>
-          Operations restricted. Model confidence does not support trajectory tracking.
+          {/* RIGHT SIDEBAR: INFERENCE SUMMARY */}
+          <div style={{ flex: '1 1 35%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            <section style={{ background: '#0c0f13', border: '1px solid #1f2530', padding: '20px' }}>
+              <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>Inference Summary</div>
+              
+              <DataRow label="Detection Status" value={data.active ? 'ACTIVE ANOMALY' : 'NO ANOMALY'} highlight={data.active} />
+              <DataRow label="Model Confidence" value={`${(data.s1_prob * 100).toFixed(1)}%`} />
+              
+              {data.active && (
+                <>
+                  <DataRow label="Max Wind Velocity" value={`${data.pred_vmax?.toFixed(1)} kt`} />
+                  <DataRow label="Translational Speed" value={`${data.speed?.toFixed(1)} kt`} />
+                  <DataRow label="Heading Vector" value={`${data.heading?.toFixed(1)}°`} />
+                  <DataRow label="IMD Designation" value={data.imd_cat} highlight />
+                </>
+              )}
+            </section>
+
+            {data.active && data.alert_info && (
+              <section style={{ border: '1px solid #1f2530', padding: '20px', borderLeft: `2px solid ${data.alert_info.level === 'RED ALERT' ? '#ef4444' : '#f97316'}` }}>
+                <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Action Protocol</div>
+                <div style={{ fontSize: '14px', color: '#e2e4e9', fontWeight: 500, marginBottom: '4px' }}>{data.alert_info.badge}</div>
+                <div style={{ fontSize: '13px', color: '#8a94a6', lineHeight: 1.5 }}>{data.alert_info.action}</div>
+              </section>
+            )}
+            
+            {!data.active && (
+              <div style={{ fontSize: '13px', color: '#5f697a', border: '1px dashed #1f2530', padding: '16px' }}>
+                Stage 2 and Trajectory subsystems are dormant because the primary model classified input as non-cyclonic background noise.
+              </div>
+            )}
+
+          </div>
+
         </div>
       )}
     </>
