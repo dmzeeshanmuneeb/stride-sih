@@ -10,6 +10,8 @@ export default function Dashboard() {
   const [sampleIdx, setSampleIdx] = useState(0);
   const [maxIdx, setMaxIdx] = useState(10000);
   const [file, setFile] = useState<File | null>(null);
+  const [mapHtml, setMapHtml] = useState("");
+  const [selectedHour, setSelectedHour] = useState(24);
 
   useEffect(() => {
     fetch(`${API}/api/dataset-info`).then(r => r.json()).then(d => {
@@ -42,8 +44,19 @@ export default function Dashboard() {
         return;
       }
       setData(result);
+      if (result.map_html) setMapHtml(result.map_html);
+      setSelectedHour(24);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
+  };
+
+  const onSliderChange = async (hour: number) => {
+    setSelectedHour(hour);
+    try {
+      const res = await fetch(`${API}/api/map?selected_hour=${hour}`);
+      const result = await res.json();
+      if (result.map_html) setMapHtml(result.map_html);
+    } catch (err) { console.error(err); }
   };
 
   const DataRow = ({ label, value, highlight = false, color }: { label: string, value: React.ReactNode, highlight?: boolean, color?: string }) => (
@@ -129,6 +142,23 @@ export default function Dashboard() {
                 ))}
               </div>
             </section>
+
+            {/* Forecast Map */}
+            {data.active && mapHtml && (
+              <section style={{ background: '#ffffff', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '4px', display: 'flex', flexDirection: 'column', minHeight: '450px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', marginBottom: '16px' }}>
+                  <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Geospatial Forecast Plot</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase' }}>Forecast Horizon</div>
+                    <input type="range" min={6} max={72} step={6} value={selectedHour} onChange={e => onSliderChange(Number(e.target.value))} style={{ width: '120px', accentColor: '#2563eb' }} />
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#111827', minWidth: '40px', textAlign: 'right' }}>+{selectedHour}h</div>
+                  </div>
+                </div>
+                <div style={{ flex: 1, position: 'relative', border: '1px solid #e5e7eb', borderRadius: '4px', overflow: 'hidden' }}>
+                  <iframe srcDoc={mapHtml} style={{ width: '100%', height: '100%', border: 'none', position: 'absolute', inset: 0 }} title="Forecast" />
+                </div>
+              </section>
+            )}
 
             {/* Trajectory */}
             {data.active && (
