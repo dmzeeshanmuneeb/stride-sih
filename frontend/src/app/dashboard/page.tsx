@@ -46,39 +46,39 @@ export default function Dashboard() {
     finally { setLoading(false); }
   };
 
-  const DataRow = ({ label, value, highlight = false }: { label: string, value: React.ReactNode, highlight?: boolean }) => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #1f2530', fontSize: '13px' }}>
-      <span style={{ color: '#8a94a6' }}>{label}</span>
-      <span style={{ color: highlight ? '#3b82f6' : '#e2e4e9', fontWeight: highlight ? 500 : 400 }}>{value}</span>
+  const DataRow = ({ label, value, highlight = false, color }: { label: string, value: React.ReactNode, highlight?: boolean, color?: string }) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #e5e7eb', fontSize: '13px' }}>
+      <span style={{ color: '#6b7280' }}>{label}</span>
+      <span style={{ color: color || (highlight ? '#2563eb' : '#1f2937'), fontWeight: highlight ? 600 : 500 }}>{value}</span>
     </div>
   );
 
   return (
     <>
       {/* PAGE HEADER */}
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '20px' }}>
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #e5e7eb', paddingBottom: '20px' }}>
         <div>
-          <div style={{ fontSize: '11px', color: '#687282', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>PREDICTION MODEL</div>
-          <h2 style={{ color: '#e5e7eb', margin: 0, fontSize: '26px', fontWeight: 500, letterSpacing: '-0.01em' }}>Multispectral Inference System</h2>
-          <p style={{ margin: '8px 0 0 0', color: '#9ca3af', fontSize: '13px' }}>MoES Multi-Spectral Prediction & Trajectory System utilizing TCIR datasets.</p>
+          <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', fontWeight: 600 }}>PREDICTION MODEL</div>
+          <h2 style={{ color: '#111827', margin: 0, fontSize: '26px', fontWeight: 600, letterSpacing: '-0.01em' }}>Multispectral Inference System</h2>
+          <p style={{ margin: '8px 0 0 0', color: '#4b5563', fontSize: '13px' }}>MoES Multi-Spectral Prediction & Trajectory System utilizing TCIR datasets.</p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <select value={inputType} onChange={e => setInputType(e.target.value as any)} style={{ padding: '6px 12px', border: '1px solid #2d323b', background: '#171a21', color: '#d1d5db', outline: 'none', fontSize: '13px', borderRadius: '4px' }}>
+          <select value={inputType} onChange={e => setInputType(e.target.value as any)} style={{ padding: '6px 12px', border: '1px solid #d1d5db', background: '#ffffff', color: '#111827', outline: 'none', fontSize: '13px', borderRadius: '4px' }}>
             <option value="dataset">Dataset Index</option>
             <option value="upload">Upload Array</option>
           </select>
 
           {inputType === "dataset" ? (
             <input type="number" min={0} max={maxIdx} value={sampleIdx} onChange={e => setSampleIdx(Number(e.target.value))}
-              style={{ width: '80px', padding: '6px 12px', border: '1px solid #2d323b', background: '#171a21', color: '#d1d5db', outline: 'none', fontSize: '13px', borderRadius: '4px' }} />
+              style={{ width: '80px', padding: '6px 12px', border: '1px solid #d1d5db', background: '#ffffff', color: '#111827', outline: 'none', fontSize: '13px', borderRadius: '4px' }} />
           ) : (
             <input type="file" accept=".npy" onChange={e => setFile(e.target.files?.[0] || null)}
-              style={{ width: '180px', fontSize: '13px', color: '#d1d5db' }} />
+              style={{ width: '180px', fontSize: '13px', color: '#111827' }} />
           )}
 
           <button onClick={runAnalysis} disabled={loading}
-            style={{ padding: '6px 16px', background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '4px', fontSize: '13px', fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer' }}>
+            style={{ padding: '6px 20px', background: '#0f172a', color: '#ffffff', border: 'none', borderRadius: '4px', fontSize: '13px', fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer' }}>
             {loading ? 'Processing...' : 'Execute'}
           </button>
         </div>
@@ -86,21 +86,21 @@ export default function Dashboard() {
 
       {/* EMPTY STATE */}
       {!data && !loading && (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '360px', border: '1px solid #2d323b', background: '#171a21' }}>
-          <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '360px', border: '1px solid #e5e7eb', background: '#ffffff', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between', background: 'linear-gradient(180deg, #ffffff 0%, #f9fafb 100%)' }}>
             <div>
-              <div style={{ fontSize: '14px', color: '#e5e7eb', fontWeight: 500, letterSpacing: '0.05em', marginBottom: '8px' }}>SYSTEM READY</div>
-              <div style={{ color: '#9ca3af', fontSize: '13px', maxWidth: '350px', lineHeight: 1.5 }}>Multispectral inference pipeline initialized.<br/>Select a dataset index to begin analysis.</div>
+              <div style={{ fontSize: '14px', color: '#111827', fontWeight: 600, letterSpacing: '0.05em', marginBottom: '8px' }}>SYSTEM READY</div>
+              <div style={{ color: '#4b5563', fontSize: '13px', maxWidth: '350px', lineHeight: 1.5 }}>Multispectral inference pipeline initialized.<br/>Select a dataset index to begin analysis.</div>
             </div>
             
-            <div style={{ display: 'flex', gap: '48px', borderTop: '1px solid #2d323b', paddingTop: '24px' }}>
+            <div style={{ display: 'flex', gap: '48px', borderTop: '1px solid #e5e7eb', paddingTop: '24px' }}>
               <div>
-                <div style={{ fontSize: '10px', color: '#687282', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>DATASET</div>
-                <div style={{ fontSize: '16px', color: '#e5e7eb', fontFamily: 'monospace' }}>INDEX {sampleIdx.toString().padStart(2, '0')}</div>
+                <div style={{ fontSize: '10px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px', fontWeight: 600 }}>DATASET</div>
+                <div style={{ fontSize: '16px', color: '#111827', fontFamily: 'monospace' }}>INDEX {sampleIdx.toString().padStart(2, '0')}</div>
               </div>
               <div>
-                <div style={{ fontSize: '10px', color: '#687282', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>STATUS</div>
-                <div style={{ fontSize: '13px', color: '#2563eb', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ fontSize: '10px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px', fontWeight: 600 }}>STATUS</div>
+                <div style={{ fontSize: '13px', color: '#2563eb', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <div style={{ width: '6px', height: '6px', backgroundColor: '#2563eb', borderRadius: '50%' }}></div>
                   AWAITING INPUT
                 </div>
@@ -118,13 +118,13 @@ export default function Dashboard() {
           <div style={{ flex: '1 1 65%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
             {/* Tensors */}
-            <section>
-              <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #1f2530', paddingBottom: '8px', marginBottom: '16px' }}>Input Multispectral Signatures</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+            <section style={{ background: '#ffffff', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
+              <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', marginBottom: '16px', fontWeight: 600 }}>Input Multispectral Signatures</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
                 {data.images?.map((img: string, idx: number) => (
-                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <img src={img} alt={`CH-${idx}`} style={{ width: '100%', border: '1px solid #1f2530', filter: 'grayscale(100%)' }} />
-                    <div style={{ fontSize: '11px', color: '#5f697a', textAlign: 'center' }}>CH-{idx}</div>
+                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <img src={img} alt={`CH-${idx}`} style={{ width: '100%', border: '1px solid #e5e7eb', background: '#f3f4f6' }} />
+                    <div style={{ fontSize: '11px', color: '#4b5563', textAlign: 'center', fontWeight: 500 }}>CH-{idx}</div>
                   </div>
                 ))}
               </div>
@@ -132,26 +132,26 @@ export default function Dashboard() {
 
             {/* Trajectory */}
             {data.active && (
-              <section>
-                <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #1f2530', paddingBottom: '8px', marginBottom: '16px' }}>Forecast Trajectory Log</div>
+              <section style={{ background: '#ffffff', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', marginBottom: '16px', fontWeight: 600 }}>Forecast Trajectory Log</div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid #1f2530' }}>
-                      <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Hour</th>
-                      <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Time (UTC)</th>
-                      <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Latitude</th>
-                      <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Longitude</th>
-                      <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Status</th>
+                    <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                      <th style={{ padding: '10px 0', textAlign: 'left', color: '#4b5563', fontWeight: 600 }}>Hour</th>
+                      <th style={{ padding: '10px 0', textAlign: 'left', color: '#4b5563', fontWeight: 600 }}>Time (UTC)</th>
+                      <th style={{ padding: '10px 0', textAlign: 'left', color: '#4b5563', fontWeight: 600 }}>Latitude</th>
+                      <th style={{ padding: '10px 0', textAlign: 'left', color: '#4b5563', fontWeight: 600 }}>Longitude</th>
+                      <th style={{ padding: '10px 0', textAlign: 'left', color: '#4b5563', fontWeight: 600 }}>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.traj_points?.map((pt: any, i: number) => (
-                      <tr key={i} style={{ borderBottom: '1px solid #1a1e27' }}>
-                        <td style={{ padding: '8px 0', color: '#e2e4e9' }}>+{pt.hour}h</td>
-                        <td style={{ padding: '8px 0', color: '#8a94a6' }}>{pt.time}</td>
-                        <td style={{ padding: '8px 0', color: '#e2e4e9' }}>{pt.lat?.toFixed(2)}°</td>
-                        <td style={{ padding: '8px 0', color: '#e2e4e9' }}>{pt.lon?.toFixed(2)}°</td>
-                        <td style={{ padding: '8px 0', color: pt.status.includes('LAND') ? '#eab308' : '#8a94a6' }}>{pt.status}</td>
+                      <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                        <td style={{ padding: '10px 0', color: '#111827', fontWeight: 500 }}>+{pt.hour}h</td>
+                        <td style={{ padding: '10px 0', color: '#6b7280' }}>{pt.time}</td>
+                        <td style={{ padding: '10px 0', color: '#111827', fontFamily: 'monospace' }}>{pt.lat?.toFixed(2)}°</td>
+                        <td style={{ padding: '10px 0', color: '#111827', fontFamily: 'monospace' }}>{pt.lon?.toFixed(2)}°</td>
+                        <td style={{ padding: '10px 0', color: pt.status.includes('LAND') ? '#d97706' : '#6b7280', fontWeight: 500 }}>{pt.status}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -161,31 +161,31 @@ export default function Dashboard() {
 
             {/* Alert / Impact */}
             {data.active && data.alert_info && (
-              <section>
-                <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #1f2530', paddingBottom: '8px', marginBottom: '16px' }}>Impact Assessment Matrix</div>
+              <section style={{ background: '#ffffff', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', marginBottom: '16px', fontWeight: 600 }}>Impact Assessment Matrix</div>
                 {data.alert_info.impacts?.length > 0 ? (
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid #1f2530' }}>
-                        <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Sector/City</th>
-                        <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Distance</th>
-                        <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>ETA</th>
-                        <th style={{ padding: '8px 0', textAlign: 'left', color: '#5f697a', fontWeight: 400 }}>Directive</th>
+                      <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                        <th style={{ padding: '10px 0', textAlign: 'left', color: '#4b5563', fontWeight: 600 }}>Sector/City</th>
+                        <th style={{ padding: '10px 0', textAlign: 'left', color: '#4b5563', fontWeight: 600 }}>Distance</th>
+                        <th style={{ padding: '10px 0', textAlign: 'left', color: '#4b5563', fontWeight: 600 }}>ETA</th>
+                        <th style={{ padding: '10px 0', textAlign: 'left', color: '#4b5563', fontWeight: 600 }}>Directive</th>
                       </tr>
                     </thead>
                     <tbody>
                       {data.alert_info.impacts.map((imp: any, i: number) => (
-                        <tr key={i} style={{ borderBottom: '1px solid #1a1e27' }}>
-                          <td style={{ padding: '8px 0', color: '#e2e4e9' }}>{imp.city}, {imp.state}</td>
-                          <td style={{ padding: '8px 0', color: '#8a94a6' }}>{imp.dist_km} km</td>
-                          <td style={{ padding: '8px 0', color: '#8a94a6' }}>{imp.eta_hour}</td>
-                          <td style={{ padding: '8px 0', color: imp.alert.includes('RED') ? '#ef4444' : imp.alert.includes('ORANGE') ? '#f97316' : '#10b981' }}>{imp.alert}</td>
+                        <tr key={i} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                          <td style={{ padding: '10px 0', color: '#111827', fontWeight: 500 }}>{imp.city}, {imp.state}</td>
+                          <td style={{ padding: '10px 0', color: '#6b7280' }}>{imp.dist_km} km</td>
+                          <td style={{ padding: '10px 0', color: '#6b7280' }}>{imp.eta_hour}</td>
+                          <td style={{ padding: '10px 0', color: imp.alert.includes('RED') ? '#dc2626' : imp.alert.includes('ORANGE') ? '#ea580c' : '#16a34a', fontWeight: 600 }}>{imp.alert}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 ) : (
-                  <div style={{ fontSize: '13px', color: '#8a94a6' }}>No immediate regional impact vectors detected.</div>
+                  <div style={{ fontSize: '13px', color: '#6b7280' }}>No immediate regional impact vectors detected.</div>
                 )}
               </section>
             )}
@@ -195,10 +195,10 @@ export default function Dashboard() {
           {/* RIGHT SIDEBAR: INFERENCE SUMMARY */}
           <div style={{ flex: '1 1 35%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
-            <section style={{ background: '#171a21', border: '1px solid #2d323b', padding: '20px' }}>
-              <div style={{ fontSize: '11px', color: '#687282', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>Inference Summary</div>
+            <section style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '4px', padding: '24px' }}>
+              <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '16px', fontWeight: 600 }}>Inference Summary</div>
               
-              <DataRow label="Detection Status" value={data.active ? 'ACTIVE ANOMALY' : 'NO ANOMALY'} highlight={data.active} />
+              <DataRow label="Detection Status" value={data.active ? 'ACTIVE ANOMALY' : 'NO ANOMALY'} highlight={data.active} color={data.active ? '#16a34a' : undefined} />
               <DataRow label="Model Confidence" value={`${(data.s1_prob * 100).toFixed(1)}%`} />
               
               {data.active && (
@@ -212,15 +212,15 @@ export default function Dashboard() {
             </section>
 
             {data.active && data.alert_info && (
-              <section style={{ border: '1px solid #2d323b', padding: '20px', borderLeft: `2px solid ${data.alert_info.level === 'RED ALERT' ? '#ef4444' : '#f97316'}`, background: '#171a21' }}>
-                <div style={{ fontSize: '11px', color: '#687282', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Action Protocol</div>
-                <div style={{ fontSize: '14px', color: '#e5e7eb', fontWeight: 500, marginBottom: '6px' }}>{data.alert_info.badge}</div>
-                <div style={{ fontSize: '13px', color: '#9ca3af', lineHeight: 1.5 }}>{data.alert_info.action}</div>
+              <section style={{ border: '1px solid #e5e7eb', padding: '24px', borderRadius: '4px', borderLeft: `3px solid ${data.alert_info.level === 'RED ALERT' ? '#dc2626' : '#ea580c'}`, background: '#ffffff' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', fontWeight: 600 }}>Action Protocol</div>
+                <div style={{ fontSize: '14px', color: '#111827', fontWeight: 600, marginBottom: '6px' }}>{data.alert_info.badge}</div>
+                <div style={{ fontSize: '13px', color: '#4b5563', lineHeight: 1.5 }}>{data.alert_info.action}</div>
               </section>
             )}
             
             {!data.active && (
-              <div style={{ fontSize: '13px', color: '#5f697a', border: '1px dashed #1f2530', padding: '16px' }}>
+              <div style={{ fontSize: '13px', color: '#6b7280', border: '1px dashed #d1d5db', padding: '16px', borderRadius: '4px' }}>
                 Stage 2 and Trajectory subsystems are dormant because the primary model classified input as non-cyclonic background noise.
               </div>
             )}
