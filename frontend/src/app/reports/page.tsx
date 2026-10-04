@@ -70,9 +70,10 @@ export default function ReportsPage() {
               {/* Right Description */}
               <div style={{ flex: '1 1 70%' }}>
                 {c.description && (
-                  <div style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.6, marginBottom: '32px' }}>
-                    {c.description}
-                  </div>
+                  <div 
+                    style={{ fontSize: '14px', color: '#4b5563', lineHeight: 1.6, marginBottom: '32px' }} 
+                    dangerouslySetInnerHTML={{ __html: c.description }}
+                  />
                 )}
                 
                 {c.alert_info && (
