@@ -133,7 +133,7 @@ export default function MapPage() {
               </div>
 
               {/* Drawer Content */}
-              <div style={{ padding: '2rem', overflowY: 'auto', flex: 1, cssText: 'scrollbar-width: none;' }}>
+              <div style={{ padding: '2rem', overflowY: 'auto', flex: 1, scrollbarWidth: 'none' }}>
 
                 {/* Intensity Block */}
                 <div style={{ marginBottom: '2rem' }}>
