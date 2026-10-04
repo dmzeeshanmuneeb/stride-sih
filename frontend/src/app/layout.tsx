@@ -54,25 +54,26 @@ function NavShell({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       
-      {/* HEADER - 64px professional operational header */}
-      <header style={{
-        height: '64px',
-        backgroundColor: '#0c0f13',
-        borderBottom: '1px solid #1f2530',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 24px',
-        flexShrink: 0
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="/stride_ai_logo.png" alt="Logo" style={{ height: '24px', width: '24px', objectFit: 'contain', filter: 'grayscale(1) brightness(1.5)' }} />
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <h1 style={{ margin: 0, fontSize: '13px', fontWeight: 600, letterSpacing: '0.05em', color: '#e2e4e9' }}>STRIDE-AI</h1>
-              <span style={{ fontSize: '9px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.1em' }}>MOES / CYCLONE INTELLIGENCE</span>
+        {/* HEADER - 64px professional operational header */}
+        <header style={{
+          height: '64px',
+          backgroundColor: '#050a11', // Deep navy
+          borderBottom: '1px solid rgba(59, 130, 246, 0.15)', // Subtle blue tonal separation
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px',
+          flexShrink: 0
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {/* BRAND LOGO - Full color preserved */}
+              <img src="/stride_ai_logo.png" alt="Logo" style={{ height: '28px', width: '28px', objectFit: 'contain' }} />
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <h1 style={{ margin: 0, fontSize: '14px', fontWeight: 600, letterSpacing: '0.05em', color: '#e2e4e9' }}>STRIDE-AI</h1>
+                <span style={{ fontSize: '9px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.1em' }}>MOES / CYCLONE INTELLIGENCE</span>
+              </div>
             </div>
-          </div>
           
           <div style={{ width: '1px', height: '24px', backgroundColor: '#1f2530' }}></div>
           
@@ -111,9 +112,9 @@ function NavShell({ children }: { children: React.ReactNode }) {
         
         {/* SIDEBAR - narrow, technical navigation rail */}
         <aside style={{
-          width: '220px',
-          backgroundColor: '#0c0f13',
-          borderRight: '1px solid #1f2530',
+          width: '240px',
+          backgroundColor: '#050a11', // Deep navy matching header
+          borderRight: '1px solid #121824',
           display: 'flex',
           flexDirection: 'column',
           padding: '24px 0',
@@ -159,13 +160,14 @@ function NavLink({ href, label, isActive }: { href: string, label: string, isAct
   return (
     <a href={href} style={{
       display: 'block',
-      padding: '8px 24px',
+      padding: '10px 24px',
       fontSize: '13px',
       color: isActive ? '#ffffff' : '#8a94a6',
       textDecoration: 'none',
-      backgroundColor: isActive ? '#1f2530' : 'transparent',
-      borderLeft: `2px solid ${isActive ? '#3b82f6' : 'transparent'}`,
-      fontWeight: isActive ? 500 : 400
+      backgroundColor: isActive ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
+      borderLeft: `3px solid ${isActive ? '#3b82f6' : 'transparent'}`,
+      fontWeight: isActive ? 500 : 400,
+      transition: 'all 0.15s ease'
     }}>
       {label}
     </a>
