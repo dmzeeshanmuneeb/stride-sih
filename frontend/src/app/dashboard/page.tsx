@@ -58,27 +58,27 @@ export default function Dashboard() {
       {/* PAGE HEADER */}
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: '20px' }}>
         <div>
-          <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>PREDICTION MODEL</div>
-          <h2 style={{ color: '#ffffff', margin: 0, fontSize: '26px', fontWeight: 500, letterSpacing: '-0.01em' }}>Multispectral Inference System</h2>
-          <p style={{ margin: '8px 0 0 0', color: '#8a94a6', fontSize: '13px' }}>MoES Multi-Spectral Prediction & Trajectory System utilizing TCIR datasets.</p>
+          <div style={{ fontSize: '11px', color: '#687282', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>PREDICTION MODEL</div>
+          <h2 style={{ color: '#e5e7eb', margin: 0, fontSize: '26px', fontWeight: 500, letterSpacing: '-0.01em' }}>Multispectral Inference System</h2>
+          <p style={{ margin: '8px 0 0 0', color: '#9ca3af', fontSize: '13px' }}>MoES Multi-Spectral Prediction & Trajectory System utilizing TCIR datasets.</p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <select value={inputType} onChange={e => setInputType(e.target.value as any)} style={{ padding: '6px 12px', border: '1px solid #1f2530', background: '#0a1018', color: '#e2e4e9', outline: 'none', fontSize: '13px', borderRadius: '4px' }}>
+          <select value={inputType} onChange={e => setInputType(e.target.value as any)} style={{ padding: '6px 12px', border: '1px solid #2d323b', background: '#171a21', color: '#d1d5db', outline: 'none', fontSize: '13px', borderRadius: '4px' }}>
             <option value="dataset">Dataset Index</option>
             <option value="upload">Upload Array</option>
           </select>
 
           {inputType === "dataset" ? (
             <input type="number" min={0} max={maxIdx} value={sampleIdx} onChange={e => setSampleIdx(Number(e.target.value))}
-              style={{ width: '80px', padding: '6px 12px', border: '1px solid #1f2530', background: '#0a1018', color: '#e2e4e9', outline: 'none', fontSize: '13px', borderRadius: '4px' }} />
+              style={{ width: '80px', padding: '6px 12px', border: '1px solid #2d323b', background: '#171a21', color: '#d1d5db', outline: 'none', fontSize: '13px', borderRadius: '4px' }} />
           ) : (
             <input type="file" accept=".npy" onChange={e => setFile(e.target.files?.[0] || null)}
-              style={{ width: '180px', fontSize: '13px', color: '#e2e4e9' }} />
+              style={{ width: '180px', fontSize: '13px', color: '#d1d5db' }} />
           )}
 
           <button onClick={runAnalysis} disabled={loading}
-            style={{ padding: '6px 16px', background: '#3b82f6', color: '#ffffff', border: 'none', borderRadius: '4px', fontSize: '13px', fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer' }}>
+            style={{ padding: '6px 16px', background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '4px', fontSize: '13px', fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer' }}>
             {loading ? 'Processing...' : 'Execute'}
           </button>
         </div>
@@ -86,31 +86,22 @@ export default function Dashboard() {
 
       {/* EMPTY STATE */}
       {!data && !loading && (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '400px', border: '1px solid #1f2530', background: '#080d14', position: 'relative', overflow: 'hidden' }}>
-          {/* Subtle contour visualization */}
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.15, pointerEvents: 'none', backgroundImage: 'radial-gradient(circle at 50% 50%, #3b82f6 0%, transparent 60%), repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.1) 40px, rgba(255,255,255,0.1) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.1) 40px, rgba(255,255,255,0.1) 41px)' }}>
-            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 0 200 Q 200 150 400 200 T 800 200 T 1200 200" fill="none" stroke="#3b82f6" strokeWidth="1" opacity="0.5"/>
-              <path d="M 0 220 Q 200 170 400 220 T 800 220 T 1200 220" fill="none" stroke="#3b82f6" strokeWidth="1" opacity="0.3"/>
-              <path d="M 0 240 Q 200 190 400 240 T 800 240 T 1200 240" fill="none" stroke="#3b82f6" strokeWidth="1" opacity="0.1"/>
-            </svg>
-          </div>
-          
-          <div style={{ position: 'relative', zIndex: 10, padding: '32px', display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '360px', border: '1px solid #2d323b', background: '#171a21' }}>
+          <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ fontSize: '14px', color: '#ffffff', fontWeight: 500, letterSpacing: '0.05em', marginBottom: '8px' }}>SYSTEM READY</div>
-              <div style={{ color: '#8a94a6', fontSize: '13px', maxWidth: '300px', lineHeight: 1.5 }}>Multispectral inference pipeline initialized. Select a dataset index to begin analysis.</div>
+              <div style={{ fontSize: '14px', color: '#e5e7eb', fontWeight: 500, letterSpacing: '0.05em', marginBottom: '8px' }}>SYSTEM READY</div>
+              <div style={{ color: '#9ca3af', fontSize: '13px', maxWidth: '350px', lineHeight: 1.5 }}>Multispectral inference pipeline initialized.<br/>Select a dataset index to begin analysis.</div>
             </div>
             
-            <div style={{ display: 'flex', gap: '48px' }}>
+            <div style={{ display: 'flex', gap: '48px', borderTop: '1px solid #2d323b', paddingTop: '24px' }}>
               <div>
-                <div style={{ fontSize: '10px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>DATASET</div>
-                <div style={{ fontSize: '16px', color: '#e2e4e9', fontFamily: 'monospace' }}>INDEX {sampleIdx.toString().padStart(2, '0')}</div>
+                <div style={{ fontSize: '10px', color: '#687282', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>DATASET</div>
+                <div style={{ fontSize: '16px', color: '#e5e7eb', fontFamily: 'monospace' }}>INDEX {sampleIdx.toString().padStart(2, '0')}</div>
               </div>
               <div>
-                <div style={{ fontSize: '10px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>STATUS</div>
-                <div style={{ fontSize: '13px', color: '#3b82f6', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div className="pulsing-dot" style={{ width: '6px', height: '6px', backgroundColor: '#3b82f6', borderRadius: '50%' }}></div>
+                <div style={{ fontSize: '10px', color: '#687282', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>STATUS</div>
+                <div style={{ fontSize: '13px', color: '#2563eb', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ width: '6px', height: '6px', backgroundColor: '#2563eb', borderRadius: '50%' }}></div>
                   AWAITING INPUT
                 </div>
               </div>
@@ -204,8 +195,8 @@ export default function Dashboard() {
           {/* RIGHT SIDEBAR: INFERENCE SUMMARY */}
           <div style={{ flex: '1 1 35%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
-            <section style={{ background: '#080d14', border: '1px solid #1f2530', padding: '20px' }}>
-              <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>Inference Summary</div>
+            <section style={{ background: '#171a21', border: '1px solid #2d323b', padding: '20px' }}>
+              <div style={{ fontSize: '11px', color: '#687282', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px' }}>Inference Summary</div>
               
               <DataRow label="Detection Status" value={data.active ? 'ACTIVE ANOMALY' : 'NO ANOMALY'} highlight={data.active} />
               <DataRow label="Model Confidence" value={`${(data.s1_prob * 100).toFixed(1)}%`} />
@@ -221,10 +212,10 @@ export default function Dashboard() {
             </section>
 
             {data.active && data.alert_info && (
-              <section style={{ border: '1px solid #1f2530', padding: '20px', borderLeft: `2px solid ${data.alert_info.level === 'RED ALERT' ? '#ef4444' : '#f97316'}`, background: '#080d14' }}>
-                <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Action Protocol</div>
-                <div style={{ fontSize: '14px', color: '#e2e4e9', fontWeight: 500, marginBottom: '6px' }}>{data.alert_info.badge}</div>
-                <div style={{ fontSize: '13px', color: '#8a94a6', lineHeight: 1.5 }}>{data.alert_info.action}</div>
+              <section style={{ border: '1px solid #2d323b', padding: '20px', borderLeft: `2px solid ${data.alert_info.level === 'RED ALERT' ? '#ef4444' : '#f97316'}`, background: '#171a21' }}>
+                <div style={{ fontSize: '11px', color: '#687282', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Action Protocol</div>
+                <div style={{ fontSize: '14px', color: '#e5e7eb', fontWeight: 500, marginBottom: '6px' }}>{data.alert_info.badge}</div>
+                <div style={{ fontSize: '13px', color: '#9ca3af', lineHeight: 1.5 }}>{data.alert_info.action}</div>
               </section>
             )}
             

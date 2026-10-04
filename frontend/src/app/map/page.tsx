@@ -42,7 +42,7 @@ export default function MapPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       
       {/* PAGE HEADER */}
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #1f2530', paddingBottom: '24px' }}>
+      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #2d323b', paddingBottom: '24px' }}>
         <div>
           <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>INTERACTIVE MAP</div>
           <h2 style={{ color: '#ffffff', margin: 0, fontSize: '28px', fontWeight: 400, letterSpacing: '-0.01em' }}>Live Satellite Telemetry</h2>
@@ -56,7 +56,7 @@ export default function MapPage() {
       </div>
 
       {loading || error ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #1f2530', background: '#0c0f13' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #2d323b', background: '#171a21' }}>
           <div style={{ fontSize: '13px', color: error ? '#ef4444' : '#8a94a6' }}>
             {error || 'Acquiring satellite feed...'}
           </div>
@@ -65,7 +65,7 @@ export default function MapPage() {
         <div style={{ display: 'flex', flex: 1, gap: '24px', minHeight: 0 }}>
           
           {/* MAIN VISUALIZATION AREA */}
-          <div style={{ flex: 1, background: '#0c0f13', border: '1px solid #1f2530', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, background: '#171a21', border: '1px solid #2d323b', position: 'relative', display: 'flex', flexDirection: 'column' }}>
             <MapComponent
               cyclones={liveData?.cyclones || []}
               setSelectedCyclone={setSelectedCyclone}
@@ -75,7 +75,7 @@ export default function MapPage() {
 
             <div style={{
               position: 'absolute', bottom: '16px', left: '16px', zIndex: 900,
-              background: '#0c0f13', border: '1px solid #1f2530', padding: '12px 16px',
+              background: '#171a21', border: '1px solid #2d323b', padding: '12px 16px',
               fontSize: '11px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em'
             }}>
               <div style={{ marginBottom: '8px', color: '#5f697a' }}>Legend</div>
@@ -88,7 +88,7 @@ export default function MapPage() {
 
           {/* RIGHT PANEL - INSPECTOR */}
           <div style={{ width: '320px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-            <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #1f2530', paddingBottom: '8px', marginBottom: '16px' }}>Target Inspector</div>
+            <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #2d323b', paddingBottom: '8px', marginBottom: '16px' }}>Target Inspector</div>
             
             {selectedCyclone ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -109,19 +109,19 @@ export default function MapPage() {
                   <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Multispectral Channels</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
-                      <img src={selectedCyclone.spectral_thumbnails.thermal_ir} style={{ width: '100%', border: '1px solid #1f2530', filter: 'grayscale(100%)' }} alt="IR" />
+                      <img src={selectedCyclone.spectral_thumbnails.thermal_ir} style={{ width: '100%', border: '1px solid #2d323b', filter: 'grayscale(100%)' }} alt="IR" />
                       <div style={{ fontSize: '10px', color: '#5f697a', marginTop: '4px', textAlign: 'center' }}>IR (Ch 31)</div>
                     </div>
                     <div>
-                      <img src={selectedCyclone.spectral_thumbnails.water_vapor} style={{ width: '100%', border: '1px solid #1f2530', filter: 'grayscale(100%)' }} alt="WV" />
+                      <img src={selectedCyclone.spectral_thumbnails.water_vapor} style={{ width: '100%', border: '1px solid #2d323b', filter: 'grayscale(100%)' }} alt="WV" />
                       <div style={{ fontSize: '10px', color: '#5f697a', marginTop: '4px', textAlign: 'center' }}>Water Vapor</div>
                     </div>
                     <div>
-                      <img src={selectedCyclone.spectral_thumbnails.visible} style={{ width: '100%', border: '1px solid #1f2530', filter: 'grayscale(100%)' }} alt="VIS" />
+                      <img src={selectedCyclone.spectral_thumbnails.visible} style={{ width: '100%', border: '1px solid #2d323b', filter: 'grayscale(100%)' }} alt="VIS" />
                       <div style={{ fontSize: '10px', color: '#5f697a', marginTop: '4px', textAlign: 'center' }}>Visible</div>
                     </div>
                     <div>
-                      <img src={selectedCyclone.spectral_thumbnails.mid_ir} style={{ width: '100%', border: '1px solid #1f2530', filter: 'grayscale(100%)' }} alt="PMW" />
+                      <img src={selectedCyclone.spectral_thumbnails.mid_ir} style={{ width: '100%', border: '1px solid #2d323b', filter: 'grayscale(100%)' }} alt="PMW" />
                       <div style={{ fontSize: '10px', color: '#5f697a', marginTop: '4px', textAlign: 'center' }}>Microwave</div>
                     </div>
                   </div>

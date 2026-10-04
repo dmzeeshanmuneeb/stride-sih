@@ -13,7 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <title>STRIDE-AI | MoES Operational Terminal</title>
         <meta name="description" content="Professional Meteorological Operations Software" />
       </head>
-      <body className={inter.className} style={{ margin: 0, padding: 0, backgroundColor: '#10141a', color: '#e2e4e9' }}>
+      <body className={inter.className} style={{ margin: 0, padding: 0, backgroundColor: '#121418', color: '#e2e4e9' }}>
         <NavShell>{children}</NavShell>
       </body>
     </html>
@@ -57,7 +57,7 @@ function NavShell({ children }: { children: React.ReactNode }) {
         {/* HEADER - 64px professional operational header */}
         <header style={{
           height: '64px',
-          backgroundColor: '#050a11', // Deep navy
+          backgroundColor: '#121418', // Deep navy
           borderBottom: '1px solid rgba(59, 130, 246, 0.15)', // Subtle blue tonal separation
           display: 'flex',
           alignItems: 'center',
@@ -75,7 +75,7 @@ function NavShell({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           
-          <div style={{ width: '1px', height: '24px', backgroundColor: '#1f2530' }}></div>
+          <div style={{ width: '1px', height: '24px', backgroundColor: '#2d323b' }}></div>
           
           <div style={{ fontSize: '13px', fontWeight: 500, color: '#e2e4e9', letterSpacing: '0.02em' }}>
             {moduleName}
@@ -88,13 +88,13 @@ function NavShell({ children }: { children: React.ReactNode }) {
             <span style={{ fontSize: '11px', fontWeight: 500, letterSpacing: '0.05em' }}>SYSTEM OPERATIONAL</span>
           </div>
           
-          <div style={{ width: '1px', height: '16px', backgroundColor: '#1f2530' }}></div>
+          <div style={{ width: '1px', height: '16px', backgroundColor: '#2d323b' }}></div>
           
           <span style={{ color: '#8a94a6' }}>EN</span>
           
           {user && (
             <>
-              <div style={{ width: '1px', height: '16px', backgroundColor: '#1f2530' }}></div>
+              <div style={{ width: '1px', height: '16px', backgroundColor: '#2d323b' }}></div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ color: '#e2e4e9' }}>{user.username} <span style={{ color: '#8a94a6' }}>({user.role})</span></span>
                 <button onClick={handleLogout} style={{
@@ -113,7 +113,7 @@ function NavShell({ children }: { children: React.ReactNode }) {
         {/* SIDEBAR - narrow, technical navigation rail */}
         <aside style={{
           width: '240px',
-          backgroundColor: '#050a11', // Deep navy matching header
+          backgroundColor: '#121418', // Deep navy matching header
           borderRight: '1px solid #121824',
           display: 'flex',
           flexDirection: 'column',
@@ -146,7 +146,7 @@ function NavShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* MAIN CONTENT AREA */}
-        <main style={{ flex: 1, overflowY: 'auto', backgroundColor: '#10141a', padding: '32px' }}>
+        <main style={{ flex: 1, overflowY: 'auto', backgroundColor: '#121418', padding: '32px' }}>
           <div style={{ maxWidth: '1600px', margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
             {children}
           </div>

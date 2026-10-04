@@ -20,7 +20,7 @@ export default function ReportsPage() {
 
   return (
     <>
-      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #1f2530', paddingBottom: '24px' }}>
+      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #2d323b', paddingBottom: '24px' }}>
         <div>
           <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>INTELLIGENCE</div>
           <h2 style={{ color: '#ffffff', margin: 0, fontSize: '28px', fontWeight: 400, letterSpacing: '-0.01em' }}>Bulletins & Reports</h2>
@@ -31,7 +31,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #1f2530', paddingBottom: '8px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ fontSize: '12px', color: '#8a94a6', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #2d323b', paddingBottom: '8px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
         <span>Monitored Regional Entities</span>
         <span style={{ color: indianCyclones.length > 0 ? '#ef4444' : '#10b981' }}>
           {indianCyclones.length} Active System(s)
@@ -43,7 +43,7 @@ export default function ReportsPage() {
           {indianCyclones.map((c: any, i: number) => (
             <div key={i} style={{ display: 'flex', gap: '32px' }}>
               {/* Left Details */}
-              <div style={{ flex: '1 1 30%', borderRight: '1px solid #1f2530', paddingRight: '24px' }}>
+              <div style={{ flex: '1 1 30%', borderRight: '1px solid #2d323b', paddingRight: '24px' }}>
                 <div style={{ fontSize: '18px', color: '#e2e4e9', fontWeight: 500, marginBottom: '4px' }}>{c.name}</div>
                 <div style={{ fontSize: '12px', color: '#ef4444', marginBottom: '16px' }}>{c.alert_level?.toUpperCase()} ALERT</div>
                 
@@ -80,11 +80,11 @@ export default function ReportsPage() {
                     <div style={{ fontSize: '11px', color: '#5f697a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>Predictive Assessment</div>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '16px' }}>
                       <tbody>
-                        <tr style={{ borderBottom: '1px solid #1f2530' }}>
+                        <tr style={{ borderBottom: '1px solid #2d323b' }}>
                           <td style={{ padding: '6px 0', color: '#8a94a6' }}>Target Vector</td>
                           <td style={{ padding: '6px 0', color: '#e2e4e9' }}>{c.alert_info.primary_target}</td>
                         </tr>
-                        <tr style={{ borderBottom: '1px solid #1f2530' }}>
+                        <tr style={{ borderBottom: '1px solid #2d323b' }}>
                           <td style={{ padding: '6px 0', color: '#8a94a6' }}>Estimated Arrival</td>
                           <td style={{ padding: '6px 0', color: '#e2e4e9' }}>{c.alert_info.eta}</td>
                         </tr>
