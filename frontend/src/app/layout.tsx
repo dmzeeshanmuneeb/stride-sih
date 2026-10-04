@@ -2,19 +2,23 @@
 import React, { useEffect, useState } from 'react';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { usePathname } from 'next/navigation';
 
 const inter = Inter({ subsets: ['latin'] });
 
-const ROLE_COLORS: Record<string,string> = {
-  admin:    '#3b82f6',
-  ndrf:     '#f97316',
-  civilian: '#10b981',
-};
-const ROLE_ICONS: Record<string,string> = {
-  admin: '🛰️', ndrf: '🚨', civilian: '🏠',
-};
-
-import { usePathname } from 'next/navigation';
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <title>STRIDE-AI | MoES Intelligence</title>
+        <meta name="description" content="Professional Meteorological Operations Software" />
+      </head>
+      <body className={inter.className} style={{ margin: 0, padding: 0, backgroundColor: '#07111F', color: '#f5f5f7' }}>
+        <NavShell>{children}</NavShell>
+      </body>
+    </html>
+  );
+}
 
 function NavShell({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null);
@@ -39,90 +43,126 @@ function NavShell({ children }: { children: React.ReactNode }) {
 
   const isHome = pathname === '/' || pathname === '/login';
 
+  if (isHome) {
+    return <>{children}</>;
+  }
+
   return (
-    <>
-      {!isHome && (
-        <>
-          <header className="top-header">
-            <div className="brand-section">
-              <div className="logo-placeholder"></div>
-              <div className="brand-text">
-                <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>STRIDE - AI</h1>
-                <p style={{ fontSize: '0.9rem', opacity: 0.9, margin: 0, fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  TRACK MOES SIH
-                </p>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+      
+      {/* HEADER */}
+      <header style={{
+        height: '72px',
+        backgroundColor: '#0A1422',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 24px',
+        flexShrink: 0
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <img src="/stride_ai_logo.png" alt="Logo" style={{ height: '36px', width: '36px', objectFit: 'contain' }} />
+          <div>
+            <h1 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, letterSpacing: '0.05em', color: '#f5f5f7' }}>STRIDE-AI</h1>
+            <span style={{ fontSize: '0.7rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>MoES SIH Operations</span>
+          </div>
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#86868b', fontSize: '0.85rem' }}>
+            <span>EN</span>
+            <div style={{ width: '1px', height: '12px', background: 'rgba(255,255,255,0.1)' }}></div>
+            <span style={{ cursor: 'pointer' }}>Search...</span>
+          </div>
+          
+          {user && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{user.username}</span>
+                <span style={{ fontSize: '0.7rem', color: '#3b82f6', textTransform: 'uppercase' }}>{user.role}</span>
               </div>
+              <button onClick={handleLogout} style={{
+                background: 'transparent',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#f5f5f7',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'background 0.2s'
+              }}>
+                Sign Out
+              </button>
             </div>
-            <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.85rem', cursor: 'pointer', color: 'white' }}>Language: English</span>
-                <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-                   🔍
-                </div>
-              </div>
-              
-              {user && (
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <span style={{
-                    background: ROLE_COLORS[user.role] + '22',
-                    border: `1px solid ${ROLE_COLORS[user.role]}`,
-                    color: ROLE_COLORS[user.role],
-                    padding: '4px 12px', borderRadius: '20px',
-                    fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.05em',
-                  }}>
-                    {ROLE_ICONS[user.role]} {user.username}
-                  </span>
-                  <button onClick={handleLogout} style={{
-                    background: 'rgba(239,68,68,0.15)', border: '1px solid #ef4444',
-                    color: '#ef4444', padding: '4px 12px', borderRadius: '8px',
-                    fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
-                  }}>
-                    Sign Out
-                  </button>
-                </div>
-              )}
-            </div>
-          </header>
+          )}
+        </div>
+      </header>
 
-          <nav className="nav-bar">
-            <a href="/" className="nav-link">HOME</a>
-            
-            {user && (
-              <>
-                {user.role === 'admin' && (
-                  <a href="/dashboard" className="nav-link">AI DASHBOARD</a>
-                )}
-                
-                {(user.role === 'admin' || user.role === 'ndrf') && (
-                  <a href="/map" className="nav-link">INTERACTIVE MAP</a>
-                )}
-                
-                <a href="/reports" className="nav-link">BULLETINS &amp; REPORTS</a>
-                
-                {user.role === 'admin' && (
-                  <a href="/history" className="nav-link" style={{ color: '#38bdf8' }}>📦 DATA HISTORY</a>
-                )}
-              </>
+      {/* BODY */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        
+        {/* SIDEBAR */}
+        <aside style={{
+          width: '240px',
+          backgroundColor: '#07111F',
+          borderRight: '1px solid rgba(255,255,255,0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '24px 0',
+          flexShrink: 0
+        }}>
+          <div style={{ fontSize: '0.65rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 24px', marginBottom: '12px' }}>
+            Intelligence
+          </div>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {user?.role === 'admin' && (
+              <NavLink href="/dashboard" label="Prediction Model" isActive={pathname === '/dashboard'} />
             )}
+            {(user?.role === 'admin' || user?.role === 'ndrf') && (
+              <NavLink href="/map" label="Interactive Map" isActive={pathname === '/map'} />
+            )}
+            <NavLink href="/reports" label="Bulletins & Reports" isActive={pathname === '/reports'} />
           </nav>
-        </>
-      )}
 
-      {children}
-    </>
+          {user?.role === 'admin' && (
+            <>
+              <div style={{ fontSize: '0.65rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 24px', margin: '24px 0 12px' }}>
+                Data & Archives
+              </div>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <NavLink href="/history" label="Data History" isActive={pathname === '/history'} />
+              </nav>
+            </>
+          )}
+        </aside>
+
+        {/* MAIN CONTENT AREA */}
+        <main style={{ flex: 1, overflowY: 'auto', backgroundColor: '#0D1826', padding: '32px' }}>
+          <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+            {children}
+          </div>
+        </main>
+      </div>
+    </div>
   );
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+function NavLink({ href, label, isActive }: { href: string, label: string, isActive: boolean }) {
   return (
-    <html lang="en">
-      <head>
-        <title>Stride AI — SIH 2026 | MoES Cyclone Intelligence</title>
-        <meta name="description" content="AI-powered cyclone trajectory prediction for the Indian Ocean. Developed for Smart India Hackathon 2026, Ministry of Earth Sciences track." />
-      </head>
-      <body className={inter.className}>
-        <NavShell>{children}</NavShell>
-      </body>
-    </html>
+    <a href={href} style={{
+      display: 'block',
+      padding: '8px 24px',
+      fontSize: '0.85rem',
+      color: isActive ? '#f5f5f7' : '#86868b',
+      textDecoration: 'none',
+      backgroundColor: isActive ? 'rgba(255,255,255,0.05)' : 'transparent',
+      borderLeft: `3px solid ${isActive ? '#3b82f6' : 'transparent'}`,
+      fontWeight: isActive ? 500 : 400,
+      transition: 'all 0.2s'
+    }}>
+      {label}
+    </a>
   );
 }
