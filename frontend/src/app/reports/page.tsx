@@ -13,119 +13,109 @@ export default function ReportsPage() {
   }, []);
 
   if (loading) {
-    return <main style={{ padding: '4rem 5%', textAlign: 'center' }}><h2 style={{ color: '#093370' }}>Fetching Live India Alerts from GDACS...</h2></main>;
+    return <main style={{ padding: '5rem 5%', textAlign: 'center', background: '#000000', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}><h2 style={{ color: '#86868b', fontWeight: 400, fontSize: '1.1rem' }}>Establishing secure connection to GDACS...</h2></main>;
   }
 
   const indianCyclones = liveData?.indian_cyclones || [];
-  const globalCyclones = liveData?.global_cyclones || [];
 
   return (
-    <main style={{ padding: '2rem 5%', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-        <div style={{ width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%', boxShadow: '0 0 10px #ef4444', animation: 'pulse 1.5s infinite' }}></div>
-        <h1 style={{ color: '#093370', margin: 0 }}>Live India Bulletins & Reports</h1>
-      </div>
-      <p style={{ color: '#64748b', marginBottom: '0.5rem' }}>
-        Real-time cyclone alerts from GDACS (Global Disaster Alert and Coordination System).
-      </p>
-      <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '2rem' }}>
-        Last updated: {liveData?.timestamp ? new Date(liveData.timestamp + 'Z').toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST' : 'N/A'} · Source: {liveData?.source}
-      </p>
-
-      {/* Status Banner */}
-      <div style={{
-        padding: '1.5rem 2rem', borderRadius: '16px', marginBottom: '2rem',
-        background: indianCyclones.length > 0 ? '#fee2e2' : '#dcfce7',
-        borderLeft: `6px solid ${indianCyclones.length > 0 ? '#dc2626' : '#22c55e'}`,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.06)'
-      }}>
-        <h3 style={{ color: indianCyclones.length > 0 ? '#991b1b' : '#166534', marginBottom: '0.25rem' }}>
-          {indianCyclones.length > 0
-            ? `⚠️ ${indianCyclones.length} ACTIVE TROPICAL CYCLONE${indianCyclones.length > 1 ? 'S' : ''} IN INDIAN OCEAN REGION`
-            : '✅ NO ACTIVE TROPICAL CYCLONES IN INDIAN OCEAN — ALL CLEAR'}
-        </h3>
-        <p style={{ color: '#333', fontSize: '0.9rem' }}>
-          {indianCyclones.length > 0
-            ? 'MoES / NDMA operational protocols may be activated. Review details below.'
-            : 'Standard routine oceanic monitoring. No emergency response required at this time.'}
-        </p>
-      </div>
-
-      {/* Indian Ocean Cyclones */}
-      {indianCyclones.length > 0 && (
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ color: '#093370', marginBottom: '1rem' }}>🇮🇳 Indian Ocean Active Systems</h2>
-          <div style={{ display: 'grid', gap: '1.5rem' }}>
-            {indianCyclones.map((c: any, i: number) => (
-              <div key={i} style={{
-                background: 'white', padding: '2rem', borderRadius: '16px',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-                borderLeft: `6px solid ${c.alert_level === 'Red' ? '#dc2626' : c.alert_level === 'Orange' ? '#f97316' : '#22c55e'}`
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h3 style={{ color: '#093370', margin: 0 }}>{c.name}</h3>
-                  <span style={{
-                    background: c.alert_level === 'Red' ? '#dc2626' : c.alert_level === 'Orange' ? '#f97316' : '#22c55e',
-                    color: 'white', padding: '4px 12px', borderRadius: '6px', fontWeight: 'bold', fontSize: '0.85rem'
-                  }}>{c.alert_level?.toUpperCase()} ALERT</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
-                  <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '8px' }}>
-                    <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Position</p>
-                    <p style={{ fontWeight: 'bold' }}>{c.lat?.toFixed(2)}°N, {c.lon?.toFixed(2)}°E</p>
-                  </div>
-                  <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '8px' }}>
-                    <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Severity</p>
-                    <p style={{ fontWeight: 'bold' }}>{c.severity}</p>
-                  </div>
-                  <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '8px' }}>
-                    <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Affected Region</p>
-                    <p style={{ fontWeight: 'bold' }}>{c.country}</p>
-                  </div>
-                  <div style={{ background: '#f1f5f9', padding: '1rem', borderRadius: '8px' }}>
-                    <p style={{ fontSize: '0.75rem', color: '#64748b' }}>Last Update</p>
-                    <p style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{c.pub_date}</p>
-                  </div>
-                </div>
-                {c.description && (
-                  <p style={{ color: '#64748b', fontSize: '0.9rem', marginTop: '1rem', lineHeight: 1.6 }}>{c.description}</p>
-                )}
-                {c.alert_info && (
-                  <div style={{ marginTop: '1.5rem', borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem' }}>
-                    <h4 style={{ color: '#093370', marginBottom: '1rem', fontSize: '1rem' }}>AI Impact & Risk Analysis</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                      <div>
-                        <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>Primary Target Sector</p>
-                        <p style={{ fontWeight: 'bold', margin: '4px 0 0 0', color: '#1e293b' }}>{c.alert_info.primary_target}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>Impact ETA</p>
-                        <p style={{ fontWeight: 'bold', margin: '4px 0 0 0', color: '#ef4444' }}>{c.alert_info.eta}</p>
-                      </div>
-                    </div>
-                    <div style={{ marginTop: '1rem', background: '#f8fafc', borderLeft: `4px solid ${c.alert_level === 'Red' ? '#dc2626' : c.alert_level === 'Orange' ? '#f97316' : '#22c55e'}`, padding: '1rem', borderRadius: '4px' }}>
-                      <p style={{ fontSize: '0.85rem', color: '#334155', margin: 0 }}><strong>SOP Action:</strong> {c.alert_info.action}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+    <main style={{ padding: '4rem 5%', backgroundColor: '#000000', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+          <h1 style={{ color: '#f5f5f7', margin: 0, fontSize: '1.6rem', fontWeight: 500, letterSpacing: '-0.02em' }}>Global Reports & Intelligence</h1>
         </div>
-      )}
-
-      {/* Summary stats */}
-      <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.06)', textAlign: 'center' }}>
-        <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
-          Monitoring {indianCyclones.length} active tropical cyclones in the Indian Ocean basin · Data refreshes every 5 minutes
+        <p style={{ color: '#86868b', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+          Synchronized alerts from Global Disaster Alert and Coordination System.
         </p>
-      </div>
+        <p style={{ color: '#55555a', fontSize: '0.8rem', marginBottom: '3rem' }}>
+          Last sync: {liveData?.timestamp ? new Date(liveData.timestamp + 'Z').toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'N/A'} · Source: {liveData?.source}
+        </p>
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
-      `}} />
+        {/* Status Banner */}
+        <div style={{
+          padding: '2rem', borderRadius: '16px', marginBottom: '3rem',
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.05)',
+        }}>
+          <h3 style={{ color: '#f5f5f7', marginBottom: '0.5rem', fontSize: '1.1rem', fontWeight: 500 }}>
+            {indianCyclones.length > 0
+              ? `${indianCyclones.length} ACTIVE SYSTEM${indianCyclones.length > 1 ? 'S' : ''} IN REGION`
+              : 'SYSTEM NOMINAL. NO ACTIVE ANOMALIES.'}
+          </h3>
+          <p style={{ color: '#86868b', fontSize: '0.9rem', margin: 0 }}>
+            {indianCyclones.length > 0
+              ? 'Protocols active. Review parameters below.'
+              : 'Routine monitoring ongoing. No action required.'}
+          </p>
+        </div>
+
+        {/* Indian Ocean Cyclones */}
+        {indianCyclones.length > 0 && (
+          <div style={{ marginBottom: '3rem' }}>
+            <h2 style={{ color: '#f5f5f7', marginBottom: '1.5rem', fontSize: '1.2rem', fontWeight: 500 }}>Monitored Entities</h2>
+            <div style={{ display: 'grid', gap: '2rem' }}>
+              {indianCyclones.map((c: any, i: number) => (
+                <div key={i} style={{
+                  background: 'rgba(255,255,255,0.02)', padding: '2.5rem', borderRadius: '20px',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <h3 style={{ color: '#f5f5f7', margin: 0, fontSize: '1.4rem', fontWeight: 400 }}>{c.name}</h3>
+                    <span style={{
+                      background: 'transparent', border: '1px solid rgba(255,255,255,0.2)',
+                      color: '#f5f5f7', padding: '6px 14px', borderRadius: '8px', fontSize: '0.75rem'
+                    }}>{c.alert_level?.toUpperCase()}</span>
+                  </div>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                    <div>
+                      <p style={{ fontSize: '0.75rem', color: '#86868b', margin: '0 0 0.5rem 0' }}>Coordinates</p>
+                      <p style={{ fontWeight: 400, color: '#f5f5f7', margin: 0 }}>{c.lat?.toFixed(2)}°, {c.lon?.toFixed(2)}°</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.75rem', color: '#86868b', margin: '0 0 0.5rem 0' }}>Classification</p>
+                      <p style={{ fontWeight: 400, color: '#f5f5f7', margin: 0 }}>{c.severity}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.75rem', color: '#86868b', margin: '0 0 0.5rem 0' }}>Sector</p>
+                      <p style={{ fontWeight: 400, color: '#f5f5f7', margin: 0 }}>{c.country}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.75rem', color: '#86868b', margin: '0 0 0.5rem 0' }}>Issued</p>
+                      <p style={{ fontWeight: 400, color: '#f5f5f7', margin: 0, fontSize: '0.85rem' }}>{c.pub_date}</p>
+                    </div>
+                  </div>
+                  
+                  {c.description && (
+                    <p style={{ color: '#a1a1a6', fontSize: '0.9rem', lineHeight: 1.6, margin: 0 }}>{c.description}</p>
+                  )}
+                  
+                  {c.alert_info && (
+                    <div style={{ marginTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2rem' }}>
+                      <h4 style={{ color: '#f5f5f7', marginBottom: '1.5rem', fontSize: '1rem', fontWeight: 500 }}>Predictive Analysis</h4>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                        <div>
+                          <p style={{ fontSize: '0.75rem', color: '#86868b', margin: '0 0 0.5rem 0' }}>Target Vector</p>
+                          <p style={{ fontWeight: 400, margin: 0, color: '#f5f5f7' }}>{c.alert_info.primary_target}</p>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: '0.75rem', color: '#86868b', margin: '0 0 0.5rem 0' }}>Estimated Arrival</p>
+                          <p style={{ fontWeight: 400, margin: 0, color: '#f5f5f7' }}>{c.alert_info.eta}</p>
+                        </div>
+                      </div>
+                      <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '12px' }}>
+                        <p style={{ fontSize: '0.85rem', color: '#a1a1a6', margin: 0 }}><strong>Protocol:</strong> {c.alert_info.action}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
     </main>
   );
 }

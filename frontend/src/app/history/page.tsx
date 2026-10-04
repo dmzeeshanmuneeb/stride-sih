@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-function Badge({ children, color }: { children: React.ReactNode; color: string }) {
+function Badge({ children, color }: { children: React.ReactNode; color?: string }) {
   return (
     <span style={{
-      display: "inline-block", padding: "2px 10px", borderRadius: "20px",
-      fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.05em",
-      background: color + "22", border: `1px solid ${color}`, color,
+      display: "inline-block", padding: "4px 12px", borderRadius: "8px",
+      fontSize: "0.7rem", fontWeight: 500, letterSpacing: "0.03em",
+      background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#f5f5f7",
     }}>
       {children}
     </span>
@@ -20,53 +20,51 @@ function AnalysisCard({ item }: { item: any }) {
   const alert = item.alert_info;
   return (
     <div style={{
-      background: "#f8fafc", border: "1px solid #e2e8f0",
-      borderRadius: "14px", padding: "1.25rem 1.5rem", marginBottom: "1rem",
-      transition: "border 0.2s",
+      background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)",
+      borderRadius: "16px", padding: "2rem", marginBottom: "1.5rem",
+      transition: "background 0.3s",
     }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
         <div>
-          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>{date}</span>
-          <h4 style={{ color: "#1e293b", margin: "4px 0 6px", fontSize: "1rem" }}>
-            {item.imd_cat || "Unknown"} — {item.lat?.toFixed(2)}°N {item.lon?.toFixed(2)}°E
+          <span style={{ fontSize: "0.75rem", color: "#86868b" }}>{date}</span>
+          <h4 style={{ color: "#f5f5f7", margin: "8px 0 16px", fontSize: "1.1rem", fontWeight: 500 }}>
+            {item.imd_cat || "Unknown Signature"} — {item.lat?.toFixed(2)}° {item.lon?.toFixed(2)}°
           </h4>
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-            <Badge color="#3b82f6">VMAX {item.pred_vmax ? `${item.pred_vmax} kt` : "—"}</Badge>
-            <Badge color="#f97316">Storm Prob {item.s1_prob ? `${(item.s1_prob * 100).toFixed(1)}%` : "—"}</Badge>
-            {item.heading !== undefined && <Badge color="#8b5cf6">Heading {item.heading?.toFixed(0)}°</Badge>}
-            {item.speed !== undefined && <Badge color="#06b6d4">Speed {item.speed?.toFixed(1)} kt</Badge>}
+          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+            <Badge>VMAX {item.pred_vmax ? `${item.pred_vmax} kt` : "—"}</Badge>
+            <Badge>Prob {item.s1_prob ? `${(item.s1_prob * 100).toFixed(0)}%` : "—"}</Badge>
+            {item.heading !== undefined && <Badge>Heading {item.heading?.toFixed(0)}°</Badge>}
+            {item.speed !== undefined && <Badge>Speed {item.speed?.toFixed(1)} kt</Badge>}
           </div>
         </div>
-        <Badge color={alert?.level === "RED ALERT" || alert?.level === "RED" ? "#ef4444" : alert?.level === "ORANGE ALERT" || alert?.level === "ORANGE" ? "#f97316" : "#10b981"}>
-          {alert?.level || "WATCH"}
-        </Badge>
+        <div style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', fontSize: '0.75rem', color: '#f5f5f7' }}>
+          {alert?.level || "STANDBY"}
+        </div>
       </div>
 
       {alert && (
         <div style={{
-          marginTop: "0.75rem", padding: "0.75rem 1rem",
-          background: "#ffffff", borderRadius: "8px", border: "1px solid #e2e8f0",
-          borderLeft: `3px solid ${alert.level?.includes("RED") ? "#ef4444" : alert.level?.includes("ORANGE") ? "#f97316" : "#10b981"}`,
+          marginTop: "1.5rem", padding: "1.25rem",
+          background: "rgba(0,0,0,0.2)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.03)",
         }}>
-          <p style={{ color: "#64748b", fontSize: "0.82rem", margin: "0 0 4px" }}>
-            🎯 <strong style={{ color: "#1e293b" }}>Target:</strong> {alert.primary_target || "—"}
+          <p style={{ color: "#a1a1a6", fontSize: "0.85rem", margin: "0 0 8px" }}>
+            <strong style={{ color: "#f5f5f7", fontWeight: 500 }}>Vector:</strong> {alert.primary_target || "—"}
           </p>
-          <p style={{ color: "#64748b", fontSize: "0.82rem", margin: "0 0 8px" }}>
-            ⏱️ <strong style={{ color: "#1e293b" }}>ETA:</strong> {alert.eta || "—"}
+          <p style={{ color: "#a1a1a6", fontSize: "0.85rem", margin: "0 0 12px" }}>
+            <strong style={{ color: "#f5f5f7", fontWeight: 500 }}>ETA:</strong> {alert.eta || "—"}
           </p>
 
           {alert.impacts && alert.impacts.length > 0 && (
-            <div style={{ marginTop: "10px", paddingTop: "10px", borderTop: "1px dashed #e2e8f0" }}>
-              <div style={{ fontSize: "0.75rem", color: "#64748b", marginBottom: "0.5rem", fontWeight: 600 }}>ALERTED CITIES / DISTRICTS (CONE OF UNCERTAINTY):</div>
+            <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+              <div style={{ fontSize: "0.7rem", color: "#86868b", marginBottom: "0.75rem", textTransform: 'uppercase', letterSpacing: '0.05em' }}>Affected Sectors:</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                 {alert.impacts.map((imp: any, i: number) => (
                   <span key={i} style={{
-                    background: imp.alert.includes("RED") ? "#fee2e2" : imp.alert.includes("ORANGE") ? "#ffedd5" : "#f1f5f9",
-                    color: imp.alert.includes("RED") ? "#991b1b" : imp.alert.includes("ORANGE") ? "#9a3412" : "#334155",
-                    padding: "2px 8px", borderRadius: "4px", fontSize: "0.7rem", border: "1px solid",
-                    borderColor: imp.alert.includes("RED") ? "#fca5a5" : imp.alert.includes("ORANGE") ? "#fdba74" : "#cbd5e1"
+                    background: "transparent",
+                    color: "#f5f5f7",
+                    padding: "4px 10px", borderRadius: "6px", fontSize: "0.75rem", border: "1px solid rgba(255,255,255,0.15)",
                   }}>
-                    {imp.city}, {imp.state} ({imp.eta_hour})
+                    {imp.city}, {imp.state}
                   </span>
                 ))}
               </div>
@@ -76,13 +74,13 @@ function AnalysisCard({ item }: { item: any }) {
       )}
 
       {item.map_html && (
-        <details style={{ marginTop: "12px", background: "#ffffff", padding: "0.75rem", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-          <summary style={{ cursor: "pointer", color: "#3b82f6", fontSize: "0.85rem", fontWeight: 600, outline: "none" }}>🗺️ View AI Forecast Map Snapshot</summary>
-          <div style={{ marginTop: "10px", borderRadius: "8px", overflow: "hidden", border: "1px solid #cbd5e1", height: "350px", background: "#f1f5f9" }}>
+        <details style={{ marginTop: "1.5rem", background: "rgba(0,0,0,0.2)", padding: "1rem", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.03)" }}>
+          <summary style={{ cursor: "pointer", color: "#f5f5f7", fontSize: "0.85rem", fontWeight: 400, outline: "none", userSelect: "none" }}>View Forecast Map Snapshot</summary>
+          <div style={{ marginTop: "1rem", borderRadius: "8px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)", height: "350px", background: "#0a0a0a" }}>
             <iframe
               srcDoc={item.map_html}
-              style={{ width: "100%", height: "100%", border: "none" }}
-              title="Cyclone Map Forecast Snapshot"
+              style={{ width: "100%", height: "100%", border: "none", filter: 'invert(90%) hue-rotate(180deg)' }}
+              title="Forecast Snapshot"
             />
           </div>
         </details>
@@ -95,40 +93,40 @@ function BulletinCard({ item }: { item: any }) {
   const date = item.saved_at ? new Date(item.saved_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }) : "—";
   return (
     <div style={{
-      background: "#fff1f2", border: "1px solid #fecdd3",
-      borderRadius: "14px", padding: "1.25rem 1.5rem", marginBottom: "1rem",
+      background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)",
+      borderRadius: "16px", padding: "2rem", marginBottom: "1.5rem",
     }}>
-      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
         <div>
-          <span style={{ fontSize: "0.78rem", color: "#94a3b8" }}>{date}</span>
-          <h4 style={{ color: "#1e293b", margin: "4px 0 6px", fontSize: "1rem" }}>
-            {item.cyclone_name || "Unnamed System"}
+          <span style={{ fontSize: "0.75rem", color: "#86868b" }}>{date}</span>
+          <h4 style={{ color: "#f5f5f7", margin: "8px 0 12px", fontSize: "1.1rem", fontWeight: 500 }}>
+            {item.cyclone_name || "Unidentified System"}
           </h4>
-          <p style={{ color: "#64748b", fontSize: "0.85rem", margin: "0 0 4px" }}>
-            🎯 {item.primary_target || "—"} &nbsp;·&nbsp; ⏱️ {item.eta || "—"}
+          <p style={{ color: "#a1a1a6", fontSize: "0.85rem", margin: "0 0 8px" }}>
+            Sector: {item.primary_target || "—"} &nbsp;·&nbsp; ETA: {item.eta || "—"}
           </p>
           {item.action && (
-            <p style={{ color: "#991b1b", fontSize: "0.8rem", margin: "0 0 8px", fontWeight: 600 }}>
-              SOP: {item.action}
+            <p style={{ color: "#f5f5f7", fontSize: "0.85rem", margin: "0 0 12px", background: 'rgba(255,255,255,0.05)', padding: '8px 12px', borderRadius: '8px', display: 'inline-block' }}>
+              Directive: {item.action}
             </p>
           )}
         </div>
-        <Badge color={item.level?.includes("RED") ? "#ef4444" : item.level?.includes("ORANGE") ? "#f97316" : "#10b981"}>
-          {item.level || "WATCH"}
-        </Badge>
+        <div style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)', fontSize: '0.75rem', color: '#f5f5f7', height: 'fit-content' }}>
+          {item.level || "STANDBY"}
+        </div>
       </div>
 
       {item.impacts && item.impacts.length > 0 && (
-        <div style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px dashed #fca5a5" }}>
-          <div style={{ fontSize: "0.75rem", color: "#991b1b", marginBottom: "0.5rem", fontWeight: 600 }}>VULNERABLE CITIES / DISTRICTS:</div>
+        <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ fontSize: "0.7rem", color: "#86868b", marginBottom: "0.75rem", textTransform: 'uppercase', letterSpacing: '0.05em' }}>Monitored Sectors:</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
             {item.impacts.map((imp: any, i: number) => (
               <span key={i} style={{
-                background: imp.alert.includes("RED") ? "#ef4444" : imp.alert.includes("ORANGE") ? "#f97316" : "#e2e8f0",
-                color: imp.alert.includes("RED") || imp.alert.includes("ORANGE") ? "white" : "#1e293b",
-                padding: "2px 8px", borderRadius: "4px", fontSize: "0.7rem"
+                background: "transparent",
+                color: "#f5f5f7",
+                padding: "4px 10px", borderRadius: "6px", fontSize: "0.75rem", border: "1px solid rgba(255,255,255,0.15)"
               }}>
-                {imp.city}, {imp.state} ({imp.eta_hour})
+                {imp.city}, {imp.state}
               </span>
             ))}
           </div>
@@ -164,77 +162,75 @@ export default function HistoryPage() {
   return (
     <main style={{
       minHeight: "100vh",
-      background: "#ffffff",
-      padding: "2rem 5%", fontFamily: "Inter, sans-serif",
+      background: "#000000",
+      padding: "4rem 5%", fontFamily: "'Inter', sans-serif",
     }}>
-      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
 
         {/* Header */}
-        <div style={{ marginBottom: "2rem" }}>
+        <div style={{ marginBottom: "3rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-            <h1 style={{ color: "#1e293b", fontSize: "1.8rem", fontWeight: 700, margin: 0 }}>
-              📦 Data History
+            <h1 style={{ color: "#f5f5f7", fontSize: "1.6rem", fontWeight: 500, margin: 0, letterSpacing: '-0.02em' }}>
+              Archive & Telemetry
             </h1>
-            {user && <Badge color="#3b82f6">{user.username} · {user.role_label}</Badge>}
+            {user && <span style={{ fontSize: '0.75rem', color: '#86868b', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '10px' }}>{user.username}</span>}
 
             {user && user.role === 'admin' && (
               <button
                 onClick={async () => {
-                  if (window.confirm('Are you sure you want to permanently delete ALL history records?')) {
+                  if (window.confirm('Erase all telemetry?')) {
                     await fetch(`${API}/api/history/clear`, { method: 'DELETE' });
                     window.location.reload();
                   }
                 }}
-                style={{ marginLeft: 'auto', background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', padding: '0.4rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}
+                style={{ marginLeft: 'auto', background: 'transparent', color: '#86868b', border: '1px solid rgba(255,255,255,0.1)', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', transition: 'color 0.2s' }}
               >
-                🗑️ Clear All History
+                Purge Records
               </button>
             )}
           </div>
-          <p style={{ color: "#64748b", marginTop: "0.5rem", fontSize: "0.9rem" }}>
-            All analysis runs and alert bulletins saved to MongoDB. Auto-updated on each new inference.
+          <p style={{ color: "#86868b", marginTop: "0.5rem", fontSize: "0.9rem" }}>
+            Historical inference logs and synchronized bulletins.
           </p>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: 0, marginBottom: "1.5rem", borderRadius: "10px", overflow: "hidden", border: "1px solid #e2e8f0", width: "fit-content" }}>
+        <div style={{ display: "flex", gap: '1rem', marginBottom: "2.5rem" }}>
           {(["analyses", "bulletins"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
-              padding: "0.6rem 1.5rem", border: "none", cursor: "pointer",
-              background: tab === t ? "#eff6ff" : "#ffffff",
-              color: tab === t ? "#2563eb" : "#64748b",
-              fontWeight: 600, fontSize: "0.9rem", transition: "all 0.2s",
-              borderRight: t === "analyses" ? "1px solid #e2e8f0" : "none",
+              padding: "8px 0", border: "none", cursor: "pointer",
+              background: "transparent",
+              color: tab === t ? "#f5f5f7" : "#86868b",
+              fontWeight: 400, fontSize: "0.95rem", transition: "color 0.3s",
+              borderBottom: tab === t ? '1px solid #f5f5f7' : '1px solid transparent'
             }}>
-              {t === "analyses" ? `🛰️ AI Analyses (${analyses.length})` : `📋 Alert Bulletins (${bulletins.length})`}
+              {t === "analyses" ? `Analyses (${analyses.length})` : `Bulletins (${bulletins.length})`}
             </button>
           ))}
         </div>
 
         {/* Content */}
         {loading ? (
-          <div style={{ color: "#64748b", textAlign: "center", padding: "3rem" }}>Loading from MongoDB...</div>
+          <div style={{ color: "#86868b", textAlign: "center", padding: "4rem" }}>Syncing records...</div>
         ) : tab === "analyses" ? (
           analyses.length === 0 ? (
             <div style={{
-              color: "#64748b", textAlign: "center", padding: "4rem",
-              background: "#f8fafc", borderRadius: "14px",
-              border: "1px dashed #cbd5e1"
+              color: "#86868b", textAlign: "center", padding: "5rem",
+              background: "rgba(255,255,255,0.01)", borderRadius: "16px",
+              border: "1px solid rgba(255,255,255,0.03)"
             }}>
-              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🛰️</div>
-              <p style={{ color: "#1e293b", fontWeight: 600 }}>No analyses stored yet.</p>
-              <p style={{ fontSize: "0.85rem" }}>Upload a numpy array on the AI Dashboard to run an inference — it will automatically be saved here.</p>
+              <p style={{ color: "#f5f5f7", fontWeight: 400, fontSize: '1.1rem', marginBottom: '0.5rem' }}>No data records found.</p>
+              <p style={{ fontSize: "0.85rem" }}>Run an inference to populate the archive.</p>
             </div>
           ) : analyses.map((a, i) => <AnalysisCard key={i} item={a} />)
         ) : (
           bulletins.length === 0 ? (
             <div style={{
-              color: "#64748b", textAlign: "center", padding: "4rem",
-              background: "#f8fafc", borderRadius: "14px",
-              border: "1px dashed #cbd5e1"
+              color: "#86868b", textAlign: "center", padding: "5rem",
+              background: "rgba(255,255,255,0.01)", borderRadius: "16px",
+              border: "1px solid rgba(255,255,255,0.03)"
             }}>
-              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📋</div>
-              <p style={{ color: "#1e293b", fontWeight: 600 }}>No alert bulletins saved yet.</p>
+              <p style={{ color: "#f5f5f7", fontWeight: 400, fontSize: '1.1rem' }}>No active bulletins.</p>
             </div>
           ) : bulletins.map((b, i) => <BulletinCard key={i} item={b} />)
         )}

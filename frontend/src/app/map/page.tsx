@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 // Dynamically load MapComponent so it doesn't crash on SSR
 const MapComponent = dynamic(() => import('../../components/MapComponent'), {
   ssr: false,
-  loading: () => <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>Loading interactive map...</div>
+  loading: () => <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86868b' }}>Initializing geospatial data...</div>
 });
 
 export default function MapPage() {
@@ -23,7 +23,7 @@ export default function MapPage() {
         const result = await res.json();
         setLiveData(result);
       } catch (err: any) {
-        setError("Failed to connect to live satellite feed. Check if backend is running.");
+        setError("Connection timeout. Systems unreachable.");
         console.error(err);
       }
       finally { setLoading(false); }
@@ -35,23 +35,20 @@ export default function MapPage() {
 
   if (loading) {
     return (
-      <main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 100px)', background: '#ffffff' }}>
-        <div style={{ textAlign: 'center', color: '#1e293b' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem', animation: 'spin 2s linear infinite' }}>🛰️</div>
-          <h2 style={{ color: '#1e293b' }}>Connecting to NASA GIBS / Worldview...</h2>
-          <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Pulling IR, water-vapor, and visible mosaics for Indian Ocean cyclones</p>
+      <main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 100px)', background: '#000000', fontFamily: "'Inter', sans-serif" }}>
+        <div style={{ textAlign: 'center', color: '#f5f5f7' }}>
+          <h2 style={{ fontWeight: 400, letterSpacing: '0.02em', fontSize: '1.2rem' }}>Acquiring satellite feed...</h2>
+          <p style={{ color: '#86868b', marginTop: '0.75rem', fontSize: '0.9rem' }}>Calibrating multi-spectral telemetry</p>
         </div>
-        <style dangerouslySetInnerHTML={{ __html: `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }` }} />
       </main>
     );
   }
 
   if (error) {
     return (
-      <main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 100px)', background: '#ffffff' }}>
-        <div style={{ textAlign: 'center', color: '#ef4444' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
-          <h2>{error}</h2>
+      <main style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 100px)', background: '#000000', fontFamily: "'Inter', sans-serif" }}>
+        <div style={{ textAlign: 'center', color: '#86868b' }}>
+          <h2 style={{ fontWeight: 400 }}>{error}</h2>
         </div>
       </main>
     );
@@ -60,25 +57,24 @@ export default function MapPage() {
   const cyclones = liveData?.cyclones || [];
 
   return (
-    <main style={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', background: '#ffffff' }}>
+    <main style={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', background: '#000000', fontFamily: "'Inter', sans-serif" }}>
       {/* Top Status Bar */}
-      <div style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '0.75rem 2rem', display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{ width: '10px', height: '10px', background: '#22c55e', borderRadius: '50%', boxShadow: '0 0 10px #22c55e', animation: 'pulse 1.5s infinite' }}></div>
-          <h2 style={{ margin: 0, color: '#1e293b', fontSize: '1.25rem' }}>Live Multi-Spectral Cyclone Tracking</h2>
+      <div style={{ background: '#0a0a0a', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '1rem 2.5rem', display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ width: '8px', height: '8px', background: '#f5f5f7', borderRadius: '50%', boxShadow: '0 0 12px rgba(255,255,255,0.8)' }}></div>
+          <h2 style={{ margin: 0, color: '#f5f5f7', fontSize: '1rem', fontWeight: 500, letterSpacing: '0.02em' }}>Live Tracking Feed</h2>
         </div>
-        <div style={{ display: 'flex', gap: '1.5rem', color: '#64748b', fontSize: '0.85rem', marginLeft: 'auto' }}>
-          <span>Source: <strong style={{ color: '#2563eb' }}>NASA GIBS (IR / WV / VIS)</strong></span>
-          <span>Last Updated: <strong style={{ color: '#1e293b' }}>{liveData?.timestamp ? new Date(liveData.timestamp + 'Z').toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST' : 'N/A'}</strong></span>
-          <span>Mosaic: <strong style={{ color: '#1e293b' }}>{liveData?.overlay_date || 'N/A'}</strong></span>
-          <span>🇮🇳 Indian Ocean Active Systems: <strong style={{ color: cyclones.length > 0 ? '#ef4444' : '#16a34a' }}>{cyclones.length}</strong></span>
+        <div style={{ display: 'flex', gap: '2rem', color: '#86868b', fontSize: '0.8rem', marginLeft: 'auto', letterSpacing: '0.03em' }}>
+          <span>Source: <strong style={{ color: '#f5f5f7', fontWeight: 500 }}>NASA GIBS</strong></span>
+          <span>Sync: <strong style={{ color: '#f5f5f7', fontWeight: 500 }}>{liveData?.timestamp ? new Date(liveData.timestamp + 'Z').toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute:'2-digit' }) : 'N/A'}</strong></span>
+          <span>Active Systems: <strong style={{ color: '#f5f5f7', fontWeight: 500 }}>{cyclones.length}</strong></span>
         </div>
       </div>
 
       <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>
 
         {/* Main Map Area */}
-        <div style={{ flex: 1, zIndex: 0 }}>
+        <div style={{ flex: 1, zIndex: 0, filter: 'grayscale(30%) contrast(1.1)' }}>
           <MapComponent
             cyclones={cyclones}
             setSelectedCyclone={setSelectedCyclone}
@@ -88,129 +84,121 @@ export default function MapPage() {
         </div>
 
         <div style={{
-          position: 'absolute', right: '16px', bottom: '16px', zIndex: 900,
-          background: 'rgba(255,255,255,0.92)', color: '#1e293b', padding: '0.75rem 1rem',
-          borderRadius: '10px', fontSize: '0.78rem', lineHeight: 1.5, maxWidth: '280px',
-          border: '1px solid #e2e8f0', boxShadow: '0 2px 12px rgba(0,0,0,0.12)'
+          position: 'absolute', left: '24px', bottom: '24px', zIndex: 900,
+          background: 'rgba(10,10,10,0.7)', backdropFilter: 'blur(20px)', color: '#f5f5f7', padding: '1.25rem',
+          borderRadius: '16px', fontSize: '0.75rem', lineHeight: 1.8, maxWidth: '280px',
+          border: '1px solid rgba(255,255,255,0.1)'
         }}>
-          <div style={{ fontWeight: 700, marginBottom: '0.35rem', color: '#1e293b' }}>Map Legend & Tracking</div>
-          <div><span style={{ color: '#10b981' }}>🟢</span> Cyclone Genesis (Start)</div>
-          <div><span style={{ color: '#1e293b', fontWeight: 'bold' }}>●━━</span> Past Observed Track</div>
-          <div><span>🔴</span> LIVE POSITION</div>
-          <div><span style={{ color: '#d946ef', fontWeight: 'bold' }}>● - -</span> Future AI Track (Ocean)</div>
-          <div><span style={{ color: '#ef4444', fontWeight: 'bold' }}>●</span> Predicted Landfall</div>
-          <div><span style={{ color: '#f97316', opacity: 0.8 }}>🟧</span> Future Risk Areas (Cone)</div>
+          <div style={{ fontWeight: 500, marginBottom: '0.5rem', color: '#86868b', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.7rem' }}>Legend</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><div style={{width:'12px',height:'12px',border:'2px solid #f5f5f7',borderRadius:'50%'}}></div> Genesis</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><div style={{width:'12px',height:'2px',background:'#86868b'}}></div> Observed</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><div style={{width:'12px',height:'12px',background:'#f5f5f7',borderRadius:'50%'}}></div> Active</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><div style={{width:'12px',height:'2px',background:'#f5f5f7',borderStyle:'dashed'}}></div> Forecast</div>
           {cyclones.length === 0 && (
-            <div style={{ marginTop: '0.5rem', color: '#16a34a' }}>No active NIO tropical cyclones. GIBS IR overlay is still live.</div>
+            <div style={{ marginTop: '1rem', color: '#86868b', lineHeight: 1.4 }}>No active occurrences in monitoring zone.</div>
           )}
         </div>
 
         {/* Multi-Spectral Inspector Modal/Drawer */}
         <div style={{
           position: 'absolute',
-          top: 0, right: selectedCyclone ? 0 : '-450px',
-          width: '450px', height: '100%',
-          background: '#ffffff',
-          backdropFilter: 'blur(10px)',
-          borderLeft: '1px solid #e2e8f0',
-          transition: 'right 0.3s ease-in-out',
+          top: '24px', right: selectedCyclone ? '24px' : '-500px', bottom: '24px',
+          width: '420px',
+          background: 'rgba(15,15,15,0.85)',
+          backdropFilter: 'blur(24px)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '24px',
+          transition: 'right 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
           zIndex: 1000,
           display: 'flex', flexDirection: 'column',
-          color: '#1e293b',
-          boxShadow: '-5px 0 25px rgba(0,0,0,0.15)'
+          color: '#f5f5f7',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
         }}>
           {selectedCyclone && (
             <>
               {/* Drawer Header */}
-              <div style={{ padding: '1.5rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
+              <div style={{ padding: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#1d4ed8' }}>{selectedCyclone.name}</h3>
-                  <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.25rem' }}>
-                    {selectedCyclone.cyclone_id} | {selectedCyclone.basin}
+                  <h3 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 500 }}>{selectedCyclone.name}</h3>
+                  <div style={{ fontSize: '0.8rem', color: '#86868b', marginTop: '0.4rem', letterSpacing: '0.02em' }}>
+                    ID: {selectedCyclone.cyclone_id} · {selectedCyclone.basin}
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedCyclone(null)}
-                  style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '1.5rem', cursor: 'pointer' }}
+                  style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#f5f5f7', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
                 >
-                  &times;
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1L11 11M11 1L1 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                 </button>
               </div>
 
               {/* Drawer Content */}
-              <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+              <div style={{ padding: '2rem', overflowY: 'auto', flex: 1, cssText: 'scrollbar-width: none;' }}>
 
                 {/* Intensity Block */}
-                <div style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '10px', marginBottom: '1.5rem' }}>
-                  <h4 style={{ margin: '0 0 1rem 0', color: '#1e293b', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
-                    Model Inference (Intensity)
+                <div style={{ marginBottom: '2rem' }}>
+                  <h4 style={{ margin: '0 0 1.25rem 0', color: '#86868b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Telemetry Data
                   </h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Max Wind Speed</div>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#dc2626' }}>{selectedCyclone.intensity.vmax_knots} kt</div>
+                      <div style={{ fontSize: '0.75rem', color: '#86868b', marginBottom: '0.25rem' }}>Wind Velocity</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 300 }}>{selectedCyclone.intensity.vmax_knots} kt</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Central Pressure</div>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#d97706' }}>{selectedCyclone.intensity.pressure_hpa} hPa</div>
+                      <div style={{ fontSize: '0.75rem', color: '#86868b', marginBottom: '0.25rem' }}>Pressure</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 300 }}>{selectedCyclone.intensity.pressure_hpa} hPa</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>IMD Category</div>
-                      <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#16a34a' }}>{selectedCyclone.intensity.category}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#86868b', marginBottom: '0.25rem' }}>Scale</div>
+                      <div style={{ fontSize: '1rem', fontWeight: 400 }}>{selectedCyclone.intensity.category}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Coordinates</div>
-                      <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#0284c7' }}>
-                        {selectedCyclone.current_pos[0].toFixed(1)}°N, {selectedCyclone.current_pos[1].toFixed(1)}°E
+                      <div style={{ fontSize: '0.75rem', color: '#86868b', marginBottom: '0.25rem' }}>Location</div>
+                      <div style={{ fontSize: '1rem', fontWeight: 400 }}>
+                        {selectedCyclone.current_pos[0].toFixed(1)}°, {selectedCyclone.current_pos[1].toFixed(1)}°
                       </div>
                     </div>
                   </div>
                 </div>
+
                 {/* Automated Impact Risk Panel */}
-                <div style={{ background: '#fff1f2', border: '1px solid #fecdd3', padding: '1rem', borderRadius: '10px', marginBottom: '1.5rem' }}>
-                  <h4 style={{ margin: '0 0 1rem 0', color: '#dc2626', borderBottom: '1px solid #fecdd3', paddingBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    ⚠️ AI Impact Risk Assessment
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem' }}>
+                  <h4 style={{ margin: '0 0 1rem 0', color: '#f5f5f7', fontSize: '0.9rem', fontWeight: 500 }}>
+                    Risk Assessment
                   </h4>
-                  <p style={{ fontSize: '0.8rem', color: '#374151', marginBottom: '0.5rem' }}>
-                    <strong>Deep Learning Track Confidence:</strong> High (80% Weight)
+                  <p style={{ fontSize: '0.8rem', color: '#a1a1a6', marginBottom: '1rem', lineHeight: 1.5 }}>
+                    Primary vector targets identified. Model confidence is operating at nominal levels.
                   </p>
-                  <p style={{ fontSize: '0.8rem', color: '#374151', marginBottom: '0.5rem' }}>
-                    <strong>Primary Threat Zone:</strong> Odisha Coast → Chhattisgarh → Uttar Pradesh
-                  </p>
-                  <div style={{ background: '#fee2e2', padding: '0.5rem', borderRadius: '5px', marginTop: '0.75rem' }}>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Cities Intersecting Cone of Uncertainty:</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      <span style={{ background: '#dc2626', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem' }}>Bhubaneswar</span>
-                      <span style={{ background: '#b91c1c', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem' }}>Raipur</span>
-                      <span style={{ background: '#991b1b', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem' }}>Prayagraj</span>
-                      <span style={{ background: '#7f1d1d', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem' }}>Lucknow</span>
-                    </div>
+                  
+                  <div style={{ fontSize: '0.75rem', color: '#86868b', marginBottom: '0.75rem' }}>Intersecting Zones:</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    {['Bhubaneswar', 'Raipur', 'Prayagraj'].map(city => (
+                       <span key={city} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#f5f5f7', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem' }}>{city}</span>
+                    ))}
                   </div>
                 </div>
 
                 <div>
-                  <h4 style={{ margin: '0 0 1rem 0', color: '#1e293b', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.5rem' }}>
-                    NASA GIBS Multi-Spectral Tensors
+                  <h4 style={{ margin: '0 0 1.25rem 0', color: '#86868b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Multispectral Captures
                   </h4>
-                  <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.75rem' }}>
-                    Native GIBS: IR, WV, VIS. Channel 4 is a PMW ice-scattering proxy because GIBS does not publish 85 GHz like MOSDAC.
-                  </p>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div style={{ textAlign: 'center' }}>
-                      <img src={selectedCyclone.spectral_thumbnails.thermal_ir} style={{ width: '100%', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)' }} alt="Thermal IR" />
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem' }}>Thermal IR (Band 31)</div>
+                      <img src={selectedCyclone.spectral_thumbnails.thermal_ir} style={{ width: '100%', borderRadius: '12px', filter: 'grayscale(100%)' }} alt="Thermal IR" />
+                      <div style={{ fontSize: '0.7rem', color: '#86868b', marginTop: '0.5rem' }}>Thermal IR</div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
-                      <img src={selectedCyclone.spectral_thumbnails.water_vapor} style={{ width: '100%', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)' }} alt="Water Vapor" />
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem' }}>Water Vapor (GIBS)</div>
+                      <img src={selectedCyclone.spectral_thumbnails.water_vapor} style={{ width: '100%', borderRadius: '12px', filter: 'grayscale(100%)' }} alt="Water Vapor" />
+                      <div style={{ fontSize: '0.7rem', color: '#86868b', marginTop: '0.5rem' }}>Water Vapor</div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
-                      <img src={selectedCyclone.spectral_thumbnails.visible} style={{ width: '100%', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)' }} alt="Visible" />
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem' }}>Visible / True Color</div>
+                      <img src={selectedCyclone.spectral_thumbnails.visible} style={{ width: '100%', borderRadius: '12px', filter: 'grayscale(100%)' }} alt="Visible" />
+                      <div style={{ fontSize: '0.7rem', color: '#86868b', marginTop: '0.5rem' }}>Visible / RGB</div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
-                      <img src={selectedCyclone.spectral_thumbnails.mid_ir} style={{ width: '100%', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)' }} alt="PMW proxy" />
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem' }}>PMW proxy (from IR+WV)</div>
+                      <img src={selectedCyclone.spectral_thumbnails.mid_ir} style={{ width: '100%', borderRadius: '12px', filter: 'grayscale(100%)' }} alt="PMW proxy" />
+                      <div style={{ fontSize: '0.7rem', color: '#86868b', marginTop: '0.5rem' }}>Microwave</div>
                     </div>
                   </div>
                 </div>
