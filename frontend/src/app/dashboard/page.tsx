@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [file, setFile] = useState<File | null>(null);
   const [mapHtml, setMapHtml] = useState("");
   const [selectedHour, setSelectedHour] = useState(24);
+  const [activeView, setActiveView] = useState<"tensors" | "map" | "log" | "impact">("tensors");
 
   useEffect(() => {
     fetch(`${API}/api/dataset-info`).then(r => r.json()).then(d => {
@@ -46,6 +47,7 @@ export default function Dashboard() {
       setData(result);
       if (result.map_html) setMapHtml(result.map_html);
       setSelectedHour(24);
+      setActiveView("tensors");
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
@@ -130,22 +132,38 @@ export default function Dashboard() {
           {/* MAIN VISUALIZATION WORKSPACE */}
           <div style={{ flex: '1 1 65%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
+            {/* IN-PAGE TABS */}
+            <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid #e5e7eb', paddingBottom: '12px' }}>
+              <button onClick={() => setActiveView("tensors")} style={{ padding: '8px 16px', background: 'transparent', border: 'none', borderBottom: `2px solid ${activeView === 'tensors' ? '#2563eb' : 'transparent'}`, color: activeView === 'tensors' ? '#111827' : '#6b7280', fontSize: '13px', fontWeight: activeView === 'tensors' ? 600 : 500, cursor: 'pointer' }}>Multispectral Input</button>
+              {data.active && mapHtml && (
+                <button onClick={() => setActiveView("map")} style={{ padding: '8px 16px', background: 'transparent', border: 'none', borderBottom: `2px solid ${activeView === 'map' ? '#2563eb' : 'transparent'}`, color: activeView === 'map' ? '#111827' : '#6b7280', fontSize: '13px', fontWeight: activeView === 'map' ? 600 : 500, cursor: 'pointer' }}>Forecast Map</button>
+              )}
+              {data.active && (
+                <button onClick={() => setActiveView("log")} style={{ padding: '8px 16px', background: 'transparent', border: 'none', borderBottom: `2px solid ${activeView === 'log' ? '#2563eb' : 'transparent'}`, color: activeView === 'log' ? '#111827' : '#6b7280', fontSize: '13px', fontWeight: activeView === 'log' ? 600 : 500, cursor: 'pointer' }}>Trajectory Log</button>
+              )}
+              {data.active && data.alert_info && (
+                <button onClick={() => setActiveView("impact")} style={{ padding: '8px 16px', background: 'transparent', border: 'none', borderBottom: `2px solid ${activeView === 'impact' ? '#2563eb' : 'transparent'}`, color: activeView === 'impact' ? '#111827' : '#6b7280', fontSize: '13px', fontWeight: activeView === 'impact' ? 600 : 500, cursor: 'pointer' }}>Impact Matrix</button>
+              )}
+            </div>
+
             {/* Tensors */}
-            <section style={{ background: '#ffffff', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
-              <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', marginBottom: '16px', fontWeight: 600 }}>Input Multispectral Signatures</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-                {data.images?.map((img: string, idx: number) => (
-                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <img src={img} alt={`CH-${idx}`} style={{ width: '100%', border: '1px solid #e5e7eb', background: '#f3f4f6' }} />
-                    <div style={{ fontSize: '11px', color: '#4b5563', textAlign: 'center', fontWeight: 500 }}>CH-{idx}</div>
-                  </div>
-                ))}
-              </div>
-            </section>
+            {activeView === 'tensors' && (
+              <section style={{ background: '#ffffff', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
+                <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', marginBottom: '16px', fontWeight: 600 }}>Input Multispectral Signatures</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+                  {data.images?.map((img: string, idx: number) => (
+                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <img src={img} alt={`CH-${idx}`} style={{ width: '100%', border: '1px solid #e5e7eb', background: '#f3f4f6' }} />
+                      <div style={{ fontSize: '11px', color: '#4b5563', textAlign: 'center', fontWeight: 500 }}>CH-{idx}</div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Forecast Map */}
-            {data.active && mapHtml && (
-              <section style={{ background: '#ffffff', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '4px', display: 'flex', flexDirection: 'column', minHeight: '450px' }}>
+            {activeView === 'map' && data.active && mapHtml && (
+              <section style={{ background: '#ffffff', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '4px', display: 'flex', flexDirection: 'column', minHeight: '650px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', marginBottom: '16px' }}>
                   <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Geospatial Forecast Plot</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -161,7 +179,7 @@ export default function Dashboard() {
             )}
 
             {/* Trajectory */}
-            {data.active && (
+            {activeView === 'log' && data.active && (
               <section style={{ background: '#ffffff', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
                 <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', marginBottom: '16px', fontWeight: 600 }}>Forecast Trajectory Log</div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
@@ -190,7 +208,7 @@ export default function Dashboard() {
             )}
 
             {/* Alert / Impact */}
-            {data.active && data.alert_info && (
+            {activeView === 'impact' && data.active && data.alert_info && (
               <section style={{ background: '#ffffff', padding: '24px', border: '1px solid #e5e7eb', borderRadius: '4px' }}>
                 <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.1em', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px', marginBottom: '16px', fontWeight: 600 }}>Impact Assessment Matrix</div>
                 {data.alert_info.impacts?.length > 0 ? (
