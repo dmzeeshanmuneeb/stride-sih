@@ -1,38 +1,42 @@
 # STRIDE-AI: Satellite Tracking & Regional Intelligence for Disaster Emergencies
 
-STRIDE-AI is an edge-focused cyclone intelligence concept designed to complement official forecasting by providing lightweight, locally operable analysis when terrestrial communications are disrupted. It does not replace IMD (India Meteorological Department) warnings, but aims to support local responders with situational awareness during and after landfall. 
+STRIDE-AI is a high-precision cyclone intelligence concept designed to complement official forecasting by providing lightweight, locally operable analysis when terrestrial communications are disrupted. It does not replace IMD (India Meteorological Department) warnings, but aims to support local responders with situational awareness during and after landfall.
 
-Built around a Raspberry Pi class device, the prototype explores processing satellite-derived meteorological data and generating simple local intelligence outputs. Future work includes validating offline capabilities, defining precise post-landfall use cases, and aligning with existing official warning dissemination systems.
+Currently, STRIDE-AI is deployed as a **cloud-capable server prototype** (FastAPI backend + Next.js frontend). However, **its future scope and real-life vision is edge-deployment**, specifically designed to be ported and run on a Raspberry Pi-class device to act as an offline, disconnected intelligence node in low-lying coastal areas during severe weather events when internet infrastructure collapses.
 
 ## 🎯 Target Users
 STRIDE-AI is primarily built for:
 - **Coastal Disaster Response Teams (NDRF/SDRF)** operating in disconnected environments.
-- **Local Authorities & First Responders** in low-lying coastal areas.
+- **Local Authorities & First Responders** in low-lying coastal areas requiring immediate tactical data.
 - **Meteorological Backup Operations** acting as a redundancy measure when central uplink connectivity fails.
 
-## ⚙️ How It Works (Software Architecture)
-STRIDE-AI uses a decoupled architecture optimized for low-resource environments:
+## 🧠 Core AI Models & Dataset
+STRIDE-AI is powered by a multi-stage Deep Learning pipeline trained on the **Tropical Cyclone Information Record (TCIR)** dataset. 
+The pipeline expects a 4-channel multispectral tensor `(1, 201, 201, 4)` comprising:
+1. **Infrared (Thermal)**
+2. **Water Vapor**
+3. **Visible**
+4. **Passive Microwave (PMW)**
 
-1. **Deep Learning Inference Core (Backend):** Built using Python and FastAPI. The core runs a highly optimized Seq2Seq PyTorch/TensorFlow model trained on the TCIR (Tropical Cyclone Information Record) dataset. It ingests multispectral arrays and predicts anomaly confidence, kinematics (VMAX, Heading), and spatio-temporal trajectory coordinates.
-2. **Institutional Web Interface (Frontend):** A Next.js (React) Single Page Application (SPA). It provides a clean, information-dense "mission control" interface that can be hosted entirely on a local intranet via the Raspberry Pi.
+**The AI Pipeline consists of:**
+1. **Stage 1 (Anomaly Detection):** A Convolutional Neural Network (CNN) that scans the multispectral input to detect and confirm cyclonic genesis.
+2. **Stage 2 (Intensity Regression):** A deep regressor that predicts Maximum Sustained Winds (VMAX) and maps it to official IMD categorization scales (e.g., Severe Cyclonic Storm).
+3. **Stage 3 (Trajectory Prediction):** A Sequence-to-Sequence (Seq2Seq) LSTM model that forecasts the physical coordinates (Lat/Lon) of the cyclone over a +72h horizon.
 
-## 📡 Practical Edge Implementation Guide (Hardware)
+## ⚙️ How It Works (Current Software Architecture)
+STRIDE-AI uses a decoupled architecture optimized for scalability and eventual low-resource deployment:
 
-To run STRIDE-AI entirely offline as a local coastal node during a disaster, the physical setup requires the following hardware pipeline:
+1. **Deep Learning Inference Core (Backend):** Built using Python and FastAPI. The core runs the heavy `.h5` PyTorch/TensorFlow models to process the `.npy` arrays and return predictions via a REST API.
+2. **Institutional Web Interface (Frontend):** A Next.js (React) Single Page Application (SPA). It provides a clean, information-dense "mission control" interface featuring an interactive forecast map, trajectory logs, and impact matrices.
 
-1. **VHF/UHF Antenna:** An omnidirectional antenna (like a QFH or V-Dipole) installed locally to capture raw radio frequency waves from passing weather satellites (e.g., NOAA APT or Meteor M2 LRPT).
-2. **LNA (Low Noise Amplifier):** Attached near the antenna to filter out background noise and boost the faint satellite signal.
-3. **SDR (Software Defined Radio):** A USB dongle (like RTL-SDR) plugged into the Raspberry Pi. It converts the analog radio waves into a digital baseband signal.
-4. **Signal Demodulation & Decoding:** Software on the Pi (e.g., SatDump or wxtoimg) decodes the digital signal into raw image channels (IR, Visible, Water Vapor).
-5. **Tensor Conversion:** The channels are cropped, normalized, and converted into Numpy arrays (`.npy`).
-6. **STRIDE-AI Inference:** The arrays are fed into the STRIDE-AI Python backend running on the Raspberry Pi.
-7. **Offline Web Interface:** The Raspberry Pi acts as a local Wi-Fi hotspot. Responders connect to this hotspot with their tablets/phones and open the local IP (e.g., `192.168.4.1:3000`) to view the institutional dashboard, forecast maps, and trajectory warnings completely offline.
+## 🔮 Future Scope: The "Edge Node" Vision
+In real-life scenarios, coastal regions lose internet access before a cyclone even makes landfall. The future scope of STRIDE-AI is to completely bypass the cloud.
 
-## 📦 Downloadable Edge Models
-To ensure the models can run smoothly on ARM architecture (Raspberry Pi), we have provided quantized/lightweight formats of our inference models in the `edge_models/` directory.
+**Proposed Offline Hardware Pipeline (Raspberry Pi):**
+1. **VHF/UHF Antenna:** Installed locally at a response camp to capture raw radio frequency waves from passing weather satellites (e.g., NOAA APT).
+2. **LNA & SDR (Software Defined Radio):** Amplifies and converts the analog radio waves into a digital baseband signal via a USB dongle.
+3. **Decoding & Array Generation:** Software decodes the signal into the required 4-channel Numpy arrays.
+4. **Offline Inference (Raspberry Pi):** The lightweight quantized models (`.tflite` / `.onnx`) run directly on the Raspberry Pi without internet access.
+5. **Local Network Interface:** The Pi broadcasts a local Wi-Fi hotspot. Responders connect via mobile devices to access the STRIDE-AI dashboard and view the trajectory and alerts completely offline.
 
-You will find:
-- `stride_anomaly_detector.tflite` (Quantized for Edge TPU/ARM)
-- `stride_trajectory_predictor.onnx`
-
-See the `edge_models/README.md` for specific instructions on initializing the models in an offline environment.
+*(Note: Dummy edge models and Python usage instructions for this future scope are located in the `edge_models/` directory).*
